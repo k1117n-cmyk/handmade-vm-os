@@ -351,7 +351,7 @@ A
 CPU halted.
 ```
 
-### Day 7: SYSCALL print_string　9/3
+### Day 7: SYSCALL print_string
 
 目的:
 
@@ -400,6 +400,302 @@ HALT
 R0 = 0x10
 memory[0x10] から 1 byte ずつ読む
 0 byte が来たら表示を止める
+```
+
+### Day 8: LDB　9/4
+
+目的:
+
+```text
+VM内メモリから1 byteを読み、レジスタへ入れる
+```
+
+仕様:
+
+```text
+LDB rd, [rs]
+rd = destination register
+rs = address register
+memory[rs] の1 byteを読み、rdへ入れる
+```
+
+手作りプログラム:
+
+```text
+MOVI R1, 0x10
+LDB R0, [R1]
+SYSCALL 0
+HALT
+```
+
+手作りメモリ配置:
+
+```text
+0x00000010: 41
+```
+
+成功条件:
+
+```text
+A
+CPU halted.
+```
+
+確認すること:
+
+```text
+R1 = 0x10
+memory[0x10] = 0x41
+LDB後 R0 = 0x41
+SYSCALL 0でAが出る
+```
+
+### Day 9: STB
+
+目的:
+
+```text
+レジスタの下位8bitをVM内メモリへ書く
+```
+
+仕様:
+
+```text
+STB [rd], rs
+rd = address register
+rs = source register
+rsの下位8bitをmemory[rd]へ書く
+```
+
+手作りプログラム:
+
+```text
+MOVI R1, 0x10
+MOVI R0, 65
+STB [R1], R0
+LDB R2, [R1]
+```
+
+成功条件:
+
+```text
+memory[0x10] = 0x41
+LDB後 R2 = 0x41
+```
+
+確認すること:
+
+```text
+R1 = 0x10
+R0 = 0x41
+STB後 memory[0x10] = 0x41
+LDBで読み直すと R2 = 0x41
+```
+
+### Day 10: LDDI
+
+目的:
+
+```text
+VM内メモリから4 byteを読み、32bit値としてレジスタへ入れる
+```
+
+仕様:
+
+```text
+LDDI rd, address
+rd = destination register
+address = immediate address
+memory[address] から4 byteを読み、rdへ入れる
+```
+
+確認すること:
+
+```text
+4 byteをどの順番で32bit値にするか
+big-endianで読むなら 12 34 56 78 => 0x12345678
+LDDI後、対象レジスタに期待値が入るか
+```
+
+成功条件:
+
+```text
+memory[0x10..0x13] = 12 34 56 78
+LDDI R0, 0x10
+実行後 R0 = 0x12345678
+```
+
+### Day 11: STDI
+
+目的:
+
+```text
+レジスタの32bit値をVM内メモリへ4 byteで書く
+```
+
+仕様:
+
+```text
+STDI address, rs
+address = immediate address
+rs = source register
+rsの32bit値をmemory[address]から4 byteへ書く
+```
+
+確認すること:
+
+```text
+32bit値をどの順番で4 byteに分けるか
+big-endianで書くなら 0x12345678 => 12 34 56 78
+STDI後、memoryの4 byteが期待通りか
+```
+
+成功条件:
+
+```text
+MOVI R0, 0x12345
+STDI 0x10, R0
+実行後 memory[0x10..0x13] = 00 01 23 45
+```
+
+### Day 12: INC / DEC
+
+目的:
+
+```text
+レジスタの値を1増やす、または1減らす
+```
+
+仕様:
+
+```text
+INC rd
+rd = rd + 1
+
+DEC rd
+rd = rd - 1
+```
+
+確認すること:
+
+```text
+対象レジスタだけが変わるか
+PCはfetch時の+4だけか
+条件フラグは最初は変えない
+```
+
+成功条件:
+
+```text
+MOVI R0, 10
+INC R0
+DEC R0
+実行後 R0 = 10
+```
+
+### Day 13: MOV
+
+目的:
+
+```text
+あるレジスタの値を別のレジスタへコピーする
+```
+
+仕様:
+
+```text
+MOV rd, rs
+rd = rs
+```
+
+確認すること:
+
+```text
+コピー元rsは変わらない
+コピー先rdだけがrsと同じ値になる
+```
+
+成功条件:
+
+```text
+MOVI R1, 0x41
+MOV R0, R1
+SYSCALL 0
+HALT
+```
+
+出力:
+
+```text
+A
+CPU halted.
+```
+
+### Day 14: PUSH
+
+目的:
+
+```text
+レジスタの値をスタックへ積む
+```
+
+仕様:
+
+```text
+PUSH rs
+SPを動かす
+rsの32bit値をmemory[SP]へ書く
+```
+
+確認すること:
+
+```text
+スタックは上に伸びるか、下に伸びるか
+SPを先に動かすか、後に動かすか
+32bit値をmemoryへ書くbyte順はSTDIと同じか
+```
+
+成功条件:
+
+```text
+MOVI R0, 0x12345
+PUSH R0
+SPとmemory[SP..SP+3]が仕様通りになる
+```
+
+### Day 15: POP
+
+目的:
+
+```text
+スタックから32bit値を取り出してレジスタへ入れる
+```
+
+仕様:
+
+```text
+POP rd
+memory[SP]から32bit値を読む
+SPを動かす
+rdへ値を入れる
+```
+
+確認すること:
+
+```text
+PUSHと逆向きにSPが戻るか
+32bit値をmemoryから読むbyte順はLDDIと同じか
+PUSHした値をPOPで取り戻せるか
+```
+
+成功条件:
+
+```text
+MOVI R0, 0x12345
+PUSH R0
+POP R1
+実行後 R1 = 0x12345
+SPが元の位置に戻る
 ```
 
 ## How To Read Existing Code
@@ -586,5 +882,4 @@ kiloを移植する
  memory[0x00000002] = 0x00;
  memory[0x00000003] = 0x41;
 
-
-
+0x41 == 41 * 16 == 65
