@@ -170,6 +170,30 @@ PCの変化: fetch時に +4
 成功条件: R0が指す0終端文字列を表示する
 ```
 
+### LDB
+
+```text
+名前: LDB
+分類: memory-register instruction
+目的: VM内メモリから1 byteを読み、レジスタへ入れる
+命令長: 4 byte
+bit配置:
+  bits 31..28: type = 3
+  bits 27..24: op = 0
+  bits 23..20: destination register
+  bits 19..16: address register
+  bits 15..0 : unused = 0
+読むレジスタ: address register
+書くレジスタ: destination register
+読むメモリ: memory[address register] から1 byte
+書くメモリ: なし
+PCの変化: fetch時に +4
+条件フラグの変化: 最初は変えない。必要なら後で設計する
+エラー時: register number が範囲外、または address が memory 範囲外なら停止
+手作りテスト: LDB R0, [R1] -> 0x30010000
+成功条件: R1 = 0x10, memory[0x10] = 0x41 のとき、実行後 R0 = 0x41
+```
+
 ## First Week Plan
 
 ### Day 1: Machine State
@@ -419,6 +443,30 @@ rs = address register
 memory[rs] の1 byteを読み、rdへ入れる
 ```
 
+命令形式:
+
+```text
+bits 31..28: type = 3
+bits 27..24: op = 0
+bits 23..20: rd
+bits 19..16: rs
+bits 15..0 : unused = 0
+```
+
+手計算:
+
+```text
+LDB R0, [R1]
+
+type = 3
+op   = 0
+rd   = 0
+rs   = 1
+
+0x30010000
+  3 0 0 1 0 0 0 0
+```
+
 手作りプログラム:
 
 ```text
@@ -431,6 +479,11 @@ HALT
 手作りメモリ配置:
 
 ```text
+0x00000000: 40 10 00 10    MOVI R1, 0x10
+0x00000004: 30 01 00 00    LDB R0, [R1]
+0x00000008: 60 00 00 00    SYSCALL 0
+0x0000000C: 01 00 00 00    HALT
+
 0x00000010: 41
 ```
 
