@@ -1,5 +1,6 @@
 ## SYSCALL
 
+```text
 名前: SYSCALL
 分類: control immediate instruction
 目的: VM外側のサービスを呼ぶ
@@ -17,3 +18,4 @@ PCの変化: fetch時に +4
 エラー時: 未実装syscallなら番号を表示して停止
 手作りテスト: SYSCALL 1 -> 0x60000001
 成功条件: R0が指す0終端文字列を表示する
+```

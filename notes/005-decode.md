@@ -1,5 +1,6 @@
 ## Day 4: Decode
 
+```text
 名前: decode
 分類: instruction decode 
 目的: 32bit instruction から `type`, `op`, `rd`, `imm` を取り出す
@@ -19,29 +20,36 @@ PCの変化: なし
 エラー時: なし
 手作りテスト: instruction = 0x40780010 を decode する
 成功条件: type=4, op=0, rd=7, imm=0x80010 が取り出せる
+```
 
 decode は fetch 済みの32bit値を分解するだけ
 
-  例:
+例:
 
-  instruction = 0x40780010
+```text
+instruction = 0x40780010
 
-  b0 = 0x40
-  b1 = 0x78
+b0 = 0x40
+b1 = 0x78
 
-  type = 4
-  op   = 0
-  rd   = 7
-  imm  = 0x80010
+type = 4
+op   = 0
+rd   = 7
+imm  = 0x80010
+```
 
-  取り出し方:
+取り出し方:
 
-  type = (instruction >> 28) & 0x0F;
-  op   = (instruction >> 24) & 0x0F;
-  rd   = (instruction >> 20) & 0x0F;
-  imm  = instruction & 0x000FFFFF;
+```c
+type = (instruction >> 28) & 0x0F;
+op   = (instruction >> 24) & 0x0F;
+rd   = (instruction >> 20) & 0x0F;
+imm  = instruction & 0x000FFFFF;
+```
 
-  確認:
+確認:
 
-  cc 005-decode-test.c -o 005-decode-test
-  ./005-decode-test
+```sh
+cc 005-decode-test.c -o 005-decode-test
+./005-decode-test
+```

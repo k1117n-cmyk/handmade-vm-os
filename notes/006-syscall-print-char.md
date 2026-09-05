@@ -1,5 +1,6 @@
 ## Day 6: SYSCALL print_char
 
+```text
 名前: SYSCALL print_char
 分類: syscall
 目的: VM内の値をhost端末へ1文字出す
@@ -17,6 +18,7 @@ PCの変化: fetch時に +4
 エラー時: 未実装syscallなら番号を表示して停止
 手作りテスト: SYSCALL 0 -> 0x60000000
 成功条件: R0の下位8bitが1文字として表示される
+```
 
 テストプログラム:
 

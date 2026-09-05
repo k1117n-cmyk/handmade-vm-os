@@ -1,3 +1,6 @@
+## MOVI
+
+```text
 名前: MOVI
 分類: immediate instruction
 目的: レジスタに20bit即値を入れる
@@ -16,3 +19,4 @@ PCの変化: fetch時に +4
 エラー時: register number が範囲外なら停止
 手作りテスト: MOVI R7, 0x80010 -> 0x40780010
 成功条件: 実行後 R7 = 0x80010
+```

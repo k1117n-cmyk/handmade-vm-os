@@ -1,5 +1,6 @@
 ## Day 7: SYSCALL print_string
 
+```text
 名前: SYSCALL print_string
 分類: syscall
 目的: VM内メモリの0終端文字列をhost端末へ出す
@@ -17,6 +18,7 @@ PCの変化: fetch時に +4
 エラー時: 未実装syscallなら番号を表示して停止
 手作りテスト: SYSCALL 1 -> 0x60000001
 成功条件: R0が指す0終端文字列が表示される
+```
 
 テストプログラム:
 
