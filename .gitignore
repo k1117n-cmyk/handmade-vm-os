@@ -2,3 +2,7 @@
 notes/*-test
 notes/vm
 articles/
+*.o
+*.out
+/build/
+/dist/

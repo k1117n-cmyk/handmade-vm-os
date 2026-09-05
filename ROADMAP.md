@@ -19,8 +19,8 @@ host macOS/Linux
 
 ベースにする既存教材とコード:
 
-- CPU/VM: `/Users/noi/wp/LC-3VM/lc3.c`
-- OS: `/Users/noi/wp/os_dev/os_book_code/*/os.asm`
+- CPU/VM: `../LC-3VM/lc3.c`
+- OS: `../os_dev/os_book_code/*/os.asm`
 - Shell: `Tutorial - Write a Shell in C`
 - Editor: `kilo`
 
@@ -192,22 +192,22 @@ C ソースをそのまま自作CPUで動かすには、次が必要になる。
 最初に作るもの:
 
 ```text
-/Users/noi/wp/handmade-vm-roadmap/
+handmade-vm-roadmap/
   ROADMAP.md
 
-/Users/noi/wp/LC-3VM/
+LC-3VM/
   mycpu.c
 ```
 
 最初の実行目標:
 
 ```sh
-cd /Users/noi/wp/os_dev/os_book_code/lessons/04-simple-os-commands
+cd ../os_dev/os_book_code/lessons/04-simple-os-commands
 python3 asmx.py os.asm
 
-cd /Users/noi/wp/LC-3VM
+cd ../../../../LC-3VM
 cc mycpu.c -o mycpu
-./mycpu /Users/noi/wp/os_dev/os_book_code/lessons/04-simple-os-commands/os.bin
+./mycpu ../os_dev/os_book_code/lessons/04-simple-os-commands/os.bin
 ```
 
 期待する最初の表示:
