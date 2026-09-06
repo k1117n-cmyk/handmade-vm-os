@@ -27,7 +27,7 @@
 - 1MB の byte-addressed memory を持つ小さなVM
 - 32bit big-endian instruction fetch
 - `R0`-`R7` と `PC` を使う最小CPU状態
-- `HALT`, `MOVI`, `SYSCALL`, `LDB`, `STB`, `LDDI` などの命令を1つずつ実装する練習
+- `HALT`, `MOV`, `INC`, `DEC`, `MOVI`, `SYSCALL`, `LDB`, `STB`, `LDDI`, `STDI`, `PUSH`, `POP` などの命令を1つずつ実装する練習
 - アセンブリ表記、命令field、Cコードの対応づけ
 
 最終的には次の形を目指します。
@@ -57,6 +57,11 @@ notes/
   ...
   009-stb-test.c
   010-lddi-test.c
+  011-stdi-test.c
+  012-inc-dec-test.c
+  013-mov-test.c
+  014-push-test.c
+  015-pop-test.c
   vm.c
 ```
 
@@ -90,6 +95,31 @@ cc notes/008-ldb-test.c -o /tmp/008-ldb-test
 ```sh
 cc notes/009-stb-test.c -o /tmp/009-stb-test
 /tmp/009-stb-test
+```
+
+```sh
+cc notes/011-stdi-test.c -o /tmp/011-stdi-test
+/tmp/011-stdi-test
+```
+
+```sh
+cc notes/012-inc-dec-test.c -o /tmp/012-inc-dec-test
+/tmp/012-inc-dec-test
+```
+
+```sh
+cc notes/013-mov-test.c -o /tmp/013-mov-test
+/tmp/013-mov-test
+```
+
+```sh
+cc notes/014-push-test.c -o /tmp/014-push-test
+/tmp/014-push-test
+```
+
+```sh
+cc notes/015-pop-test.c -o /tmp/015-pop-test
+/tmp/015-pop-test
 ```
 
 ## 学習の型

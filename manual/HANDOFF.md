@@ -72,11 +72,17 @@ PCの変化:
 
 ```text
 HALT    inst == 0x01000000
+MOV     type=1, op=0
+INC     type=2, op=0
+DEC     type=2, op=1
 LDB     type=3, op=0
 STB     type=3, op=1
 MOVI    type=4, op=0
 LDDI    type=5, op=0
+STDI    type=5, op=1
 SYSCALL type=6, op=0
+PUSH    type=7, op=0
+POP     type=7, op=1
 ```
 
 未使用の `type` / `op` を使う。似た命令は同じ分類に寄せる。
@@ -87,6 +93,26 @@ SYSCALL type=6, op=0
 LDDI: immediate addressでmemoryから読む
 => direct memory instruction
 => type=5, op=0
+
+STDI: immediate addressでmemoryへ書く
+=> direct memory instruction
+=> type=5, op=1
+
+INC/DEC: registerの値を1つ増減する
+=> arithmetic-register instruction
+=> type=2, op=0/1
+
+MOV: registerからregisterへコピーする
+=> register instruction
+=> type=1, op=0
+
+PUSH: registerの値をstackへ積む
+=> stack instruction
+=> type=7, op=0
+
+POP: stackからregisterへ値を取り出す
+=> stack instruction
+=> type=7, op=1
 ```
 
 ## テストコードを書く
@@ -307,6 +333,182 @@ notes/vm.c
 ```text
 R0=0x12345678
 LDDI test passed.
+```
+
+`notes/vm.c` の確認結果:
+
+```text
+A
+CPU halted.
+```
+
+## Day 11で実際に行ったこと
+
+Day 11 `STDI` では、次を追加した。
+
+```text
+manual/specs/011-stdi.md
+notes/011-stdi-test.c
+manual/test-code-explanations/011-stdi-test.md
+```
+
+次を更新した。
+
+```text
+manual/instruction-types.md
+manual/README.md
+manual/reference/instruction-fields.md
+README.md
+notes/vm.c
+```
+
+確認した実行結果:
+
+```text
+R0=0x12345678
+memory[0x10..0x13]=12 34 56 78
+STDI test passed.
+```
+
+`notes/vm.c` の確認結果:
+
+```text
+A
+CPU halted.
+```
+
+## Day 12で実際に行ったこと
+
+Day 12 `INC` / `DEC` では、次を追加した。
+
+```text
+manual/specs/012-inc-dec.md
+notes/012-inc-dec-test.c
+manual/test-code-explanations/012-inc-dec-test.md
+```
+
+次を更新した。
+
+```text
+manual/instruction-types.md
+manual/README.md
+manual/reference/instruction-fields.md
+README.md
+notes/vm.c
+```
+
+確認した実行結果:
+
+```text
+R0=0x00000011
+R1=0x0000000F
+INC/DEC test passed.
+```
+
+`notes/vm.c` の確認結果:
+
+```text
+A
+CPU halted.
+```
+
+## Day 13で実際に行ったこと
+
+Day 13 `MOV` では、次を追加した。
+
+```text
+manual/specs/013-mov.md
+notes/013-mov-test.c
+manual/test-code-explanations/013-mov-test.md
+```
+
+次を更新した。
+
+```text
+manual/instruction-types.md
+manual/README.md
+manual/reference/instruction-fields.md
+README.md
+notes/vm.c
+```
+
+確認した実行結果:
+
+```text
+R0=0x00012345
+R2=0x00012345
+MOV test passed.
+```
+
+`notes/vm.c` の確認結果:
+
+```text
+A
+CPU halted.
+```
+
+## Day 14で実際に行ったこと
+
+Day 14 `PUSH` では、次を追加した。
+
+```text
+manual/specs/014-push.md
+notes/014-push-test.c
+manual/test-code-explanations/014-push-test.md
+```
+
+次を更新した。
+
+```text
+manual/instruction-types.md
+manual/README.md
+manual/reference/instruction-fields.md
+README.md
+notes/vm.c
+```
+
+確認した実行結果:
+
+```text
+R0=0x12345678
+SP=0x000FFFFC
+memory[SP..SP+3]=12 34 56 78
+PUSH test passed.
+```
+
+`notes/vm.c` の確認結果:
+
+```text
+A
+CPU halted.
+```
+
+## Day 15で実際に行ったこと
+
+Day 15 `POP` では、次を追加した。
+
+```text
+manual/specs/015-pop.md
+notes/015-pop-test.c
+manual/test-code-explanations/015-pop-test.md
+```
+
+次を更新した。
+
+```text
+manual/instruction-types.md
+manual/README.md
+manual/reference/instruction-fields.md
+README.md
+notes/vm.c
+```
+
+確認した実行結果:
+
+```text
+R1=0x12345678
+SP=0x00100000
+POP test passed.
 ```
 
 `notes/vm.c` の確認結果:

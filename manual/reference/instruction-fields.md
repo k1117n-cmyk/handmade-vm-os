@@ -182,6 +182,55 @@ regs[rd] = imm
 R1に0x10を入れる
 ```
 
+## MOV
+
+アセンブリ:
+
+```asm
+MOV R2, R0
+```
+
+意味:
+
+```text
+R0の値をR2へコピーする。
+R0の値はそのまま残る。
+```
+
+field:
+
+```text
+type = 1
+op   = 0
+rd   = 2
+rs   = 0
+```
+
+命令コード:
+
+```text
+0x10200000
+  1 0 2 0 0 0 0 0
+```
+
+memory配置:
+
+```text
+0x00000004: 10 20 00 00    MOV R2, R0
+```
+
+Cでの実行:
+
+```c
+regs[rd] = regs[rs];
+```
+
+今回の値を入れると:
+
+```c
+regs[2] = regs[0];
+```
+
 ## Register番号
 
 今のVMでは、通常レジスタは `R0` から `R7` まで。
@@ -251,6 +300,64 @@ regs[rd] = imm;
 
 ```c
 regs[1] = 0x10;
+```
+
+## INC / DEC
+
+アセンブリ:
+
+```asm
+INC R0
+DEC R1
+```
+
+意味:
+
+```text
+INC R0 は、R0の値を1増やす。
+DEC R1 は、R1の値を1減らす。
+```
+
+field:
+
+```text
+INC:
+type = 2
+op   = 0
+rd   = 0
+
+DEC:
+type = 2
+op   = 1
+rd   = 1
+```
+
+命令コード:
+
+```text
+INC R0: 0x20000000
+DEC R1: 0x21100000
+```
+
+memory配置:
+
+```text
+0x00000008: 20 00 00 00    INC R0
+0x0000000C: 21 10 00 00    DEC R1
+```
+
+Cでの実行:
+
+```c
+regs[rd] += 1;
+regs[rd] -= 1;
+```
+
+今回の値を入れると:
+
+```c
+regs[0] += 1;
+regs[1] -= 1;
 ```
 
 ## LDB
@@ -408,6 +515,158 @@ regs[rd] =
 
 ```c
 regs[0] = 0x12345678;
+```
+
+## STDI
+
+アセンブリ:
+
+```asm
+STDI R0, 0x10
+```
+
+意味:
+
+```text
+0x10を直接memory addressとして使う。
+R0の32bit値をmemory[0x10]から4 byteで書く。
+```
+
+field:
+
+```text
+type = 5
+op   = 1
+rd   = 0
+imm  = 0x10
+```
+
+命令コード:
+
+```text
+0x51000010
+  5 1 0 0 0 0 1 0
+```
+
+memory配置:
+
+```text
+0x00000000: 51 00 00 10    STDI R0, 0x10
+0x00000010: 12 34 56 78    write result
+```
+
+Cでの実行:
+
+```c
+memory[imm] = (regs[rd] >> 24) & 0xFF;
+memory[imm + 1] = (regs[rd] >> 16) & 0xFF;
+memory[imm + 2] = (regs[rd] >> 8) & 0xFF;
+memory[imm + 3] = regs[rd] & 0xFF;
+```
+
+今回の値を入れると:
+
+```c
+memory[0x10] = 0x12;
+memory[0x11] = 0x34;
+memory[0x12] = 0x56;
+memory[0x13] = 0x78;
+```
+
+## PUSH
+
+アセンブリ:
+
+```asm
+PUSH R0
+```
+
+意味:
+
+```text
+SPを4減らす。
+R0の32bit値をmemory[SP]から4 byteで書く。
+```
+
+field:
+
+```text
+type = 7
+op   = 0
+rd   = 0
+```
+
+命令コード:
+
+```text
+0x70000000
+  7 0 0 0 0 0 0 0
+```
+
+memory配置:
+
+```text
+0x00000000: 70 00 00 00    PUSH R0
+0x000FFFFC: 12 34 56 78    stack data after PUSH
+```
+
+Cでの実行:
+
+```c
+sp -= 4;
+memory[sp] = (regs[rd] >> 24) & 0xFF;
+memory[sp + 1] = (regs[rd] >> 16) & 0xFF;
+memory[sp + 2] = (regs[rd] >> 8) & 0xFF;
+memory[sp + 3] = regs[rd] & 0xFF;
+```
+
+## POP
+
+アセンブリ:
+
+```asm
+POP R1
+```
+
+意味:
+
+```text
+memory[SP]から4 byteを読む。
+読んだ32bit値をR1へ入れる。
+SPを4増やす。
+```
+
+field:
+
+```text
+type = 7
+op   = 1
+rd   = 1
+```
+
+命令コード:
+
+```text
+0x71100000
+  7 1 1 0 0 0 0 0
+```
+
+memory配置:
+
+```text
+0x00000000: 71 10 00 00    POP R1
+0x000FFFFC: 12 34 56 78    stack data before POP
+```
+
+Cでの実行:
+
+```c
+regs[rd] =
+    ((uint32_t)memory[sp] << 24) |
+    ((uint32_t)memory[sp + 1] << 16) |
+    ((uint32_t)memory[sp + 2] << 8) |
+    ((uint32_t)memory[sp + 3]);
+sp += 4;
 ```
 
 ## HALT
