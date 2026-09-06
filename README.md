@@ -6,7 +6,7 @@
 
 公開記事:
 
-- [自作OSへの第一歩: 写経からVMを作る人の目線へ](https://pc-fan.net/handmade-vm-builder-eye/)
+- [【低レイヤ入門】C言語で仮想マシン自作：アセンブリからVM実装への「目線の切り替え」を学ぶ](https://pc-fan.net/handmade-vm-builder-eye/)
 
 ## まず読むもの
 
