@@ -2,218 +2,231 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-int main(void) {
-    uint8_t memory[1024 * 1024] = {0};
-    uint32_t pc = 0x00000000;
-    uint32_t sp = 0x00100000;
-    uint32_t regs[8] = {0};
-    bool running = true;
+#define MEMORY_SIZE (1024 * 1024)
+#define REGISTER_COUNT 8
 
-    memory[0x00000000] = 0x40;  // MOVI R1, 0x80
-    memory[0x00000001] = 0x10;
-    memory[0x00000002] = 0x00;
-    memory[0x00000003] = 0x80;
+typedef struct {
+    uint8_t memory[MEMORY_SIZE];
+    uint32_t pc;
+    uint32_t sp;
+    uint32_t regs[REGISTER_COUNT];
+    bool running;
+} VM;
 
-    memory[0x00000004] = 0x40;  // MOVI R0, 65
-    memory[0x00000005] = 0x00;
-    memory[0x00000006] = 0x00;
-    memory[0x00000007] = 0x41;
+typedef struct {
+    uint32_t raw;
+    uint8_t type;
+    uint8_t op;
+    uint8_t rd;
+    uint8_t rs;
+    uint32_t imm;
+} DecodedInst;
 
-    memory[0x00000008] = 0x31;  // STB [R1], R0
-    memory[0x00000009] = 0x10;
-    memory[0x0000000A] = 0x00;
-    memory[0x0000000B] = 0x00;
+static uint32_t read_u32_be(const uint8_t *memory, uint32_t address) {
+    return ((uint32_t)memory[address] << 24) |
+           ((uint32_t)memory[address + 1] << 16) |
+           ((uint32_t)memory[address + 2] << 8) |
+           ((uint32_t)memory[address + 3]);
+}
 
-    memory[0x0000000C] = 0x30;  // LDB R0, [R1]
-    memory[0x0000000D] = 0x01;
-    memory[0x0000000E] = 0x00;
-    memory[0x0000000F] = 0x00;
+static void write_u32_be(uint8_t *memory, uint32_t address, uint32_t value) {
+    memory[address] = (value >> 24) & 0xFF;
+    memory[address + 1] = (value >> 16) & 0xFF;
+    memory[address + 2] = (value >> 8) & 0xFF;
+    memory[address + 3] = value & 0xFF;
+}
 
-    memory[0x00000010] = 0x60;  // SYSCALL 0
-    memory[0x00000011] = 0x00;
-    memory[0x00000012] = 0x00;
-    memory[0x00000013] = 0x00;
+static void write_inst(VM *vm, uint32_t address, uint32_t inst) {
+    write_u32_be(vm->memory, address, inst);
+}
 
-    memory[0x00000014] = 0x50;  // LDDI R2, 0x90
-    memory[0x00000015] = 0x20;
-    memory[0x00000016] = 0x00;
-    memory[0x00000017] = 0x90;
+static DecodedInst decode(uint32_t inst) {
+    DecodedInst decoded;
 
-    memory[0x00000018] = 0x51;  // STDI R2, 0x40
-    memory[0x00000019] = 0x20;
-    memory[0x0000001A] = 0x00;
-    memory[0x0000001B] = 0x40;
+    decoded.raw = inst;
+    decoded.type = (inst >> 28) & 0x0F;
+    decoded.op = (inst >> 24) & 0x0F;
+    decoded.rd = (inst >> 20) & 0x0F;
+    decoded.rs = (inst >> 16) & 0x0F;
+    decoded.imm = inst & 0x000FFFFF;
 
-    memory[0x0000001C] = 0x20;  // INC R2
-    memory[0x0000001D] = 0x20;
-    memory[0x0000001E] = 0x00;
-    memory[0x0000001F] = 0x00;
+    return decoded;
+}
 
-    memory[0x00000020] = 0x21;  // DEC R2
-    memory[0x00000021] = 0x20;
-    memory[0x00000022] = 0x00;
-    memory[0x00000023] = 0x00;
-
-    memory[0x00000024] = 0x10;  // MOV R3, R2
-    memory[0x00000025] = 0x32;
-    memory[0x00000026] = 0x00;
-    memory[0x00000027] = 0x00;
-
-    memory[0x00000028] = 0x70;  // PUSH R3
-    memory[0x00000029] = 0x30;
-    memory[0x0000002A] = 0x00;
-    memory[0x0000002B] = 0x00;
-
-    memory[0x0000002C] = 0x71;  // POP R4
-    memory[0x0000002D] = 0x40;
-    memory[0x0000002E] = 0x00;
-    memory[0x0000002F] = 0x00;
-
-    memory[0x00000030] = 0x01;  // HALT
-    memory[0x00000031] = 0x00;
-    memory[0x00000032] = 0x00;
-    memory[0x00000033] = 0x00;
-
-    memory[0x00000090] = 0x12;
-    memory[0x00000091] = 0x34;
-    memory[0x00000092] = 0x56;
-    memory[0x00000093] = 0x78;
-
-    while (running) {
-        uint32_t inst =
-            ((uint32_t)memory[pc] << 24) |
-            ((uint32_t)memory[pc + 1] << 16) |
-            ((uint32_t)memory[pc + 2] << 8) |
-            ((uint32_t)memory[pc + 3]);
-
-        pc += 4;
-
-        uint8_t type = (inst >> 28) & 0x0F;
-        uint8_t op = (inst >> 24) & 0x0F;
-        uint8_t rd = (inst >> 20) & 0x0F;
-        uint8_t rs = (inst >> 16) & 0x0F;
-        uint32_t imm = inst & 0x000FFFFF;
-
-        if (inst == 0x01000000) {
-            running = false;
-            printf("CPU halted.\n");
-        } else if (type == 1 && op == 0) {
-            if (rd >= 8 || rs >= 8) {
-                printf("invalid register: rd=R%u rs=R%u\n", rd, rs);
-                running = false;
-            } else {
-                regs[rd] = regs[rs];
-            }
-        } else if (type == 2 && op == 0) {
-            if (rd >= 8) {
-                printf("invalid register: R%u\n", rd);
-                running = false;
-            } else {
-                regs[rd] += 1;
-            }
-        } else if (type == 2 && op == 1) {
-            if (rd >= 8) {
-                printf("invalid register: R%u\n", rd);
-                running = false;
-            } else {
-                regs[rd] -= 1;
-            }
-        } else if (type == 3 && op == 0) {
-            if (rd >= 8 || rs >= 8) {
-                printf("invalid register: rd=R%u rs=R%u\n", rd, rs);
-                running = false;
-            } else if (regs[rs] >= sizeof(memory)) {
-                printf("memory address out of range: 0x%08X\n", regs[rs]);
-                running = false;
-            } else {
-                regs[rd] = memory[regs[rs]];
-            }
-        } else if (type == 3 && op == 1) {
-            if (rd >= 8 || rs >= 8) {
-                printf("invalid register: rd=R%u rs=R%u\n", rd, rs);
-                running = false;
-            } else if (regs[rd] >= sizeof(memory)) {
-                printf("memory address out of range: 0x%08X\n", regs[rd]);
-                running = false;
-            } else {
-                memory[regs[rd]] = regs[rs] & 0xFF;
-            }
-        } else if (type == 4 && op == 0) {
-            if (rd >= 8) {
-                printf("invalid register: R%u\n", rd);
-                running = false;
-            } else {
-                regs[rd] = imm;
-            }
-        } else if (type == 5 && op == 0) {
-            if (rd >= 8) {
-                printf("invalid register: R%u\n", rd);
-                running = false;
-            } else if (imm > sizeof(memory) - 4) {
-                printf("memory address out of range: 0x%08X\n", imm);
-                running = false;
-            } else {
-                regs[rd] =
-                    ((uint32_t)memory[imm] << 24) |
-                    ((uint32_t)memory[imm + 1] << 16) |
-                    ((uint32_t)memory[imm + 2] << 8) |
-                    ((uint32_t)memory[imm + 3]);
-            }
-        } else if (type == 5 && op == 1) {
-            if (rd >= 8) {
-                printf("invalid register: R%u\n", rd);
-                running = false;
-            } else if (imm > sizeof(memory) - 4) {
-                printf("memory address out of range: 0x%08X\n", imm);
-                running = false;
-            } else {
-                memory[imm] = (regs[rd] >> 24) & 0xFF;
-                memory[imm + 1] = (regs[rd] >> 16) & 0xFF;
-                memory[imm + 2] = (regs[rd] >> 8) & 0xFF;
-                memory[imm + 3] = regs[rd] & 0xFF;
-            }
-        } else if (type == 6 && op == 0) {
-            if (imm == 0) {
-                putchar(regs[0] & 0xFF);
-                putchar('\n');
-            } else {
-                printf("unimplemented syscall: %u\n", imm);
-                running = false;
-            }
-        } else if (type == 7 && op == 0) {
-            if (rd >= 8) {
-                printf("invalid register: R%u\n", rd);
-                running = false;
-            } else if (sp < 4) {
-                printf("stack overflow\n");
-                running = false;
-            } else {
-                sp -= 4;
-                memory[sp] = (regs[rd] >> 24) & 0xFF;
-                memory[sp + 1] = (regs[rd] >> 16) & 0xFF;
-                memory[sp + 2] = (regs[rd] >> 8) & 0xFF;
-                memory[sp + 3] = regs[rd] & 0xFF;
-            }
-        } else if (type == 7 && op == 1) {
-            if (rd >= 8) {
-                printf("invalid register: R%u\n", rd);
-                running = false;
-            } else if (sp > sizeof(memory) - 4) {
-                printf("stack underflow\n");
-                running = false;
-            } else {
-                regs[rd] =
-                    ((uint32_t)memory[sp] << 24) |
-                    ((uint32_t)memory[sp + 1] << 16) |
-                    ((uint32_t)memory[sp + 2] << 8) |
-                    ((uint32_t)memory[sp + 3]);
-                sp += 4;
-            }
-        } else {
-            printf("unknown instruction: %08X\n", inst);
-            running = false;
-        }
+static bool fetch(VM *vm, uint32_t *inst) {
+    if (vm->pc > MEMORY_SIZE - 4) {
+        printf("pc out of range: 0x%08X\n", vm->pc);
+        vm->running = false;
+        return false;
     }
+
+    *inst = read_u32_be(vm->memory, vm->pc);
+    vm->pc += 4;
+    return true;
+}
+
+static bool check_register(uint8_t reg) {
+    if (reg >= REGISTER_COUNT) {
+        printf("invalid register: R%u\n", reg);
+        return false;
+    }
+
+    return true;
+}
+
+static bool check_register_pair(uint8_t rd, uint8_t rs) {
+    if (rd >= REGISTER_COUNT || rs >= REGISTER_COUNT) {
+        printf("invalid register: rd=R%u rs=R%u\n", rd, rs);
+        return false;
+    }
+
+    return true;
+}
+
+static bool check_u32_memory_range(uint32_t address) {
+    if (address > MEMORY_SIZE - 4) {
+        printf("memory address out of range: 0x%08X\n", address);
+        return false;
+    }
+
+    return true;
+}
+
+static void execute(VM *vm, DecodedInst inst) {
+    if (inst.raw == 0x01000000) {
+        vm->running = false;
+        printf("CPU halted.\n");
+    } else if (inst.type == 1 && inst.op == 0) {
+        if (!check_register_pair(inst.rd, inst.rs)) {
+            vm->running = false;
+        } else {
+            vm->regs[inst.rd] = vm->regs[inst.rs];
+        }
+    } else if (inst.type == 2 && inst.op == 0) {
+        if (!check_register(inst.rd)) {
+            vm->running = false;
+        } else {
+            vm->regs[inst.rd] += 1;
+        }
+    } else if (inst.type == 2 && inst.op == 1) {
+        if (!check_register(inst.rd)) {
+            vm->running = false;
+        } else {
+            vm->regs[inst.rd] -= 1;
+        }
+    } else if (inst.type == 3 && inst.op == 0) {
+        if (!check_register_pair(inst.rd, inst.rs)) {
+            vm->running = false;
+        } else if (vm->regs[inst.rs] >= MEMORY_SIZE) {
+            printf("memory address out of range: 0x%08X\n", vm->regs[inst.rs]);
+            vm->running = false;
+        } else {
+            vm->regs[inst.rd] = vm->memory[vm->regs[inst.rs]];
+        }
+    } else if (inst.type == 3 && inst.op == 1) {
+        if (!check_register_pair(inst.rd, inst.rs)) {
+            vm->running = false;
+        } else if (vm->regs[inst.rd] >= MEMORY_SIZE) {
+            printf("memory address out of range: 0x%08X\n", vm->regs[inst.rd]);
+            vm->running = false;
+        } else {
+            vm->memory[vm->regs[inst.rd]] = vm->regs[inst.rs] & 0xFF;
+        }
+    } else if (inst.type == 4 && inst.op == 0) {
+        if (!check_register(inst.rd)) {
+            vm->running = false;
+        } else {
+            vm->regs[inst.rd] = inst.imm;
+        }
+    } else if (inst.type == 5 && inst.op == 0) {
+        if (!check_register(inst.rd)) {
+            vm->running = false;
+        } else if (!check_u32_memory_range(inst.imm)) {
+            vm->running = false;
+        } else {
+            vm->regs[inst.rd] = read_u32_be(vm->memory, inst.imm);
+        }
+    } else if (inst.type == 5 && inst.op == 1) {
+        if (!check_register(inst.rd)) {
+            vm->running = false;
+        } else if (!check_u32_memory_range(inst.imm)) {
+            vm->running = false;
+        } else {
+            write_u32_be(vm->memory, inst.imm, vm->regs[inst.rd]);
+        }
+    } else if (inst.type == 6 && inst.op == 0) {
+        if (inst.imm == 0) {
+            putchar(vm->regs[0] & 0xFF);
+            putchar('\n');
+        } else {
+            printf("unimplemented syscall: %u\n", inst.imm);
+            vm->running = false;
+        }
+    } else if (inst.type == 7 && inst.op == 0) {
+        if (!check_register(inst.rd)) {
+            vm->running = false;
+        } else if (vm->sp < 4) {
+            printf("stack overflow\n");
+            vm->running = false;
+        } else {
+            vm->sp -= 4;
+            write_u32_be(vm->memory, vm->sp, vm->regs[inst.rd]);
+        }
+    } else if (inst.type == 7 && inst.op == 1) {
+        if (!check_register(inst.rd)) {
+            vm->running = false;
+        } else if (vm->sp > MEMORY_SIZE - 4) {
+            printf("stack underflow\n");
+            vm->running = false;
+        } else {
+            vm->regs[inst.rd] = read_u32_be(vm->memory, vm->sp);
+            vm->sp += 4;
+        }
+    } else {
+        printf("unknown instruction: %08X\n", inst.raw);
+        vm->running = false;
+    }
+}
+
+static void run(VM *vm) {
+    while (vm->running) {
+        uint32_t inst;
+
+        if (!fetch(vm, &inst)) {
+            return;
+        }
+
+        execute(vm, decode(inst));
+    }
+}
+
+static void load_test_program(VM *vm) {
+    write_inst(vm, 0x00000000, 0x40100080);  // MOVI R1, 0x80
+    write_inst(vm, 0x00000004, 0x40000041);  // MOVI R0, 65
+    write_inst(vm, 0x00000008, 0x31100000);  // STB [R1], R0
+    write_inst(vm, 0x0000000C, 0x30010000);  // LDB R0, [R1]
+    write_inst(vm, 0x00000010, 0x60000000);  // SYSCALL 0
+    write_inst(vm, 0x00000014, 0x50200090);  // LDDI R2, 0x90
+    write_inst(vm, 0x00000018, 0x51200040);  // STDI R2, 0x40
+    write_inst(vm, 0x0000001C, 0x20200000);  // INC R2
+    write_inst(vm, 0x00000020, 0x21200000);  // DEC R2
+    write_inst(vm, 0x00000024, 0x10320000);  // MOV R3, R2
+    write_inst(vm, 0x00000028, 0x70300000);  // PUSH R3
+    write_inst(vm, 0x0000002C, 0x71400000);  // POP R4
+    write_inst(vm, 0x00000030, 0x01000000);  // HALT
+
+    write_u32_be(vm->memory, 0x00000090, 0x12345678);
+}
+
+int main(void) {
+    VM vm = {0};
+
+    vm.pc = 0x00000000;
+    vm.sp = 0x00100000;
+    vm.running = true;
+
+    load_test_program(&vm);
+    run(&vm);
 
     return 0;
 }
