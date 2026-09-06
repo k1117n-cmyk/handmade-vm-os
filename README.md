@@ -15,8 +15,10 @@
 1. [ROADMAP.md](ROADMAP.md)
 2. [HANDWRITING_GUIDE.md](HANDWRITING_GUIDE.md)
 3. [vm-builder-eye-practice.md](vm-builder-eye-practice.md)
-4. [instruction-fields.md](instruction-fields.md)
-5. [WORKBOOK_001_HALT.md](WORKBOOK_001_HALT.md)
+4. [manual/README.md](manual/README.md)
+5. [manual/instruction-types.md](manual/instruction-types.md)
+6. [manual/reference/instruction-fields.md](manual/reference/instruction-fields.md)
+7. [WORKBOOK_001_HALT.md](WORKBOOK_001_HALT.md)
 
 `HALT` をかなりやさしく分解した説明は [HALT_FOR_BEGINNERS.md](HALT_FOR_BEGINNERS.md) にあります。
 
@@ -39,28 +41,31 @@ host macOS/Linux
   -> 自作editor
 ```
 
-## ノート構成
+## ディレクトリ構成
 
 ```text
+manual/
+  README.md
+  instruction-types.md
+  specs/
+  reference/
+  test-code-explanations/
+
 notes/
-  000-machine-state.md
-  001-halt.md
-  002-fetch.md
-  003-movi.md
-  004-syscall.md
-  005-decode.md
-  006-syscall-print-char.md
-  007-syscall-print-string.md
-  008-ldb.md
-  009-stb.md
+  000-machine-test.c
+  001-halt-test.c
+  ...
+  009-stb-test.c
   vm.c
 ```
 
-各 `*-test.c` は、その日の命令やVM部品を小さく確認するためのテストコードです。
+`manual/` は仕様、補助資料、テストコード解説をまとめたマニュアルです。
+
+`notes/` はCコード置き場です。各 `*-test.c` は、その日の命令やVM部品を小さく確認するためのテストコードです。`vm.c` は現在の統合VMです。
 
 ## 試し方
 
-Day 8 時点の最小VMは `notes/vm.c` です。
+現在の最小VMは `notes/vm.c` です。
 
 ```sh
 cc notes/vm.c -o /tmp/handmade-vm
@@ -111,6 +116,8 @@ LDB R0, [R1]    regs[0] = memory[regs[1]]
 ```
 
 この置き換えを手で追う練習用の短いガイドが [vm-builder-eye-practice.md](vm-builder-eye-practice.md) です。
+
+命令タイプと命令一覧は [manual/instruction-types.md](manual/instruction-types.md)、各命令の仕様は [manual/specs/](manual/specs/) にあります。
 
 ## ライセンスと出典
 

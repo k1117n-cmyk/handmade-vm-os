@@ -8,27 +8,35 @@ int main(void) {
     uint32_t regs[8] = {0};
     bool running = true;
 
-    memory[0x00000000] = 0x40;  // MOVI R1, 0x10
+    memory[0x00000000] = 0x40;  // MOVI R1, 0x20
     memory[0x00000001] = 0x10;
     memory[0x00000002] = 0x00;
-    memory[0x00000003] = 0x10;
+    memory[0x00000003] = 0x20;
 
-    memory[0x00000004] = 0x30;  // LDB R0, [R1]
-    memory[0x00000005] = 0x01;
+    memory[0x00000004] = 0x40;  // MOVI R0, 65
+    memory[0x00000005] = 0x00;
     memory[0x00000006] = 0x00;
-    memory[0x00000007] = 0x00;
+    memory[0x00000007] = 0x41;
 
-    memory[0x00000008] = 0x60;  // SYSCALL 0
-    memory[0x00000009] = 0x00;
+    memory[0x00000008] = 0x31;  // STB [R1], R0
+    memory[0x00000009] = 0x10;
     memory[0x0000000A] = 0x00;
     memory[0x0000000B] = 0x00;
 
-    memory[0x0000000C] = 0x01;  // HALT
-    memory[0x0000000D] = 0x00;
+    memory[0x0000000C] = 0x30;  // LDB R0, [R1]
+    memory[0x0000000D] = 0x01;
     memory[0x0000000E] = 0x00;
     memory[0x0000000F] = 0x00;
 
-    memory[0x00000010] = 0x41;  // 'A'
+    memory[0x00000010] = 0x60;  // SYSCALL 0
+    memory[0x00000011] = 0x00;
+    memory[0x00000012] = 0x00;
+    memory[0x00000013] = 0x00;
+
+    memory[0x00000014] = 0x01;  // HALT
+    memory[0x00000015] = 0x00;
+    memory[0x00000016] = 0x00;
+    memory[0x00000017] = 0x00;
 
     while (running) {
         uint32_t inst =
@@ -57,6 +65,16 @@ int main(void) {
                 running = false;
             } else {
                 regs[rd] = memory[regs[rs]];
+            }
+        } else if (type == 3 && op == 1) {
+            if (rd >= 8 || rs >= 8) {
+                printf("invalid register: rd=R%u rs=R%u\n", rd, rs);
+                running = false;
+            } else if (regs[rd] >= sizeof(memory)) {
+                printf("memory address out of range: 0x%08X\n", regs[rd]);
+                running = false;
+            } else {
+                memory[regs[rd]] = regs[rs] & 0xFF;
             }
         } else if (type == 4 && op == 0) {
             if (rd >= 8) {
