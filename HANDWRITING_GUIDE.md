@@ -426,7 +426,7 @@ memory[0x10] から 1 byte ずつ読む
 0 byte が来たら表示を止める
 ```
 
-### Day 8: LDB　9/4
+### Day 8: LDB
 
 目的:
 
@@ -517,13 +517,13 @@ SYSCALL 0でAが出る
 STB [rd], rs
 rd = address register
 rs = source register
-rsの下位8bitをmemory[rd]へ書く
+rsの下位8bitをmemory[regs[rd]]へ書く
 ```
 
 手作りプログラム:
 
 ```text
-MOVI R1, 0x10
+MOVI R1, 0x20
 MOVI R0, 65
 STB [R1], R0
 LDB R2, [R1]
@@ -532,20 +532,20 @@ LDB R2, [R1]
 成功条件:
 
 ```text
-memory[0x10] = 0x41
+memory[0x20] = 0x41
 LDB後 R2 = 0x41
 ```
 
 確認すること:
 
 ```text
-R1 = 0x10
+R1 = 0x20
 R0 = 0x41
-STB後 memory[0x10] = 0x41
+STB後 memory[0x20] = 0x41
 LDBで読み直すと R2 = 0x41
 ```
 
-### Day 10: LDDI
+### Day 10: LDDI 9/7
 
 目的:
 
