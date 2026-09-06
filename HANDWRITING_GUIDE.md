@@ -545,7 +545,7 @@ STB後 memory[0x20] = 0x41
 LDBで読み直すと R2 = 0x41
 ```
 
-### Day 10: LDDI 9/7
+### Day 10: LDDI
 
 目的:
 
