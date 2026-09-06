@@ -356,6 +356,60 @@ putchar(regs[0] & 0xFF);
 putchar('\n');
 ```
 
+## LDDI
+
+アセンブリ:
+
+```asm
+LDDI R0, 0x10
+```
+
+意味:
+
+```text
+0x10を直接memory addressとして使う。
+memory[0x10]から4 byte読んで、32bit値としてR0へ入れる。
+```
+
+field:
+
+```text
+type = 5
+op   = 0
+rd   = 0
+imm  = 0x10
+```
+
+命令コード:
+
+```text
+0x50000010
+  5 0 0 0 0 0 1 0
+```
+
+memory配置:
+
+```text
+0x00000000: 50 00 00 10    LDDI R0, 0x10
+0x00000010: 12 34 56 78    data
+```
+
+Cでの実行:
+
+```c
+regs[rd] =
+    ((uint32_t)memory[imm] << 24) |
+    ((uint32_t)memory[imm + 1] << 16) |
+    ((uint32_t)memory[imm + 2] << 8) |
+    ((uint32_t)memory[imm + 3]);
+```
+
+今回の値を入れると:
+
+```c
+regs[0] = 0x12345678;
+```
+
 ## HALT
 
 アセンブリ:

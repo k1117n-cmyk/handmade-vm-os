@@ -27,7 +27,7 @@
 - 1MB の byte-addressed memory を持つ小さなVM
 - 32bit big-endian instruction fetch
 - `R0`-`R7` と `PC` を使う最小CPU状態
-- `HALT`, `MOVI`, `SYSCALL`, `LDB`, `STB` などの命令を1つずつ実装する練習
+- `HALT`, `MOVI`, `SYSCALL`, `LDB`, `STB`, `LDDI` などの命令を1つずつ実装する練習
 - アセンブリ表記、命令field、Cコードの対応づけ
 
 最終的には次の形を目指します。
@@ -56,6 +56,7 @@ notes/
   001-halt-test.c
   ...
   009-stb-test.c
+  010-lddi-test.c
   vm.c
 ```
 

@@ -83,6 +83,20 @@ int main(void) {
             } else {
                 regs[rd] = imm;
             }
+        } else if (type == 5 && op == 0) {
+            if (rd >= 8) {
+                printf("invalid register: R%u\n", rd);
+                running = false;
+            } else if (imm > sizeof(memory) - 4) {
+                printf("memory address out of range: 0x%08X\n", imm);
+                running = false;
+            } else {
+                regs[rd] =
+                    ((uint32_t)memory[imm] << 24) |
+                    ((uint32_t)memory[imm + 1] << 16) |
+                    ((uint32_t)memory[imm + 2] << 8) |
+                    ((uint32_t)memory[imm + 3]);
+            }
         } else if (type == 6 && op == 0) {
             if (imm == 0) {
                 putchar(regs[0] & 0xFF);

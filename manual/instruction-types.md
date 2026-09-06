@@ -50,6 +50,7 @@ fieldの詳しい読み方は [reference/instruction-fields.md](reference/instru
 |---:|---|---|---|
 | `3` | memory-register instruction | レジスタが指すメモリを読み書きする | `LDB`, `STB` |
 | `4` | immediate instruction | 命令内の即値を使う | `MOVI` |
+| `5` | direct memory instruction | 命令内の即値アドレスでメモリを読み書きする | `LDDI` |
 | `6` | syscall instruction | VM外側のサービスを呼ぶ | `SYSCALL 0`, `SYSCALL 1` |
 
 未使用の `type` は、現時点では未定義です。
@@ -67,6 +68,7 @@ fieldの詳しい読み方は [reference/instruction-fields.md](reference/instru
 | `SYSCALL 1` | `type=6, op=0, imm=1` | `imm`, `R0` | syscall instruction | [specs/007-syscall-print-string.md](specs/007-syscall-print-string.md) |
 | `LDB rd, [rs]` | `type=3, op=0` | `rd`, `rs` | memory-register instruction | [specs/008-ldb.md](specs/008-ldb.md) |
 | `STB [rd], rs` | `type=3, op=1` | `rd`, `rs` | memory-register instruction | [specs/009-stb.md](specs/009-stb.md) |
+| `LDDI rd, imm` | `type=5, op=0` | `rd`, `imm` | direct memory instruction | [specs/010-lddi.md](specs/010-lddi.md) |
 
 ## 命令値の例
 
@@ -78,6 +80,7 @@ fieldの詳しい読み方は [reference/instruction-fields.md](reference/instru
 | `SYSCALL 1` | `0x60000001` | `60 00 00 01` |
 | `LDB R0, [R1]` | `0x30010000` | `30 01 00 00` |
 | `STB [R1], R0` | `0x31100000` | `31 10 00 00` |
+| `LDDI R0, 0x10` | `0x50000010` | `50 00 00 10` |
 
 ## Decodeの流れ
 
@@ -102,6 +105,8 @@ if (inst == 0x01000000) {
     // STB
 } else if (type == 4 && op == 0) {
     // MOVI
+} else if (type == 5 && op == 0) {
+    // LDDI
 } else if (type == 6 && op == 0) {
     // SYSCALL
 }
