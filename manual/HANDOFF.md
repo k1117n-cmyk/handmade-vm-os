@@ -590,3 +590,106 @@ A
 VM flow complete.
 CPU halted.
 ```
+
+## 記事第3回の作成引き継ぎ
+
+次回は、記事第3回を仕上げるところから再開する。
+
+対象の下書き:
+
+```text
+articles/2026-09-08-vm-control-flow-016-020-outline.md
+```
+
+このファイルは `articles/` 配下にあり、`.gitignore` によりGit管理対象外。記事本文の編集内容はローカル下書きとして扱う。
+
+参照するスタイルガイド:
+
+```text
+articles/ARTICLE_STYLE_GUIDE.md
+```
+
+参考記事:
+
+```text
+articles/unix-cafe-handmade-vm-02.txt
+```
+
+ユーザーの希望:
+
+```text
+一旦記事を仕上げたい
+ARTICLE_STYLE_GUIDE.md に従う
+初心者に分かりやすい、自然な日本語にする
+第2回の記事の説明が分かりやすかったので、その説明調に寄せる
+```
+
+次回やること:
+
+```text
+1. articles/ARTICLE_STYLE_GUIDE.md を読む
+2. articles/unix-cafe-handmade-vm-02.txt を参考に、WordPressブロック形式の文体を確認する
+3. articles/2026-09-08-vm-control-flow-016-020-outline.md を完成記事へ書き換える
+4. Day 16からDay 20を、初心者向けに1章ずつ説明する
+5. 公開用メモのスラッグ、タグ、ディスクリプション、アイキャッチ用プロンプトを末尾に残す
+```
+
+記事に入れる主な流れ:
+
+```text
+導入:
+  前回までで、値を置く、読む、書く、スタックへ退避するところまで進んだ
+  今回は、上から順番に実行するだけのVMから一歩進める
+
+Day 16 ADD / SUB:
+  レジスタ同士で計算する
+  ADD R0, R1 は regs[0] = regs[0] + regs[1]
+  SUB R2, R3 は regs[2] = regs[2] - regs[3]
+
+Day 17 CMP:
+  レジスタを書き換えず、比較結果だけを zero_flag に残す
+  次の JZ / JNZ がこの結果を使う
+
+Day 18 JUMP / JZ:
+  PCを書き換えて実行位置を変える
+  fetchでPCが一度+4されたあと、必要ならPCをジャンプ先へ上書きする
+
+Day 19 JNZ:
+  JZの逆で、zero_flagがfalseのときにジャンプする
+  CMP、JZ、JNZでif文に近い形が見えてくる
+
+Day 20 CALLI / RET:
+  CALLIは戻り先PCをスタックに積んでからジャンプする
+  RETはスタックから戻り先PCを取り出して戻る
+
+SYSCALL 1:
+  R0を文字列アドレスとして使い、0終端まで表示する
+  PCは命令の場所、R0はデータの場所として分けて説明する
+
+まとめ:
+  ADD/SUBで計算
+  CMPで比較
+  JUMP/JZ/JNZで分岐
+  CALLI/RETでサブルーチン
+  SYSCALL 1で文字列表示
+```
+
+記事化するときの注意:
+
+```text
+地の文は「です・ます」調にする
+命令名、ファイル名、変数名はバッククォートで囲む
+仕様カードからCコードへ直接飛ばず、アセンブリ例、手計算、fetch/decode/executeの順に挟む
+命令ごとに全部の仕様カードを長く載せすぎず、読者が止まりやすい点を優先する
+JUMP/JZ/JNZでは、fetch後にPCが+4されてからPCを上書きする点を必ず説明する
+CALLI/RETでは、戻り先PCが「CALLIの次の命令アドレス」になる点を必ず説明する
+```
+
+作業開始時点の状態:
+
+```text
+記事本文の書き換えは未着手
+git status は clean
+直近のGitHub反映済みコミットは bc77a86 Stop tracking article drafts
+articles/ はGit管理対象外
+```
