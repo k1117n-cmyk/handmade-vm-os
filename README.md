@@ -26,8 +26,8 @@
 
 - 1MB の byte-addressed memory を持つ小さなVM
 - 32bit big-endian instruction fetch
-- `R0`-`R7` と `PC` を使う最小CPU状態
-- `HALT`, `MOV`, `INC`, `DEC`, `MOVI`, `SYSCALL`, `LDB`, `STB`, `LDDI`, `STDI`, `PUSH`, `POP` などの命令を1つずつ実装する練習
+- `R0`-`R7`, `PC`, `SP`, `zero_flag` を使う最小CPU状態
+- `HALT`, `RET`, `MOV`, `INC`, `DEC`, `ADD`, `SUB`, `CMP`, `MOVI`, `SYSCALL`, `JUMP`, `CALLI`, `JZ`, `JNZ`, `LDB`, `STB`, `LDDI`, `STDI`, `PUSH`, `POP` などの命令を1つずつ実装する練習
 - アセンブリ表記、命令field、Cコードの対応づけ
 
 最終的には次の形を目指します。
@@ -62,6 +62,11 @@ notes/
   013-mov-test.c
   014-push-test.c
   015-pop-test.c
+  016-add-sub-test.c
+  017-cmp-test.c
+  018-jump-jz-test.c
+  019-jnz-test.c
+  020-calli-ret-test.c
   vm.c
 ```
 
@@ -82,6 +87,7 @@ cc notes/vm.c -o /tmp/handmade-vm
 
 ```text
 A
+VM flow complete.
 CPU halted.
 ```
 
@@ -120,6 +126,31 @@ cc notes/014-push-test.c -o /tmp/014-push-test
 ```sh
 cc notes/015-pop-test.c -o /tmp/015-pop-test
 /tmp/015-pop-test
+```
+
+```sh
+cc notes/016-add-sub-test.c -o /tmp/016-add-sub-test
+/tmp/016-add-sub-test
+```
+
+```sh
+cc notes/017-cmp-test.c -o /tmp/017-cmp-test
+/tmp/017-cmp-test
+```
+
+```sh
+cc notes/018-jump-jz-test.c -o /tmp/018-jump-jz-test
+/tmp/018-jump-jz-test
+```
+
+```sh
+cc notes/019-jnz-test.c -o /tmp/019-jnz-test
+/tmp/019-jnz-test
+```
+
+```sh
+cc notes/020-calli-ret-test.c -o /tmp/020-calli-ret-test
+/tmp/020-calli-ret-test
 ```
 
 ## 学習の型

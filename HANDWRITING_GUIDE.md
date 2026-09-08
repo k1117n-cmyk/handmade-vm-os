@@ -751,6 +751,249 @@ POP R1
 SPが元の位置に戻る
 ```
 
+### Day 16: ADD / SUB
+
+目的:
+
+```text
+レジスタ同士で足し算と引き算をする
+```
+
+仕様:
+
+```text
+ADD rd, rs
+rd = rd + rs
+
+SUB rd, rs
+rd = rd - rs
+```
+
+確認すること:
+
+```text
+rdは読み書きするレジスタ
+rsは読むだけのレジスタ
+計算結果はrdへ戻る
+条件フラグはこの段階では変えない
+```
+
+成功条件:
+
+```text
+MOVI R0, 10
+MOVI R1, 3
+ADD R0, R1
+実行後 R0 = 13
+
+MOVI R2, 10
+MOVI R3, 3
+SUB R2, R3
+実行後 R2 = 7
+```
+
+手で置き換える:
+
+```text
+ADD R0, R1
+=> regs[0] = regs[0] + regs[1]
+
+SUB R2, R3
+=> regs[2] = regs[2] - regs[3]
+```
+
+### Day 17: CMP
+
+目的:
+
+```text
+2つのレジスタを比較して、次の分岐で使う条件を作る
+```
+
+仕様:
+
+```text
+CMP rd, rs
+rdとrsを比べる
+同じなら zero_flag = true
+違うなら zero_flag = false
+```
+
+確認すること:
+
+```text
+CMPはレジスタの値を変えない
+比較結果だけをzero_flagへ残す
+同じ値と違う値の両方をテストする
+```
+
+成功条件:
+
+```text
+MOVI R0, 10
+MOVI R1, 10
+CMP R0, R1
+zero_flag = true
+
+MOVI R2, 10
+MOVI R3, 3
+CMP R2, R3
+zero_flag = false
+```
+
+手で置き換える:
+
+```text
+CMP R0, R1
+=> zero_flag = regs[0] == regs[1]
+```
+
+### Day 18: JUMP / JZ
+
+目的:
+
+```text
+PCを書き換えて、上から順番に実行する流れを変える
+```
+
+仕様:
+
+```text
+JUMP imm
+PC = imm
+
+JZ imm
+zero_flagがtrueなら PC = imm
+zero_flagがfalseなら何もしない
+```
+
+確認すること:
+
+```text
+fetch時にPCは先に+4される
+JUMPやJZはその後でPCを上書きする
+JZはCMPで作ったzero_flagを見る
+ジャンプ先から4 byte fetchできるか確認する
+```
+
+成功条件:
+
+```text
+JUMPで途中の命令を飛ばせる
+CMPでzero_flagをtrueにする
+JZで指定アドレスへ移動できる
+```
+
+手で置き換える:
+
+```text
+JUMP 0x10
+=> pc = 0x10
+
+JZ 0x28
+=> if (zero_flag) pc = 0x28
+```
+
+### Day 19: JNZ
+
+目的:
+
+```text
+zero_flagが立っていないときだけ分岐する
+```
+
+仕様:
+
+```text
+JNZ imm
+zero_flagがfalseなら PC = imm
+zero_flagがtrueなら何もしない
+```
+
+確認すること:
+
+```text
+JZと逆の条件になっているか
+CMPで違う値を比較したあとにジャンプするか
+ジャンプしない場合は次の命令へ進むか
+```
+
+成功条件:
+
+```text
+MOVI R0, 1
+MOVI R1, 2
+CMP R0, R1
+JNZ target
+途中の命令を飛ばしてtargetへ進む
+```
+
+手で置き換える:
+
+```text
+JNZ 0x18
+=> if (!zero_flag) pc = 0x18
+```
+
+### Day 20: CALLI / RET
+
+目的:
+
+```text
+サブルーチンを呼び出して、終わったら元の場所へ戻る
+```
+
+仕様:
+
+```text
+CALLI imm
+fetch後のPCを戻り先としてスタックへ積む
+PC = imm
+
+RET
+スタックから戻り先PCを取り出す
+PC = 戻り先PC
+```
+
+確認すること:
+
+```text
+CALLIは戻り先PCを保存してからジャンプする
+戻り先PCはCALLIの次の命令アドレス
+RETで戻るとSPが元の位置に戻る
+戻ったあとにCALLIの次の命令が実行される
+```
+
+成功条件:
+
+```text
+CALLI 0x20
+MOVI R1, 7
+HALT
+
+0x20:
+MOVI R0, 42
+RET
+
+実行後 R0 = 42
+実行後 R1 = 7
+SPが元の位置に戻る
+```
+
+手で置き換える:
+
+```text
+CALLI 0x20
+=> sp -= 4
+=> memory[sp..sp+3] = pc
+=> pc = 0x20
+
+RET
+=> return_address = memory[sp..sp+3]
+=> sp += 4
+=> pc = return_address
+```
+
 ## How To Read Existing Code
 
 既存コードは、最初に読むものではなく、照合に使う。

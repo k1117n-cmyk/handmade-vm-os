@@ -669,6 +669,215 @@ regs[rd] =
 sp += 4;
 ```
 
+## ADD / SUB
+
+アセンブリ:
+
+```asm
+ADD R0, R1
+SUB R2, R3
+```
+
+意味:
+
+```text
+ADD R0, R1 は、R0にR1の値を足す。
+SUB R2, R3 は、R2からR3の値を引く。
+```
+
+field:
+
+```text
+ADD:
+type = 2
+op   = 2
+rd   = 0
+rs   = 1
+
+SUB:
+type = 2
+op   = 3
+rd   = 2
+rs   = 3
+```
+
+命令コード:
+
+```text
+ADD R0, R1: 0x22010000
+SUB R2, R3: 0x23230000
+```
+
+Cでの実行:
+
+```c
+regs[rd] += regs[rs];
+regs[rd] -= regs[rs];
+```
+
+今回の値を入れると:
+
+```c
+regs[0] += regs[1];
+regs[2] -= regs[3];
+```
+
+## CMP
+
+アセンブリ:
+
+```asm
+CMP R0, R1
+```
+
+意味:
+
+```text
+R0とR1を比較する。
+同じならzero_flagをtrueにする。
+違うならzero_flagをfalseにする。
+```
+
+field:
+
+```text
+type = 2
+op   = 4
+rd   = 0
+rs   = 1
+```
+
+命令コード:
+
+```text
+0x24010000
+  2 4 0 1 0 0 0 0
+```
+
+Cでの実行:
+
+```c
+zero_flag = regs[rd] == regs[rs];
+```
+
+`CMP` はレジスタの値を変えない。比較結果だけを `zero_flag` へ残す。
+
+## JUMP / JZ / JNZ
+
+アセンブリ:
+
+```asm
+JUMP 0x10
+JZ 0x20
+JNZ 0x30
+```
+
+意味:
+
+```text
+JUMPは無条件にPCを変更する。
+JZはzero_flagがtrueならPCを変更する。
+JNZはzero_flagがfalseならPCを変更する。
+```
+
+field:
+
+```text
+JUMP:
+type = 6
+op   = 8
+imm  = 0x10
+
+JZ:
+type = 6
+op   = 10
+imm  = 0x20
+
+JNZ:
+type = 6
+op   = 11
+imm  = 0x30
+```
+
+命令コード:
+
+```text
+JUMP 0x10: 0x68000010
+JZ 0x20:   0x6A000020
+JNZ 0x30:  0x6B000030
+```
+
+Cでの実行:
+
+```c
+pc = imm;
+```
+
+```c
+if (zero_flag) {
+    pc = imm;
+}
+```
+
+```c
+if (!zero_flag) {
+    pc = imm;
+}
+```
+
+`fetch` では先に `pc += 4` する。そのあと、分岐命令が必要なら `pc` を上書きする。
+
+## CALLI / RET
+
+アセンブリ:
+
+```asm
+CALLI 0x20
+RET
+```
+
+意味:
+
+```text
+CALLIは戻り先PCをスタックへ積んでから、指定アドレスへ移動する。
+RETはスタックから戻り先PCを取り出して、その場所へ戻る。
+```
+
+field:
+
+```text
+CALLI:
+type = 6
+op   = 9
+imm  = 0x20
+
+RET:
+inst = 0x02000000
+```
+
+命令コード:
+
+```text
+CALLI 0x20: 0x69000020
+RET:        0x02000000
+```
+
+Cでの実行:
+
+```c
+sp -= 4;
+write_u32_be(memory, sp, pc);
+pc = imm;
+```
+
+```c
+uint32_t return_address = read_u32_be(memory, sp);
+sp += 4;
+pc = return_address;
+```
+
+`CALLI` でスタックへ積む `pc` は、fetch後のPC。つまり `CALLI` の次の命令アドレス。
+
 ## HALT
 
 アセンブリ:

@@ -15,6 +15,8 @@
 
 コードだけ先に増やすのではなく、仕様、テスト、解説、索引を同時に更新する。
 
+Day 15 `POP` 以降の追加順は [NEXT_INSTRUCTION_GUIDELINES.md](NEXT_INSTRUCTION_GUIDELINES.md) を基準にする。ブログ記事とのつながりを優先し、まず `ADD` / `SUB`、`CMP`、`JUMP` / `JZ` の順で進める。
+
 ## 追加するファイル
 
 Day番号と命令名に合わせて、次の3ファイルを追加する。
@@ -72,15 +74,23 @@ PCの変化:
 
 ```text
 HALT    inst == 0x01000000
+RET     inst == 0x02000000
 MOV     type=1, op=0
 INC     type=2, op=0
 DEC     type=2, op=1
+ADD     type=2, op=2
+SUB     type=2, op=3
+CMP     type=2, op=4
 LDB     type=3, op=0
 STB     type=3, op=1
 MOVI    type=4, op=0
 LDDI    type=5, op=0
 STDI    type=5, op=1
 SYSCALL type=6, op=0
+JUMP    type=6, op=8
+CALLI   type=6, op=9
+JZ      type=6, op=10
+JNZ     type=6, op=11
 PUSH    type=7, op=0
 POP     type=7, op=1
 ```
@@ -113,6 +123,26 @@ PUSH: registerの値をstackへ積む
 POP: stackからregisterへ値を取り出す
 => stack instruction
 => type=7, op=1
+
+ADD/SUB: register同士で計算する
+=> arithmetic-register instruction
+=> type=2, op=2/3
+
+CMP: register同士を比較してzero_flagを更新する
+=> arithmetic-register instruction
+=> type=2, op=4
+
+JUMP/JZ/JNZ: immediate addressへPCを変更する
+=> control flow instruction
+=> type=6, op=8/10/11
+
+CALLI: return addressをstackへ積んでimmediate addressへPCを変更する
+=> control flow instruction
+=> type=6, op=9
+
+RET: stackからreturn addressを取り出してPCへ戻す
+=> system / control flow instruction
+=> inst == 0x02000000
 ```
 
 ## テストコードを書く
@@ -511,9 +541,52 @@ SP=0x00100000
 POP test passed.
 ```
 
+## Day 16からDay 20で実際に行ったこと
+
+Day 16からDay 20では、次を追加した。
+
+```text
+manual/specs/016-add-sub.md
+manual/specs/017-cmp.md
+manual/specs/018-jump-jz.md
+manual/specs/019-jnz.md
+manual/specs/020-calli-ret.md
+
+notes/016-add-sub-test.c
+notes/017-cmp-test.c
+notes/018-jump-jz-test.c
+notes/019-jnz-test.c
+notes/020-calli-ret-test.c
+
+manual/test-code-explanations/016-add-sub-test.md
+manual/test-code-explanations/017-cmp-test.md
+manual/test-code-explanations/018-jump-jz-test.md
+manual/test-code-explanations/019-jnz-test.md
+manual/test-code-explanations/020-calli-ret-test.md
+```
+
+次を更新した。
+
+```text
+HANDWRITING_GUIDE.md
+manual/instruction-types.md
+manual/README.md
+manual/reference/instruction-fields.md
+README.md
+notes/vm.c
+```
+
+確認した実行結果:
+
+```text
+notes/*-test.c と notes/vm.c をすべて cc でコンパイル・実行
+結果: all ok
+```
+
 `notes/vm.c` の確認結果:
 
 ```text
 A
+VM flow complete.
 CPU halted.
 ```

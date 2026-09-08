@@ -30,7 +30,7 @@ host macOS/Linux
 
 `LC-3VM/lc3.c` は「LC-3互換VM」として守るのではなく、CでVMを書くための出発点として扱う。
 
-学習用VMの現在仕様は `notes/000-machine-state.md` を基準にする。
+学習用VMの現在仕様は `manual/specs/000-machine-state.md` を基準にする。
 
 - 1MB memory
 - 32bit instruction
@@ -41,6 +41,8 @@ host macOS/Linux
 - later: MMU and page fault
 
 既存の `os.asm` と `os.bin` は参考にするが、必要なら現在仕様に合わせて段階的に移植する。
+
+Day 15 `POP` 以降の短期的な命令追加順は、ブログ記事とのつながりを優先して [manual/NEXT_INSTRUCTION_GUIDELINES.md](manual/NEXT_INSTRUCTION_GUIDELINES.md) にまとめる。
 
 ## Milestones
 
@@ -57,7 +59,7 @@ host macOS/Linux
 - `PC = 0x00000000`
 - `os.bin` の raw binary load
 - register file
-- condition flagsは未定。必要になった時点で仕様を追加する
+- condition flagsは段階的に追加する。現在は `CMP` / `JZ` / `JNZ` 用の `zero_flag` のみ
 - stack with `PUSH` / `POP`
 - basic instruction dispatch
 
@@ -65,6 +67,9 @@ lesson 04 起動に必要な命令から実装する。
 
 - `MOVI`
 - `MOV`
+- `ADD`
+- `SUB`
+- `CMP`
 - `SBTI`
 - `LDB`
 - `STB`
@@ -76,9 +81,9 @@ lesson 04 起動に必要な命令から実装する。
 - `POP`
 - `CALLI`
 - `RET`
-- `JPI`
-- `JPZI`
-- `JPNZI`
+- `JPI` / `JUMP`
+- `JPZI` / `JZ`
+- `JPNZI` / `JNZ`
 - `JPUI`
 - `JPNUI`
 - `SYSCALL`
