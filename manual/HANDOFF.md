@@ -1,6 +1,6 @@
-# 新しい命令を追加するときの引き継ぎ書
+# 新しい命令やVM機能を追加するときの引き継ぎ書
 
-このファイルは、Day 10 `LDDI` を追加したときの作業手順を、次回以降の命令追加で迷わないようにまとめたものです。
+このファイルは、新しい命令やVM機能を追加するときに、次回以降の作業で迷わないようにまとめたものです。
 
 ## 基本方針
 
@@ -15,7 +15,19 @@
 
 コードだけ先に増やすのではなく、仕様、テスト、解説、索引を同時に更新する。
 
-Day 15 `POP` 以降の追加順は [NEXT_INSTRUCTION_GUIDELINES.md](NEXT_INSTRUCTION_GUIDELINES.md) を基準にする。ブログ記事とのつながりを優先し、まず `ADD` / `SUB`、`CMP`、`JUMP` / `JZ` の順で進める。
+Day 15 `POP` 以降の追加順は [NEXT_INSTRUCTION_GUIDELINES.md](NEXT_INSTRUCTION_GUIDELINES.md) を基準にする。現在は Day 22 `hello.bin` 作成ツールまで完了している。
+
+今後の基本フローは [../HANDWRITING_GUIDE.md](../HANDWRITING_GUIDE.md) の `Test Flow` を基準にする。
+
+```text
+1. 仕様カードを書く
+2. notes/NNN-name-test.c で部品として小さく確認する
+3. 問題なければ notes/vm.c へ統合する
+4. programs/*.bin をVMから起動して確認する
+5. README と manual の索引を更新する
+```
+
+作業終わりには [DOC_UPDATE_CHECKLIST.md](DOC_UPDATE_CHECKLIST.md) を見て、周辺ファイルの更新漏れを確認する。
 
 ## 追加するファイル
 
@@ -591,105 +603,199 @@ VM flow complete.
 CPU halted.
 ```
 
-## 記事第3回の作成引き継ぎ
+## Day 21で実際に行ったこと
 
-次回は、記事第3回を仕上げるところから再開する。
-
-対象の下書き:
+Day 21 `Binary Loader` では、次を追加した。
 
 ```text
-articles/2026-09-08-vm-control-flow-016-020-outline.md
+manual/specs/021-binary-loader.md
+notes/021-binary-loader-test.c
+manual/test-code-explanations/021-binary-loader-test.md
 ```
 
-このファイルは `articles/` 配下にあり、`.gitignore` によりGit管理対象外。記事本文の編集内容はローカル下書きとして扱う。
-
-参照するスタイルガイド:
+次を更新した。
 
 ```text
-articles/ARTICLE_STYLE_GUIDE.md
+README.md
+manual/README.md
+manual/instruction-types.md
+notes/vm.c
 ```
 
-参考記事:
+`notes/vm.c` は、引数なしなら従来の内蔵テストプログラムを実行し、引数ありなら外部バイナリを `memory[0]` から読み込んで実行する。
+
+確認した実行結果:
 
 ```text
-articles/unix-cafe-handmade-vm-02.txt
+cc notes/021-binary-loader-test.c -o /tmp/021-binary-loader-test
+/tmp/021-binary-loader-test
+
+inst0=0x40000041
+inst1=0x60000000
+inst2=0x01000000
+binary loader test passed.
 ```
 
-ユーザーの希望:
-
 ```text
-一旦記事を仕上げたい
-ARTICLE_STYLE_GUIDE.md に従う
-初心者に分かりやすい、自然な日本語にする
-第2回の記事の説明が分かりやすかったので、その説明調に寄せる
+cc notes/vm.c -o /tmp/handmade-vm
+/tmp/handmade-vm /tmp/021-program.bin
+
+A
+CPU halted.
 ```
 
-次回やること:
+## programs/hello.binで実際に行ったこと
+
+外部バイナリローダーをリポジトリ内の実ファイルで確認できるように、次を追加した。
 
 ```text
-1. articles/ARTICLE_STYLE_GUIDE.md を読む
-2. articles/unix-cafe-handmade-vm-02.txt を参考に、WordPressブロック形式の文体を確認する
-3. articles/2026-09-08-vm-control-flow-016-020-outline.md を完成記事へ書き換える
-4. Day 16からDay 20を、初心者向けに1章ずつ説明する
-5. 公開用メモのスラッグ、タグ、ディスクリプション、アイキャッチ用プロンプトを末尾に残す
+programs/README.md
+programs/hello.bin
 ```
 
-記事に入れる主な流れ:
+`programs/hello.bin` の中身:
 
 ```text
-導入:
-  前回までで、値を置く、読む、書く、スタックへ退避するところまで進んだ
-  今回は、上から順番に実行するだけのVMから一歩進める
-
-Day 16 ADD / SUB:
-  レジスタ同士で計算する
-  ADD R0, R1 は regs[0] = regs[0] + regs[1]
-  SUB R2, R3 は regs[2] = regs[2] - regs[3]
-
-Day 17 CMP:
-  レジスタを書き換えず、比較結果だけを zero_flag に残す
-  次の JZ / JNZ がこの結果を使う
-
-Day 18 JUMP / JZ:
-  PCを書き換えて実行位置を変える
-  fetchでPCが一度+4されたあと、必要ならPCをジャンプ先へ上書きする
-
-Day 19 JNZ:
-  JZの逆で、zero_flagがfalseのときにジャンプする
-  CMP、JZ、JNZでif文に近い形が見えてくる
-
-Day 20 CALLI / RET:
-  CALLIは戻り先PCをスタックに積んでからジャンプする
-  RETはスタックから戻り先PCを取り出して戻る
-
-SYSCALL 1:
-  R0を文字列アドレスとして使い、0終端まで表示する
-  PCは命令の場所、R0はデータの場所として分けて説明する
-
-まとめ:
-  ADD/SUBで計算
-  CMPで比較
-  JUMP/JZ/JNZで分岐
-  CALLI/RETでサブルーチン
-  SYSCALL 1で文字列表示
+40 00 00 41
+60 00 00 00
+01 00 00 00
 ```
 
-記事化するときの注意:
+対応する命令:
 
-```text
-地の文は「です・ます」調にする
-命令名、ファイル名、変数名はバッククォートで囲む
-仕様カードからCコードへ直接飛ばず、アセンブリ例、手計算、fetch/decode/executeの順に挟む
-命令ごとに全部の仕様カードを長く載せすぎず、読者が止まりやすい点を優先する
-JUMP/JZ/JNZでは、fetch後にPCが+4されてからPCを上書きする点を必ず説明する
-CALLI/RETでは、戻り先PCが「CALLIの次の命令アドレス」になる点を必ず説明する
+```asm
+MOVI R0, 65
+SYSCALL 0
+HALT
 ```
 
-作業開始時点の状態:
+確認した実行結果:
 
 ```text
-記事本文の書き換えは未着手
-git status は clean
-直近のGitHub反映済みコミットは bc77a86 Stop tracking article drafts
-articles/ はGit管理対象外
+cc notes/vm.c -o /tmp/handmade-vm
+/tmp/handmade-vm programs/hello.bin
+
+A
+CPU halted.
+```
+
+## Day 22で実際に行ったこと
+
+Day 22 `Hello Binary Writer` では、`programs/hello.bin` を再生成できる小さな作成ツールを追加した。
+
+```text
+tools/write-hello-bin.c
+manual/specs/022-hello-binary-writer.md
+manual/test-code-explanations/022-hello-binary-writer.md
+```
+
+次を更新した。
+
+```text
+README.md
+manual/README.md
+programs/README.md
+```
+
+確認した実行結果:
+
+```text
+cc tools/write-hello-bin.c -o /tmp/write-hello-bin
+/tmp/write-hello-bin
+
+wrote programs/hello.bin
+```
+
+```text
+xxd programs/hello.bin
+
+00000000: 4000 0041 6000 0000 0100 0000            @..A`.......
+```
+
+```text
+cc notes/vm.c -o /tmp/handmade-vm
+/tmp/handmade-vm programs/hello.bin
+
+A
+CPU halted.
+```
+
+## 現在の方針
+
+今回の企画は、既存教材を組み合わせるのではなく、自作CPU、自作VM、自作OS、自作シェル、自作エディターを一から手書きで組み上げる。
+
+既存教材は、最初に読むものではなく、迷ったときや実装後に照合する参考資料として扱う。
+
+今後の作業は、次の順番を守る。
+
+```text
+1. 仕様カードを書く
+2. notes/NNN-name-test.c で部品として小さく確認する
+3. 問題なければ notes/vm.c へ統合する
+4. programs/*.bin をVMから起動して確認する
+5. README と manual の索引を更新する
+```
+
+`/tmp` はコンパイル結果や一時テストファイルに使う。
+
+学習用に残したい実行サンプルは `programs/` に置く。
+
+## 次回の候補
+
+次回は、次のどちらかから選ぶ。
+
+```text
+候補A: 小さな assembler へ進む
+候補B: 入力系 SYSCALL の仕様カードを書く
+```
+
+現時点では、候補Aを優先するのが自然。
+
+理由は、外部バイナリローダーと `hello.bin` 作成ツールまで進んだので、次は手で命令値を書く段階から、小さなアセンブリ表記をバイナリへ変換する段階へ進めるため。
+
+ただし、本格的なアセンブラにはしない。最初は次の3命令だけでよい。
+
+```asm
+MOVI R0, 65
+SYSCALL 0
+HALT
+```
+
+最初の成功条件:
+
+```text
+tools/small-asm.c または tools/small-asm.py で programs/hello.bin 相当を生成する
+生成した .bin を notes/vm.c で実行する
+
+A
+CPU halted.
+```
+
+もし入力系へ進む場合は、いきなり行編集やOS風コマンドループへ進まない。
+
+最初の成功条件は次の程度にする。
+
+```text
+1文字だけ読む
+読んだ文字をR0へ入れる
+SYSCALL 0で同じ文字を表示する
+```
+
+## 再開時に確認すること
+
+作業再開時は、まず次を確認する。
+
+```sh
+git status --short
+cc tools/write-hello-bin.c -o /tmp/write-hello-bin
+/tmp/write-hello-bin
+cc notes/vm.c -o /tmp/handmade-vm
+/tmp/handmade-vm programs/hello.bin
+```
+
+期待出力:
+
+```text
+A
+CPU halted.
 ```

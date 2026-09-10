@@ -20,6 +20,7 @@
 | [instruction-types.md](instruction-types.md) | このVM専用の命令タイプと命令一覧 |
 | [HANDOFF.md](HANDOFF.md) | 新しい命令を追加するときの引き継ぎ書 |
 | [NEXT_INSTRUCTION_GUIDELINES.md](NEXT_INSTRUCTION_GUIDELINES.md) | Day 15以降の命令追加順と、ブログ向け学習順の整理 |
+| [DOC_UPDATE_CHECKLIST.md](DOC_UPDATE_CHECKLIST.md) | 作業終わりに周辺ファイルの更新漏れを確認するチェックリスト |
 | [specs/](specs/) | 命令ごとの仕様書 |
 | [reference/](reference/) | fieldの読み方や、一般的な命令分類の補助資料 |
 | [test-code-explanations/](test-code-explanations/) | `notes/*-test.c` を読むための解説 |
@@ -38,6 +39,8 @@
 新しい命令を追加するときは [HANDOFF.md](HANDOFF.md) を見ます。
 
 Day 15 `POP` 以降の命令追加順や、次の節目である外部バイナリローダーの方針を確認したいときは [NEXT_INSTRUCTION_GUIDELINES.md](NEXT_INSTRUCTION_GUIDELINES.md) を見ます。
+
+作業終わりに更新漏れを確認するときは [DOC_UPDATE_CHECKLIST.md](DOC_UPDATE_CHECKLIST.md) を見ます。
 
 `type`, `op`, `rd`, `rs`, `imm` の意味を確認したいときは [reference/instruction-fields.md](reference/instruction-fields.md) を見ます。
 
