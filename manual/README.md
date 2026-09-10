@@ -24,6 +24,12 @@
 | [reference/](reference/) | fieldの読み方や、一般的な命令分類の補助資料 |
 | [test-code-explanations/](test-code-explanations/) | `notes/*-test.c` を読むための解説 |
 
+## VM起動機能
+
+| 機能 | 概要 | 仕様 |
+|---|---|---|
+| 外部バイナリローダー | `program.bin` を `memory[0]` から読み込む | [specs/021-binary-loader.md](specs/021-binary-loader.md) |
+
 ## 使い分け
 
 命令の種類を探したいときは [instruction-types.md](instruction-types.md) を見ます。

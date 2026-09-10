@@ -67,6 +67,7 @@ notes/
   018-jump-jz-test.c
   019-jnz-test.c
   020-calli-ret-test.c
+  021-binary-loader-test.c
   vm.c
 ```
 
@@ -97,6 +98,13 @@ cc notes/vm.c -o /tmp/handmade-vm
 A
 VM flow complete.
 CPU halted.
+```
+
+外部バイナリを読み込む場合は、引数にファイル名を渡します。
+
+```sh
+cc notes/vm.c -o /tmp/handmade-vm
+/tmp/handmade-vm program.bin
 ```
 
 個別の練習コードも同じようにコンパイルして実行できます。
@@ -159,6 +167,11 @@ cc notes/019-jnz-test.c -o /tmp/019-jnz-test
 ```sh
 cc notes/020-calli-ret-test.c -o /tmp/020-calli-ret-test
 /tmp/020-calli-ret-test
+```
+
+```sh
+cc notes/021-binary-loader-test.c -o /tmp/021-binary-loader-test
+/tmp/021-binary-loader-test
 ```
 
 ## 学習の型

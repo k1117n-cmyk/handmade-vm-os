@@ -41,6 +41,32 @@ static void write_inst(VM *vm, uint32_t address, uint32_t inst) {
     write_u32_be(vm->memory, address, inst);
 }
 
+static bool load_program_file(VM *vm, const char *path) {
+    FILE *file = fopen(path, "rb");
+
+    if (file == NULL) {
+        perror(path);
+        return false;
+    }
+
+    size_t bytes_read = fread(vm->memory, 1, MEMORY_SIZE, file);
+
+    if (ferror(file)) {
+        perror(path);
+        fclose(file);
+        return false;
+    }
+
+    if (bytes_read == MEMORY_SIZE && fgetc(file) != EOF) {
+        fprintf(stderr, "program too large: %s\n", path);
+        fclose(file);
+        return false;
+    }
+
+    fclose(file);
+    return true;
+}
+
 static DecodedInst decode(uint32_t inst) {
     DecodedInst decoded;
 
@@ -337,14 +363,26 @@ static void load_test_program(VM *vm) {
     vm->memory[0x00000112] = 0x00;
 }
 
-int main(void) {
+int main(int argc, char **argv) {
     VM vm = {0};
+
+    if (argc > 2) {
+        fprintf(stderr, "usage: %s [program.bin]\n", argv[0]);
+        return 1;
+    }
 
     vm.pc = 0x00000000;
     vm.sp = 0x00100000;
     vm.running = true;
 
-    load_test_program(&vm);
+    if (argc == 2) {
+        if (!load_program_file(&vm, argv[1])) {
+            return 1;
+        }
+    } else {
+        load_test_program(&vm);
+    }
+
     run(&vm);
 
     return 0;
