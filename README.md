@@ -69,19 +69,23 @@ notes/
   020-calli-ret-test.c
   021-binary-loader-test.c
   vm.c
+
+programs/
+  README.md
+  hello.bin
 ```
 
 `manual/` は仕様、補助資料、テストコード解説をまとめたマニュアルです。
 
 `notes/` はCコード置き場です。各 `*-test.c` は、その日の命令やVM部品を小さく確認するためのテストコードです。`vm.c` は現在の統合VMです。
 
-次の節目は、`notes/vm.c` に埋め込んだテストプログラムだけでなく、外部バイナリを読み込んで実行できる形にすることです。
+`notes/vm.c` は、外部バイナリを読み込んで実行できるようになりました。
 
 ```text
 ./vm program.bin
 ```
 
-最初は `MOVI R0, 65`, `SYSCALL 0`, `HALT` だけの小さな `program.bin` を手作りして確認します。本格的なアセンブラや自作OSは、その後に進めます。
+最初のサンプルとして、`MOVI R0, 65`, `SYSCALL 0`, `HALT` だけの小さな `programs/hello.bin` を置いています。本格的なアセンブラや自作OSは、その後に進めます。
 
 ## 試し方
 
@@ -104,7 +108,14 @@ CPU halted.
 
 ```sh
 cc notes/vm.c -o /tmp/handmade-vm
-/tmp/handmade-vm program.bin
+/tmp/handmade-vm programs/hello.bin
+```
+
+期待する出力:
+
+```text
+A
+CPU halted.
 ```
 
 個別の練習コードも同じようにコンパイルして実行できます。

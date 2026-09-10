@@ -49,10 +49,10 @@ fieldの詳しい読み方は [reference/instruction-fields.md](reference/instru
 Day 21 では、命令ではなくVMの起動機能として外部バイナリローダーを追加する。
 
 ```text
-./vm program.bin
+./vm programs/hello.bin
 ```
 
-この機能は `program.bin` を `memory[0]` から読み込み、通常通り `PC = 0` から `fetch`, `decode`, `execute` を始める。
+この機能は外部バイナリを `memory[0]` から読み込み、通常通り `PC = 0` から `fetch`, `decode`, `execute` を始める。
 
 詳しくは [specs/021-binary-loader.md](specs/021-binary-loader.md) を参照する。
 

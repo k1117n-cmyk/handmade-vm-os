@@ -13,8 +13,8 @@ bit配置: なし
 PCの変化: 起動時 PC = 0x00000000。fetch後は通常通り +4
 条件フラグの変化: なし
 エラー時: ファイルを開けない、読めない、1MBを超える場合は実行せず終了
-手作りテスト: program.bin に MOVI R0, 65 / SYSCALL 0 / HALT を置く
-成功条件: ./vm program.bin で A と CPU halted. が表示される
+手作りテスト: programs/hello.bin に MOVI R0, 65 / SYSCALL 0 / HALT を置く
+成功条件: ./vm programs/hello.bin で A と CPU halted. が表示される
 ```
 
 これまでの `notes/vm.c` は、Cコードの中で `load_test_program()` を呼び、命令を直接メモリへ置いていました。
@@ -28,13 +28,13 @@ write_inst(vm, 0x00000008, 0x01000000);
 Day 21 では、この命令列をVMの外に出します。
 
 ```text
-program.bin
+programs/hello.bin
   40 00 00 41
   60 00 00 00
   01 00 00 00
 ```
 
-VMは `program.bin` の中身を `memory[0]` から順番に読み込みます。
+VMは `programs/hello.bin` の中身を `memory[0]` から順番に読み込みます。
 
 ```text
 memory[0x00000000] = 0x40
