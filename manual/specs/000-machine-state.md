@@ -20,7 +20,7 @@ zero_flag = false:
   直前のCMPで2つの値が違っていた
 ```
 
-`underflow_flag`, `overflow_flag`, `CR` レジスタは、lesson 04 のOS起動に必要になった時点で追加する。
+`underflow_flag`, `overflow_flag`, `CR` レジスタは、自作OS側で必要になった時点で追加する。
 
 ```text
   31    28 27    24 23    20 19                               0

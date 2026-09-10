@@ -48,6 +48,14 @@ host macOS/Linux
 
 Day 15 `POP` 以降の短期的な命令追加順は、ブログ記事とのつながりを優先して [manual/NEXT_INSTRUCTION_GUIDELINES.md](manual/NEXT_INSTRUCTION_GUIDELINES.md) にまとめる。
 
+今の次の節目は、Cコード内に命令を直接置くVMから、外部バイナリを読み込んで実行するVMへ進むこと。
+
+```text
+./vm program.bin
+```
+
+この段階では、まだOSを起動しない。まずは `MOVI`, `SYSCALL`, `HALT` だけで作った小さな `program.bin` を読み込み、期待通りに実行できることを確認する。
+
 ## Milestones
 
 ### 1. CPU v1
@@ -64,14 +72,13 @@ Day 15 `POP` 以降の短期的な命令追加順は、ブログ記事とのつ�
 - stack with `PUSH` / `POP`
 - basic instruction dispatch
 
-命令は、ブログ記事で説明しやすい順に1つずつ追加する。
+命令は、ブログ記事で説明しやすい順に1つずつ追加する。現在は、次の基本命令まで進んでいる。
 
 - `MOVI`
 - `MOV`
 - `ADD`
 - `SUB`
 - `CMP`
-- `SBTI`
 - `LDB`
 - `STB`
 - `LDDI`
@@ -85,16 +92,59 @@ Day 15 `POP` 以降の短期的な命令追加順は、ブログ記事とのつ�
 - `JPI` / `JUMP`
 - `JPZI` / `JZ`
 - `JPNZI` / `JNZ`
-- `JPUI`
-- `JPNUI`
 - `SYSCALL`
 - `HALT`
 
 外部バイナリローダーは、C配列に命令を直接置く段階から、`./vm program.bin` で実行する段階へ進むための節目として追加する。
 
+CPU v1 の次の作業順:
+
+```text
+1. 外部バイナリローダー
+2. 小さな program.bin の作成方法
+3. program.bin 版の最小デモ
+4. README / manual の更新
+5. 必要になった命令を1つずつ追加
+```
+
+外部バイナリローダーの最初の成功条件:
+
+```text
+cc notes/vm.c -o /tmp/handmade-vm
+/tmp/handmade-vm program.bin
+```
+
+`program.bin` の中身:
+
+```asm
+MOVI R0, 65
+SYSCALL 0
+HALT
+```
+
+期待出力:
+
+```text
+A
+CPU halted.
+```
+
+この時点では、まだ本格的なアセンブラは作らない。手で16進数を書くか、小さなバイナリ生成コードで十分とする。
+
+今後、自作OS側で必要になったら追加する命令:
+
+- `SBT`
+- `SBTI`
+- `NOT`
+- `JPUI`
+- `JPNUI`
+- `underflow_flag`
+
 ### 2. OS v1
 
 今回のVM仕様に合わせて、小さな自作OSを一から書く。
+
+OS v1 は、外部バイナリローダーが動いてから始める。
 
 成功条件:
 
@@ -103,6 +153,16 @@ Day 15 `POP` 以降の短期的な命令追加順は、ブログ記事とのつ�
 - 1文字入力を受け取れる
 - 入力行をメモリに保存できる
 - 最初の組み込みコマンドが動く
+
+最初のOS風プログラム:
+
+```text
+起動メッセージを出す
+> を出す
+1文字読む
+読んだ文字を表示する
+HALT
+```
 
 この時点で次の構成が成立する。
 
@@ -198,7 +258,7 @@ C ソースをそのまま自作CPUで動かすには、次が必要になる。
 
 ## First Target
 
-現在の最初の実行目標:
+現在の実行目標:
 
 ```text
 handmade-vm-roadmap/
@@ -221,7 +281,21 @@ VM flow complete.
 CPU halted.
 ```
 
-次の節目は、組み込みテストプログラムだけでなく、外部バイナリを読み込んで実行できる形にすること。
+次の実行目標:
+
+```sh
+cc notes/vm.c -o /tmp/handmade-vm
+/tmp/handmade-vm program.bin
+```
+
+期待出力:
+
+```text
+A
+CPU halted.
+```
+
+この `program.bin` は、まず手作りの最小バイナリとして用意する。本格的なアセンブラ、自作OS、入力処理はこの後に進める。
 
 ## Implementation Notes
 
@@ -246,19 +320,26 @@ CPU halted.
 ## Recommended Repository Shape
 
 ```text
-handmade-vm/
+handmade-vm-roadmap/
   README.md
   ROADMAP.md
-  src/
-    mycpu.c
-  os/
-    os.asm
-    shell.asm
+  manual/
+    specs/
+    test-code-explanations/
+  notes/
+    vm.c
+    001-halt-test.c
+    ...
   programs/
-    pi.asm
-    editor.asm
+    hello.bin
+    later: os.bin
+    later: pi.asm
+    later: editor.asm
+  os/
+    later: os.asm
+    later: shell.asm
   tools/
-    asmx.py
+    later: small assembler or binary builder
 ```
 
 既存教材ディレクトリを直接使うのではなく、このリポジトリの中で小さく設計し、実装し、確認する。

@@ -30,7 +30,7 @@
 
 新しい命令を追加するときは [HANDOFF.md](HANDOFF.md) を見ます。
 
-Day 15 `POP` の次に進む命令順を確認したいときは [NEXT_INSTRUCTION_GUIDELINES.md](NEXT_INSTRUCTION_GUIDELINES.md) を見ます。
+Day 15 `POP` 以降の命令追加順や、次の節目である外部バイナリローダーの方針を確認したいときは [NEXT_INSTRUCTION_GUIDELINES.md](NEXT_INSTRUCTION_GUIDELINES.md) を見ます。
 
 `type`, `op`, `rd`, `rs`, `imm` の意味を確認したいときは [reference/instruction-fields.md](reference/instruction-fields.md) を見ます。
 
