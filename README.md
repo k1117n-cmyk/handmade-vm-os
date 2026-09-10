@@ -73,6 +73,9 @@ notes/
 programs/
   README.md
   hello.bin
+
+tools/
+  write-hello-bin.c
 ```
 
 `manual/` は仕様、補助資料、テストコード解説をまとめたマニュアルです。
@@ -86,6 +89,13 @@ programs/
 ```
 
 最初のサンプルとして、`MOVI R0, 65`, `SYSCALL 0`, `HALT` だけの小さな `programs/hello.bin` を置いています。本格的なアセンブラや自作OSは、その後に進めます。
+
+`programs/hello.bin` は、次の小さな作成ツールで再生成できます。
+
+```sh
+cc tools/write-hello-bin.c -o /tmp/write-hello-bin
+/tmp/write-hello-bin
+```
 
 ## 試し方
 

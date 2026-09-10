@@ -20,6 +20,13 @@ byte列:
 01 00 00 00
 ```
 
+再生成:
+
+```sh
+cc tools/write-hello-bin.c -o /tmp/write-hello-bin
+/tmp/write-hello-bin
+```
+
 実行:
 
 ```sh
