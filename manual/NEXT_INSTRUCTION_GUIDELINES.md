@@ -4,7 +4,7 @@
 
 ブログ記事では、次に実装する命令候補として `ADD`, `SUB`, `CMP`, `JUMP`, `JZ` を挙げている。
 
-一方で、長期ロードマップでは lesson 04 の `os.asm` を動かすために、`CALLI`, `RET`, `JPI`, `JPZI`, `JPNZI`, `JPUI`, `JPNUI` も必要になる。
+一方で、既存教材の lesson 04 `os.asm` を参考にすると、OSらしい処理には `CALLI`, `RET`, `JPI`, `JPZI`, `JPNZI`, `JPUI`, `JPNUI` も必要になる。
 
 この2つは矛盾ではなく、目的が違う。
 
@@ -15,12 +15,16 @@
   分岐する
   ループやif文の形を作る
 
-OS起動の実装順:
-  既存 os.asm が使っている命令をそろえる
+OS機能へ進む順:
+  自作OSに必要な命令を小さくそろえる
   関数呼び出しと戻り
   条件分岐
   syscall拡張
 ```
+
+lesson 04 は今回の企画でそのまま移植する対象ではない。
+
+今回の企画では、既存教材を「後から照合する参考資料」として扱い、現在のVM仕様に合わせて一から手書きで作る。
 
 ## 基本方針
 
@@ -126,7 +130,7 @@ HALT
 
 ブログでは、読者に伝わりやすい名前として `JUMP` / `JZ` を使ってよい。
 
-ただし、lesson 04 の教材側では次の名前が使われている。
+ただし、既存教材の lesson 04 では次の名前が使われている。
 
 ```text
 JPI    immediate addressへ無条件ジャンプ
@@ -175,7 +179,7 @@ Day 17: CMP / zero flag
 Day 18: JUMP / JZ
 Day 19: JNZ
 Day 20: CALLI / RET
-Day 21: lesson 04 用の JPZI / JPNZI / JPUI / JPNUI 整理
+Day 21: 自作OS用の JPZI / JPNZI / JPUI / JPNUI 整理
 ```
 
 ## 条件フラグの段階的な扱い
@@ -188,7 +192,7 @@ zero_flag:
   それ以外なら false
 ```
 
-その後、lesson 04 の `JPUI` / `JPNUI` が必要になった時点で `underflow_flag` を追加する。
+その後、自作OS側で `JPUI` / `JPNUI` 相当の分岐が必要になった時点で `underflow_flag` を追加する。
 
 ```text
 underflow_flag:
@@ -242,9 +246,9 @@ CALLI / RET回:
 1. ブログ記事の読者が前回から自然に理解できる順番か
 2. 1命令または1概念だけを小さくテストできるか
 3. 既存の `notes/vm.c` に無理なく統合できるか
-4. lesson 04 の `os.asm` 起動へ近づくか
+4. 自作OS、自作シェルへ進む足場になるか
 ```
 
 短期的にはブログの学習順を優先する。
 
-中期的には lesson 04 の `os.asm` 起動に戻る。
+中期的には、自作OSを一から書くための入力、分岐、syscall、外部バイナリ実行へ進む。
