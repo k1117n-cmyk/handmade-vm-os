@@ -63,23 +63,45 @@
 推奨構成:
 
 ```text
-handmade-vm/
+handmade-vm-roadmap/
+  manual/
+    specs/
+    test-code-explanations/
   notes/
-    001-machine-state.md
-    002-fetch.md
-    003-halt.md
-    004-movi.md
-    005-syscall.md
-    006-string.md
-  src/
     vm.c
-  asm/
-    os.asm
+    001-halt-test.c
+    002-fetch-test.c
+    ...
+  programs/
+    hello.bin
   tools/
-    asm.py
+    write-hello-bin.c
+    later: small assembler
 ```
 
 ノートはきれいに書く必要はない。重要なのは、後で自分が「なぜそう実装したか」を追えること。
+
+## Test Flow
+
+新しい命令やVM機能は、次の順番で確認する。
+
+```text
+1. 仕様カードを書く
+2. notes/NNN-name-test.c で部品として小さく確認する
+3. 問題なければ notes/vm.c へ統合する
+4. programs/*.bin をVMから起動して確認する
+5. README と manual の索引を更新する
+```
+
+`notes/*-test.c` は、1命令または1機能を小さく確認する場所。
+
+`notes/vm.c` は、現在の統合VM。
+
+`programs/*.bin` は、統合VMで実際に外部バイナリとして起動するサンプル。
+
+`tools/` は、バイナリ作成や後の小さなアセンブラなど、ホスト側の補助ツールを置く場所。
+
+`/tmp` は、コンパイル結果や一時テストファイルに使う。学習用に残したい実行サンプルは `programs/` に置く。
 
 ## Spec Card Template
 
@@ -994,6 +1016,78 @@ RET
 => pc = return_address
 ```
 
+### Day 21: Binary Loader
+
+目的:
+
+```text
+外部バイナリをVMのmemoryへ読み込んで実行する
+```
+
+仕様:
+
+```text
+./vm programs/hello.bin
+```
+
+確認すること:
+
+```text
+ファイルをmemory[0]から読み込む
+PCは0から始める
+読み込んだ後のfetch/decode/executeはこれまでと同じ
+```
+
+成功条件:
+
+```text
+programs/hello.bin:
+  MOVI R0, 65
+  SYSCALL 0
+  HALT
+
+実行結果:
+A
+CPU halted.
+```
+
+### Day 22: Hello Binary Writer
+
+目的:
+
+```text
+programs/hello.binを手元で再生成できるようにする
+```
+
+仕様:
+
+```text
+tools/write-hello-bin.c
+```
+
+確認すること:
+
+```text
+32bit命令をbig-endianでファイルへ書く
+0x40000041 -> 40 00 00 41
+0x60000000 -> 60 00 00 00
+0x01000000 -> 01 00 00 00
+```
+
+成功条件:
+
+```text
+cc tools/write-hello-bin.c -o /tmp/write-hello-bin
+/tmp/write-hello-bin
+
+cc notes/vm.c -o /tmp/handmade-vm
+/tmp/handmade-vm programs/hello.bin
+
+出力:
+A
+CPU halted.
+```
+
 ## How To Read Existing Code
 
 既存コードは、最初に読むものではなく、照合に使う。
@@ -1096,7 +1190,7 @@ virtual console
 
 ### Shell
 
-最初は `os.asm` 内蔵でよい。
+最初は、自作OS内の小さなコマンドループでよい。
 
 ```text
 read line
@@ -1109,7 +1203,7 @@ run external program
 
 ### Editor
 
-最初は kilo 風の最小エディターを目指す。
+最初は小さな line editor または screen editor を目指す。
 
 ```text
 screen clear
@@ -1141,41 +1235,9 @@ SYSCALL 0でAだけ出る
 
 ```text
 OSを全部動かす
-kiloを移植する
+kiloをそのまま移植する
 シェルを完成させる
 ファイルシステムを作る
 ```
 
 小さな成功条件を積み上げる。
-
-
-| type番号 | 分類（系） | 英語名 | 具体的な処理内容の例 |
-| :---: | :--- | :--- | :--- |
-| 1 | ALU / 算術演算系 | Arithmetic | `ADD`（足し算）、`SUB`（引き算）、`MUL`（かけ算）など |
-| 2 | 論理演算系 | Logical | `AND`（論理積）、`OR`（論理和）、`XOR`（排他的論理和）など |
-| 3 | シフト演算系 | Shift | `SLL`（左シフト）、`SRL`（右シフト：ビットを左右にずらす処理） |
-| 4 | MOVI / データ移動系 | Move / Load | `MOVI`（数字をレジスタに直接入れる）、`MOV`、`LD`（ロード） |
-| 5 | ストア系 | Store | `ST`（レジスタのデータをメモリに書き戻して保存する） |
-| 6 | 分岐 / ジャンプ系 | Branch / Jump | `JMP`（指定のアドレスへ飛ぶ）、`BEQ`（条件が合致したら飛ぶ） |
-| 7 | システム / 特殊命令系 | System | `NOP`（何もしない）、`HALT`（停止）、`SYSCALL`（システム呼び出し） |
-
-### 📝 命令コード `0x40000041` の構造解析
-
-メモリに入っている4バイト（32ビット）のデータ「`0x40000041`」を、CPUは以下のように分解して処理しています。
-
-| ビット位置（16進数） | 該当データ | 役割・意味 | 具体的な指示内容 |
-| :---: | :---: | :--- | :--- |
-| 先頭（左端） | `4` | `type = 4`（大分類） | 「MOVI（即値代入）系」の命令である |
-| 中央 | `00000` | レジスタ指定 | データを格納する箱は「`R0`」である |
-| 末尾（右端） | `41` | 即値データ（小分類） | 代入する値は「`0x41`（10進数で 65）」である |
-
-【実行される命令】 `MOVI R0, 65` （レジスタR0に数値65を直接代入せよ）
-
-　# 0x40000041
-
- memory[0x00000000] = 0x40;  // MOVI R0, 65
- memory[0x00000001] = 0x00;
- memory[0x00000002] = 0x00;
- memory[0x00000003] = 0x41;
-
-0x41 == 41 * 16 == 65

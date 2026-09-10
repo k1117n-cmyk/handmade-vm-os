@@ -51,10 +51,10 @@ Day 15 `POP` 以降の短期的な命令追加順は、ブログ記事とのつ�
 今の次の節目は、Cコード内に命令を直接置くVMから、外部バイナリを読み込んで実行するVMへ進むこと。
 
 ```text
-./vm program.bin
+./vm programs/hello.bin
 ```
 
-この段階では、まだOSを起動しない。まずは `MOVI`, `SYSCALL`, `HALT` だけで作った小さな `program.bin` を読み込み、期待通りに実行できることを確認する。
+この段階では、まだOSを起動しない。まずは `MOVI`, `SYSCALL`, `HALT` だけで作った小さな `programs/hello.bin` を読み込み、期待通りに実行できることを確認する。
 
 ## Milestones
 
@@ -95,14 +95,14 @@ Day 15 `POP` 以降の短期的な命令追加順は、ブログ記事とのつ�
 - `SYSCALL`
 - `HALT`
 
-外部バイナリローダーは、C配列に命令を直接置く段階から、`./vm program.bin` で実行する段階へ進むための節目として追加する。
+外部バイナリローダーは、C配列に命令を直接置く段階から、`./vm programs/hello.bin` で実行する段階へ進むための節目として追加する。
 
 CPU v1 の次の作業順:
 
 ```text
 1. 外部バイナリローダー
-2. 小さな program.bin の作成方法
-3. program.bin 版の最小デモ
+2. 小さな hello.bin の作成方法
+3. hello.bin 版の最小デモ
 4. README / manual の更新
 5. 必要になった命令を1つずつ追加
 ```
@@ -111,10 +111,10 @@ CPU v1 の次の作業順:
 
 ```text
 cc notes/vm.c -o /tmp/handmade-vm
-/tmp/handmade-vm program.bin
+/tmp/handmade-vm programs/hello.bin
 ```
 
-`program.bin` の中身:
+`programs/hello.bin` の中身:
 
 ```asm
 MOVI R0, 65
@@ -285,7 +285,7 @@ CPU halted.
 
 ```sh
 cc notes/vm.c -o /tmp/handmade-vm
-/tmp/handmade-vm program.bin
+/tmp/handmade-vm programs/hello.bin
 ```
 
 期待出力:
@@ -295,7 +295,7 @@ A
 CPU halted.
 ```
 
-この `program.bin` は、まず手作りの最小バイナリとして用意する。本格的なアセンブラ、自作OS、入力処理はこの後に進める。
+この `programs/hello.bin` は、まず手作りの最小バイナリとして用意する。本格的なアセンブラ、自作OS、入力処理はこの後に進める。
 
 ## Implementation Notes
 

@@ -62,10 +62,10 @@ Day 21: 外部バイナリローダー
 
 ```text
 cc notes/vm.c -o /tmp/handmade-vm
-/tmp/handmade-vm program.bin
+/tmp/handmade-vm programs/hello.bin
 ```
 
-`program.bin` の中身:
+`programs/hello.bin` の中身:
 
 ```asm
 MOVI R0, 65
