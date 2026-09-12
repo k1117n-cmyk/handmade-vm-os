@@ -11,6 +11,7 @@
 2. reference/instruction-fields.md
 3. specs/
 4. test-code-explanations/
+5. HANDOFF.md
 ```
 
 ## ファイルの役割
@@ -18,8 +19,9 @@
 | 場所 | 役割 |
 |---|---|
 | [instruction-types.md](instruction-types.md) | このVM専用の命令タイプと命令一覧 |
-| [HANDOFF.md](HANDOFF.md) | 新しい命令を追加するときの引き継ぎ書 |
-| [NEXT_INSTRUCTION_GUIDELINES.md](NEXT_INSTRUCTION_GUIDELINES.md) | Day 15以降の命令追加順と、ブログ向け学習順の整理 |
+| [HANDOFF.md](HANDOFF.md) | 次回作業を再開するための短いメモ |
+| [WORKLOG.md](WORKLOG.md) | 過去に実際に行った作業ログ |
+| [NEXT_INSTRUCTION_GUIDELINES.md](NEXT_INSTRUCTION_GUIDELINES.md) | 今後の命令やsyscall追加方針 |
 | [DOC_UPDATE_CHECKLIST.md](DOC_UPDATE_CHECKLIST.md) | 作業終わりに周辺ファイルの更新漏れを確認するチェックリスト |
 | [specs/](specs/) | 命令ごとの仕様書 |
 | [reference/](reference/) | fieldの読み方や、一般的な命令分類の補助資料 |
@@ -37,9 +39,11 @@
 
 命令の種類を探したいときは [instruction-types.md](instruction-types.md) を見ます。
 
-新しい命令を追加するときは [HANDOFF.md](HANDOFF.md) を見ます。
+作業を再開するときは [HANDOFF.md](HANDOFF.md) を見ます。
 
-Day 15 `POP` 以降の命令追加順や、次の節目である外部バイナリローダーの方針を確認したいときは [NEXT_INSTRUCTION_GUIDELINES.md](NEXT_INSTRUCTION_GUIDELINES.md) を見ます。
+過去に何を追加したか確認したいときは [WORKLOG.md](WORKLOG.md) を見ます。
+
+今後の命令やsyscall追加方針を確認したいときは [NEXT_INSTRUCTION_GUIDELINES.md](NEXT_INSTRUCTION_GUIDELINES.md) を見ます。
 
 作業終わりに更新漏れを確認するときは [DOC_UPDATE_CHECKLIST.md](DOC_UPDATE_CHECKLIST.md) を見ます。
 

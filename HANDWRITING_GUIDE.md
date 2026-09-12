@@ -73,10 +73,11 @@ handmade-vm-roadmap/
     002-fetch-test.c
     ...
   programs/
+    hello.asm
     hello.bin
   tools/
     write-hello-bin.c
-    later: small assembler
+    small-asm.c
 ```
 
 ノートはきれいに書く必要はない。重要なのは、後で自分が「なぜそう実装したか」を追えること。
@@ -99,7 +100,7 @@ handmade-vm-roadmap/
 
 `programs/*.bin` は、統合VMで実際に外部バイナリとして起動するサンプル。
 
-`tools/` は、バイナリ作成や後の小さなアセンブラなど、ホスト側の補助ツールを置く場所。
+`tools/` は、バイナリ作成や小さなアセンブラなど、ホスト側の補助ツールを置く場所。
 
 `/tmp` は、コンパイル結果や一時テストファイルに使う。学習用に残したい実行サンプルは `programs/` に置く。
 
@@ -1082,6 +1083,44 @@ cc tools/write-hello-bin.c -o /tmp/write-hello-bin
 
 cc notes/vm.c -o /tmp/handmade-vm
 /tmp/handmade-vm programs/hello.bin
+
+出力:
+A
+CPU halted.
+```
+
+### Day 23: Small Assembler
+
+目的:
+
+```text
+最小限のアセンブリ表記から .bin を生成する
+```
+
+仕様:
+
+```text
+tools/small-asm.c
+programs/hello.asm
+```
+
+確認すること:
+
+```text
+MOVI Rn, imm を32bit命令へ変換する
+SYSCALL imm を32bit命令へ変換する
+HALT を32bit命令へ変換する
+出力はbig-endianで書く
+```
+
+成功条件:
+
+```text
+cc tools/small-asm.c -o /tmp/small-asm
+/tmp/small-asm programs/hello.asm /tmp/hello-small-asm.bin
+
+cc notes/vm.c -o /tmp/handmade-vm
+/tmp/handmade-vm /tmp/hello-small-asm.bin
 
 出力:
 A

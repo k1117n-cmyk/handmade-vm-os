@@ -95,19 +95,18 @@ Day 15 `POP` 以降の短期的な命令追加順は、ブログ記事とのつ�
 - `SYSCALL`
 - `HALT`
 
-外部バイナリローダーは、C配列に命令を直接置く段階から、`./vm programs/hello.bin` で実行する段階へ進むための節目として追加する。
+外部バイナリローダーは、C配列に命令を直接置く段階から、`./vm programs/hello.bin` で実行する段階へ進むための節目として追加した。
 
-CPU v1 の次の作業順:
+CPU v1 で完了した直近の節目:
 
 ```text
 1. 外部バイナリローダー
 2. 小さな hello.bin の作成方法
 3. hello.bin 版の最小デモ
-4. README / manual の更新
-5. 必要になった命令を1つずつ追加
+4. small assembler
 ```
 
-外部バイナリローダーの最初の成功条件:
+現在の hello 実行:
 
 ```text
 cc notes/vm.c -o /tmp/handmade-vm
@@ -129,7 +128,9 @@ A
 CPU halted.
 ```
 
-この時点では、まだ本格的なアセンブラは作らない。手で16進数を書くか、小さなバイナリ生成コードで十分とする。
+この時点では、まだ本格的なアセンブラは作らない。`tools/small-asm.c` は `MOVI`, `SYSCALL`, `HALT` だけを扱う最小ツールとして育てる。
+
+次は、OS風プログラムに必要な入力系 `SYSCALL` を小さく追加する。
 
 今後、自作OS側で必要になったら追加する命令:
 
@@ -256,9 +257,9 @@ C ソースをそのまま自作CPUで動かすには、次が必要になる。
 
 当面は C の設計を読み、必要な処理を自作アセンブリまたは小さな専用言語で作る。
 
-## First Target
+## Current Target
 
-現在の実行目標:
+現在の基本実行:
 
 ```text
 handmade-vm-roadmap/
@@ -281,7 +282,7 @@ VM flow complete.
 CPU halted.
 ```
 
-次の実行目標:
+外部バイナリの実行:
 
 ```sh
 cc notes/vm.c -o /tmp/handmade-vm
@@ -295,7 +296,11 @@ A
 CPU halted.
 ```
 
-この `programs/hello.bin` は、まず手作りの最小バイナリとして用意する。本格的なアセンブラ、自作OS、入力処理はこの後に進める。
+`programs/hello.bin` は、`tools/write-hello-bin.c` または `tools/small-asm.c` で再生成できる。
+
+次の作業候補は、OS風プログラムに必要な入力系 `SYSCALL` を小さく追加すること。
+
+短い再開手順は [manual/HANDOFF.md](manual/HANDOFF.md) を見る。
 
 ## Implementation Notes
 
@@ -331,6 +336,7 @@ handmade-vm-roadmap/
     001-halt-test.c
     ...
   programs/
+    hello.asm
     hello.bin
     later: os.bin
     later: pi.asm
@@ -339,7 +345,8 @@ handmade-vm-roadmap/
     later: os.asm
     later: shell.asm
   tools/
-    later: small assembler or binary builder
+    write-hello-bin.c
+    small-asm.c
 ```
 
 既存教材ディレクトリを直接使うのではなく、このリポジトリの中で小さく設計し、実装し、確認する。

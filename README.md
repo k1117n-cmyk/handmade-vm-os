@@ -46,6 +46,8 @@ host macOS/Linux
 ```text
 manual/
   README.md
+  HANDOFF.md
+  WORKLOG.md
   instruction-types.md
   specs/
   reference/
@@ -84,13 +86,13 @@ tools/
 
 `notes/` はCコード置き場です。各 `*-test.c` は、その日の命令やVM部品を小さく確認するためのテストコードです。`vm.c` は現在の統合VMです。
 
-`notes/vm.c` は、外部バイナリを読み込んで実行できるようになりました。
+`notes/vm.c` は、外部バイナリを読み込んで実行できます。
 
 ```text
 ./vm program.bin
 ```
 
-最初のサンプルとして、`MOVI R0, 65`, `SYSCALL 0`, `HALT` だけの小さな `programs/hello.bin` を置いています。本格的なアセンブラや自作OSは、その後に進めます。
+最初のサンプルとして、`MOVI R0, 65`, `SYSCALL 0`, `HALT` だけの小さな `programs/hello.asm` と `programs/hello.bin` を置いています。
 
 `programs/hello.bin` は、次の小さな作成ツールで再生成できます。
 
@@ -105,6 +107,8 @@ cc tools/write-hello-bin.c -o /tmp/write-hello-bin
 cc tools/small-asm.c -o /tmp/small-asm
 /tmp/small-asm programs/hello.asm programs/hello.bin
 ```
+
+作業を再開するときは [manual/HANDOFF.md](manual/HANDOFF.md)、過去の作業ログを確認するときは [manual/WORKLOG.md](manual/WORKLOG.md) を見ます。
 
 ## 試し方
 
