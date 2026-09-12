@@ -56,6 +56,18 @@ Day 21 では、命令ではなくVMの起動機能として外部バイナリ�
 
 詳しくは [specs/021-binary-loader.md](specs/021-binary-loader.md) を参照する。
 
+Day 22 では、固定の3命令を書き出す `tools/write-hello-bin.c` を追加した。
+
+Day 23 では、最小限のアセンブリ表記を外部バイナリへ変換する `tools/small-asm.c` を追加した。
+
+```text
+MOVI R0, 65
+SYSCALL 0
+HALT
+```
+
+詳しくは [specs/022-hello-binary-writer.md](specs/022-hello-binary-writer.md) と [specs/023-small-asm.md](specs/023-small-asm.md) を参照する。
+
 ## Type一覧
 
 | type | 分類 | 役割 | 現在の命令 |

@@ -31,6 +31,7 @@
 |---|---|---|
 | 外部バイナリローダー | `program.bin` を `memory[0]` から読み込む | [specs/021-binary-loader.md](specs/021-binary-loader.md) |
 | hello.bin 作成ツール | 最小バイナリを生成する | [specs/022-hello-binary-writer.md](specs/022-hello-binary-writer.md) |
+| small assembler | 最小アセンブリを `.bin` へ変換する | [specs/023-small-asm.md](specs/023-small-asm.md) |
 
 ## 使い分け
 

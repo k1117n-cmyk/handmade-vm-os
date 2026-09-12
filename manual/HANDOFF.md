@@ -15,7 +15,7 @@
 
 コードだけ先に増やすのではなく、仕様、テスト、解説、索引を同時に更新する。
 
-Day 15 `POP` 以降の追加順は [NEXT_INSTRUCTION_GUIDELINES.md](NEXT_INSTRUCTION_GUIDELINES.md) を基準にする。現在は Day 22 `hello.bin` 作成ツールまで完了している。
+Day 15 `POP` 以降の追加順は [NEXT_INSTRUCTION_GUIDELINES.md](NEXT_INSTRUCTION_GUIDELINES.md) を基準にする。現在は Day 23 `small assembler` まで完了している。
 
 今後の基本フローは [../HANDWRITING_GUIDE.md](../HANDWRITING_GUIDE.md) の `Test Flow` を基準にする。
 
@@ -740,20 +740,27 @@ CPU halted.
 
 学習用に残したい実行サンプルは `programs/` に置く。
 
-## 次回の候補
+## Day 23で実際に行ったこと
 
-次回は、次のどちらかから選ぶ。
+Day 23 `Small Assembler` では、最小限のアセンブリ表記から外部バイナリを生成する小さな作成ツールを追加した。
 
 ```text
-候補A: 小さな assembler へ進む
-候補B: 入力系 SYSCALL の仕様カードを書く
+tools/small-asm.c
+programs/hello.asm
+manual/specs/023-small-asm.md
+manual/test-code-explanations/023-small-asm.md
 ```
 
-現時点では、候補Aを優先するのが自然。
+次を更新した。
 
-理由は、外部バイナリローダーと `hello.bin` 作成ツールまで進んだので、次は手で命令値を書く段階から、小さなアセンブリ表記をバイナリへ変換する段階へ進めるため。
+```text
+README.md
+manual/README.md
+manual/instruction-types.md
+programs/README.md
+```
 
-ただし、本格的なアセンブラにはしない。最初は次の3命令だけでよい。
+`tools/small-asm.c` が最初に扱う命令は次の3つだけ。
 
 ```asm
 MOVI R0, 65
@@ -761,19 +768,43 @@ SYSCALL 0
 HALT
 ```
 
-最初の成功条件:
+確認した実行結果:
 
 ```text
-tools/small-asm.c または tools/small-asm.py で programs/hello.bin 相当を生成する
-生成した .bin を notes/vm.c で実行する
+cc tools/small-asm.c -o /tmp/small-asm
+/tmp/small-asm programs/hello.asm /tmp/hello-small-asm.bin
+
+assembled 3 instructions to /tmp/hello-small-asm.bin
+```
+
+```text
+xxd /tmp/hello-small-asm.bin
+
+00000000: 4000 0041 6000 0000 0100 0000            @..A`.......
+```
+
+```text
+cc notes/vm.c -o /tmp/handmade-vm
+/tmp/handmade-vm /tmp/hello-small-asm.bin
 
 A
 CPU halted.
 ```
 
-もし入力系へ進む場合は、いきなり行編集やOS風コマンドループへ進まない。
+## 次回の候補
 
-最初の成功条件は次の程度にする。
+次回は、次のどちらかから選ぶ。
+
+```text
+候補A: 入力系 SYSCALL の仕様カードを書く
+候補B: small assembler が扱える命令を1つ増やす
+```
+
+現時点では、候補Aを優先するのが自然。
+
+理由は、外部バイナリローダー、`hello.bin` 作成ツール、最小 `small assembler` まで進んだので、次はOS風プログラムに必要な入力系へ進めるため。
+
+最初の成功条件:
 
 ```text
 1文字だけ読む
@@ -791,6 +822,9 @@ cc tools/write-hello-bin.c -o /tmp/write-hello-bin
 /tmp/write-hello-bin
 cc notes/vm.c -o /tmp/handmade-vm
 /tmp/handmade-vm programs/hello.bin
+cc tools/small-asm.c -o /tmp/small-asm
+/tmp/small-asm programs/hello.asm /tmp/hello-small-asm.bin
+/tmp/handmade-vm /tmp/hello-small-asm.bin
 ```
 
 期待出力:

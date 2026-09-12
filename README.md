@@ -72,9 +72,11 @@ notes/
 
 programs/
   README.md
+  hello.asm
   hello.bin
 
 tools/
+  small-asm.c
   write-hello-bin.c
 ```
 
@@ -95,6 +97,13 @@ tools/
 ```sh
 cc tools/write-hello-bin.c -o /tmp/write-hello-bin
 /tmp/write-hello-bin
+```
+
+また、最小限のアセンブリ表記から生成することもできます。
+
+```sh
+cc tools/small-asm.c -o /tmp/small-asm
+/tmp/small-asm programs/hello.asm programs/hello.bin
 ```
 
 ## 試し方

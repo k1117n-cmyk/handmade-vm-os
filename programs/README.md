@@ -2,9 +2,9 @@
 
 このディレクトリには、VMで読み込む小さな外部バイナリを置く。
 
-## hello.bin
+## hello.asm / hello.bin
 
-`hello.bin` は、Day 21 の外部バイナリローダー確認用の最小プログラム。
+`hello.asm` と `hello.bin` は、外部バイナリローダー確認用の最小プログラム。
 
 ```asm
 MOVI R0, 65
@@ -25,6 +25,13 @@ byte列:
 ```sh
 cc tools/write-hello-bin.c -o /tmp/write-hello-bin
 /tmp/write-hello-bin
+```
+
+アセンブリ表記から再生成:
+
+```sh
+cc tools/small-asm.c -o /tmp/small-asm
+/tmp/small-asm programs/hello.asm programs/hello.bin
 ```
 
 実行:
