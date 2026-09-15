@@ -70,12 +70,15 @@ notes/
   019-jnz-test.c
   020-calli-ret-test.c
   021-binary-loader-test.c
+  024-syscall-read-char-test.c
   vm.c
 
 programs/
   README.md
   hello.asm
   hello.bin
+  echo-char.asm
+  echo-char.bin
 
 tools/
   small-asm.c
@@ -85,6 +88,10 @@ tools/
 `manual/` は仕様、補助資料、テストコード解説をまとめたマニュアルです。
 
 `notes/` はCコード置き場です。各 `*-test.c` は、その日の命令やVM部品を小さく確認するためのテストコードです。`vm.c` は現在の統合VMです。
+
+Day 22 と Day 23 はVM命令の個別テストではなく作成ツールの追加なので、`notes/022-...` と `notes/023-...` はありません。対応するコードは `tools/write-hello-bin.c` と `tools/small-asm.c` です。
+
+Day 25 はサンプルプログラムの追加なので、`notes/025-...` はありません。対応するコードは `programs/echo-char.asm` と `programs/echo-char.bin` です。
 
 `notes/vm.c` は、外部バイナリを読み込んで実行できます。
 
@@ -110,6 +117,10 @@ cc tools/small-asm.c -o /tmp/small-asm
 
 作業を再開するときは [manual/HANDOFF.md](manual/HANDOFF.md)、過去の作業ログを確認するときは [manual/WORKLOG.md](manual/WORKLOG.md) を見ます。
 
+OS風プログラムに必要な入力系として、`SYSCALL 2` でhost標準入力から1 byte読み、`R0`へ入れられるようにしています。仕様カードは [manual/specs/024-syscall-read-char.md](manual/specs/024-syscall-read-char.md) にあります。
+
+`SYSCALL 2` の最小サンプルとして、標準入力から読んだ1文字をそのまま表示する `programs/echo-char.asm` と `programs/echo-char.bin` も置いています。
+
 ## 試し方
 
 現在の最小VMは `notes/vm.c` です。
@@ -132,6 +143,20 @@ CPU halted.
 ```sh
 cc notes/vm.c -o /tmp/handmade-vm
 /tmp/handmade-vm programs/hello.bin
+```
+
+期待する出力:
+
+```text
+A
+CPU halted.
+```
+
+入力系の最小サンプルも実行できます。
+
+```sh
+cc notes/vm.c -o /tmp/handmade-vm
+printf A | /tmp/handmade-vm programs/echo-char.bin
 ```
 
 期待する出力:
@@ -206,6 +231,11 @@ cc notes/020-calli-ret-test.c -o /tmp/020-calli-ret-test
 ```sh
 cc notes/021-binary-loader-test.c -o /tmp/021-binary-loader-test
 /tmp/021-binary-loader-test
+```
+
+```sh
+cc notes/024-syscall-read-char-test.c -o /tmp/024-syscall-read-char-test
+printf A | /tmp/024-syscall-read-char-test
 ```
 
 ## 学習の型

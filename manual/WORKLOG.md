@@ -4,6 +4,81 @@
 
 次回再開に必要な短い情報は [HANDOFF.md](HANDOFF.md) に置きます。
 
+## Day 24: SYSCALL read_char
+
+追加:
+
+```text
+manual/specs/024-syscall-read-char.md
+notes/024-syscall-read-char-test.c
+manual/test-code-explanations/024-syscall-read-char-test.md
+```
+
+更新:
+
+```text
+manual/instruction-types.md
+manual/README.md
+manual/HANDOFF.md
+README.md
+ROADMAP.md
+manual/DOC_UPDATE_CHECKLIST.md
+manual/NEXT_INSTRUCTION_GUIDELINES.md
+notes/vm.c
+```
+
+確認結果:
+
+```text
+A
+CPU halted.
+SYSCALL read_char test passed.
+```
+
+`notes/vm.c`:
+
+```text
+A
+VM flow complete.
+CPU halted.
+```
+
+## Day 25: echo-char sample program
+
+追加:
+
+```text
+programs/echo-char.asm
+programs/echo-char.bin
+manual/specs/025-echo-char.md
+manual/test-code-explanations/025-echo-char.md
+```
+
+更新:
+
+```text
+README.md
+programs/README.md
+manual/HANDOFF.md
+manual/README.md
+```
+
+確認結果:
+
+```text
+printf A | /tmp/handmade-vm programs/echo-char.bin
+```
+
+```text
+A
+CPU halted.
+```
+
+```text
+A
+CPU halted.
+```
+
 ## Day 10: LDDI
 
 追加:

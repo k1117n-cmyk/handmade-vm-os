@@ -298,7 +298,11 @@ CPU halted.
 
 `programs/hello.bin` は、`tools/write-hello-bin.c` または `tools/small-asm.c` で再生成できる。
 
-次の作業候補は、OS風プログラムに必要な入力系 `SYSCALL` を小さく追加すること。
+Day 24では、`SYSCALL 2` を「host標準入力から1 byte読み、`R0`へ入れる」機能として追加した。
+
+Day 25では、`SYSCALL 2` を使った最小echoプログラム `programs/echo-char.asm` と `programs/echo-char.bin` を追加した。
+
+次の作業候補は、1文字入力の次としてプロンプト表示つきechoを作ること。
 
 短い再開手順は [manual/HANDOFF.md](manual/HANDOFF.md) を見る。
 

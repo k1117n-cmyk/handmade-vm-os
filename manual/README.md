@@ -25,7 +25,7 @@
 | [DOC_UPDATE_CHECKLIST.md](DOC_UPDATE_CHECKLIST.md) | 作業終わりに周辺ファイルの更新漏れを確認するチェックリスト |
 | [specs/](specs/) | 命令ごとの仕様書 |
 | [reference/](reference/) | fieldの読み方や、一般的な命令分類の補助資料 |
-| [test-code-explanations/](test-code-explanations/) | `notes/*-test.c` を読むための解説 |
+| [test-code-explanations/](test-code-explanations/) | `notes/*-test.c` や `tools/*` を読むための解説 |
 
 ## VM起動機能
 
@@ -34,6 +34,11 @@
 | 外部バイナリローダー | `program.bin` を `memory[0]` から読み込む | [specs/021-binary-loader.md](specs/021-binary-loader.md) |
 | hello.bin 作成ツール | 最小バイナリを生成する | [specs/022-hello-binary-writer.md](specs/022-hello-binary-writer.md) |
 | small assembler | 最小アセンブリを `.bin` へ変換する | [specs/023-small-asm.md](specs/023-small-asm.md) |
+| echo-char sample | 入力した1文字をそのまま表示する外部プログラム | [specs/025-echo-char.md](specs/025-echo-char.md) |
+
+Day 22 と Day 23 は開発補助ツールの追加なので、対応するCコードは `notes/` ではなく `tools/` に置きます。
+
+Day 25 はサンプルプログラムの追加なので、対応するコードは `notes/` ではなく `programs/echo-char.asm` と `programs/echo-char.bin` に置きます。解説は [test-code-explanations/025-echo-char.md](test-code-explanations/025-echo-char.md) にあります。
 
 ## 使い分け
 
@@ -51,7 +56,7 @@
 
 ある命令の仕様を確認したいときは [specs/](specs/) を見ます。
 
-テストコードが何をしているか確認したいときは [test-code-explanations/](test-code-explanations/) を見ます。
+テストコードや作成ツールが何をしているか確認したいときは [test-code-explanations/](test-code-explanations/) を見ます。
 
 ## 現在の命令
 
@@ -67,6 +72,7 @@
 | `CMP` | 2つのレジスタを比較してzero flagを更新する |
 | `MOVI` | 即値をレジスタへ入れる |
 | `SYSCALL` | VM外側のサービスを呼ぶ |
+| `SYSCALL 2` | host標準入力から1 byte読み、`R0`へ入れる |
 | `JUMP` | PCを即値アドレスへ変更する |
 | `CALLI` | 戻り先PCをスタックへ積んで即値アドレスへ移動する |
 | `JZ` | zero flagが立っているときだけPCを即値アドレスへ変更する |

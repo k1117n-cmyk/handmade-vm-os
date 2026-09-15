@@ -235,6 +235,15 @@ static void execute(VM *vm, DecodedInst inst) {
             putchar('\n');
         } else if (inst.imm == 1) {
             print_string(vm, vm->regs[0]);
+        } else if (inst.imm == 2) {
+            int ch = getchar();
+
+            if (ch == EOF) {
+                printf("input EOF\n");
+                vm->running = false;
+            } else {
+                vm->regs[0] = (uint8_t)ch;
+            }
         } else {
             printf("unimplemented syscall: %u\n", inst.imm);
             vm->running = false;

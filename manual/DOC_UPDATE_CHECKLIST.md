@@ -150,6 +150,7 @@ manual/test-code-explanations/*
 ツールの入力と出力がREADMEから分かるか
 生成物をVMで実行して確認したか
 一時出力は/tmp、残すサンプルはprograms/に置いているか
+tools/* の解説を manual/test-code-explanations/ に置く場合、notes/*-test.c ではないことが分かる説明になっているか
 ```
 
 ## 記事ファイルを変更したとき
@@ -191,6 +192,12 @@ xxd programs/hello.bin
 
 ```sh
 for f in notes/*-test.c; do out="/tmp/$(basename "$f" .c)"; cc "$f" -o "$out" || exit 1; "$out" >/tmp/handmade-vm-test-output || exit 1; done
+```
+
+標準入力が必要なテストを含めて確認する場合:
+
+```sh
+for f in notes/*-test.c; do out="/tmp/$(basename "$f" .c)"; cc "$f" -o "$out" || exit 1; case "$f" in *024-syscall-read-char-test.c) printf A | "$out" >/tmp/handmade-vm-test-output || exit 1 ;; *) "$out" >/tmp/handmade-vm-test-output || exit 1 ;; esac; done
 ```
 
 ## コミット前チェック

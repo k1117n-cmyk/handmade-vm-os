@@ -6,7 +6,7 @@
 
 ## 現在地
 
-Day 23 `small assembler` まで完了しています。
+Day 24 `SYSCALL read_char` まで完了しています。
 
 現在できること:
 
@@ -14,9 +14,15 @@ Day 23 `small assembler` まで完了しています。
 notes/vm.c
   引数なしなら内蔵テストプログラムを実行する
   引数ありなら外部バイナリを memory[0] から読み込んで実行する
+  SYSCALL 2 でhost標準入力から1 byte読んでR0へ入れる
 
 programs/hello.asm
   MOVI R0, 65
+  SYSCALL 0
+  HALT
+
+programs/echo-char.asm
+  SYSCALL 2
   SYSCALL 0
   HALT
 
@@ -29,16 +35,48 @@ tools/small-asm.c
 次は候補Aを優先します。
 
 ```text
-候補A: 入力系 SYSCALL の仕様カードを書く
+候補A: 1文字入力の次としてプロンプト表示つきechoを作る
 候補B: small assembler が扱える命令を1つ増やす
 ```
 
-候補Aの最初の成功条件:
+完了した仕様カードと個別テスト:
 
 ```text
-1文字だけ読む
-読んだ文字をR0へ入れる
-SYSCALL 0で同じ文字を表示する
+manual/specs/024-syscall-read-char.md
+notes/024-syscall-read-char-test.c
+manual/test-code-explanations/024-syscall-read-char-test.md
+```
+
+完了した最小echoプログラム:
+
+```text
+programs/echo-char.asm
+programs/echo-char.bin
+manual/specs/025-echo-char.md
+manual/test-code-explanations/025-echo-char.md
+```
+
+次の最初の成功条件:
+
+```text
+> を表示する
+1文字読む
+読んだ文字を表示する
+CPU halted.
+```
+
+最小echoプログラムの確認:
+
+```sh
+cc notes/vm.c -o /tmp/handmade-vm
+printf A | /tmp/handmade-vm programs/echo-char.bin
+```
+
+期待出力:
+
+```text
+A
+CPU halted.
 ```
 
 いきなり行編集やOS風コマンドループへ進まず、まずは1文字入力だけを小さく確認します。
@@ -96,6 +134,13 @@ cc tools/small-asm.c -o /tmp/small-asm
 ```text
 A
 CPU halted.
+```
+
+Day 24の個別テストを確認する場合は、標準入力をpipeします。
+
+```sh
+cc notes/024-syscall-read-char-test.c -o /tmp/024-syscall-read-char-test
+printf A | /tmp/024-syscall-read-char-test
 ```
 
 `tools/write-hello-bin.c` に触る場合は、次も確認します。

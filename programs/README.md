@@ -47,3 +47,42 @@ cc notes/vm.c -o /tmp/handmade-vm
 A
 CPU halted.
 ```
+
+## echo-char.asm / echo-char.bin
+
+`echo-char.asm` と `echo-char.bin` は、入力系 `SYSCALL 2` の最小確認用プログラム。
+
+```asm
+SYSCALL 2
+SYSCALL 0
+HALT
+```
+
+byte列:
+
+```text
+60 00 00 02
+60 00 00 00
+01 00 00 00
+```
+
+アセンブリ表記から再生成:
+
+```sh
+cc tools/small-asm.c -o /tmp/small-asm
+/tmp/small-asm programs/echo-char.asm programs/echo-char.bin
+```
+
+実行:
+
+```sh
+cc notes/vm.c -o /tmp/handmade-vm
+printf A | /tmp/handmade-vm programs/echo-char.bin
+```
+
+期待出力:
+
+```text
+A
+CPU halted.
+```
