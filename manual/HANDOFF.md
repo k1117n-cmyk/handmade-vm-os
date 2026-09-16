@@ -6,7 +6,7 @@
 
 ## 現在地
 
-Day 24 `SYSCALL read_char` まで完了しています。
+Day 25 `echo-char` サンプルまで完了しています。
 
 現在できること:
 
