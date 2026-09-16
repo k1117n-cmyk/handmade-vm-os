@@ -79,6 +79,8 @@ programs/
   hello.bin
   echo-char.asm
   echo-char.bin
+  prompt-echo.asm
+  prompt-echo.bin
 
 tools/
   small-asm.c
@@ -92,6 +94,8 @@ tools/
 Day 22 と Day 23 はVM命令の個別テストではなく作成ツールの追加なので、`notes/022-...` と `notes/023-...` はありません。対応するコードは `tools/write-hello-bin.c` と `tools/small-asm.c` です。
 
 Day 25 はサンプルプログラムの追加なので、`notes/025-...` はありません。対応するコードは `programs/echo-char.asm` と `programs/echo-char.bin` です。
+
+Day 26 もサンプルプログラムの追加なので、`notes/026-...` はありません。対応するコードは `programs/prompt-echo.asm` と `programs/prompt-echo.bin` です。
 
 `notes/vm.c` は、外部バイナリを読み込んで実行できます。
 
@@ -120,6 +124,8 @@ cc tools/small-asm.c -o /tmp/small-asm
 OS風プログラムに必要な入力系として、`SYSCALL 2` でhost標準入力から1 byte読み、`R0`へ入れられるようにしています。仕様カードは [manual/specs/024-syscall-read-char.md](manual/specs/024-syscall-read-char.md) にあります。
 
 `SYSCALL 2` の最小サンプルとして、標準入力から読んだ1文字をそのまま表示する `programs/echo-char.asm` と `programs/echo-char.bin` も置いています。
+
+また、入力前に `>` を表示してから1文字echoする `programs/prompt-echo.asm` と `programs/prompt-echo.bin` も置いています。
 
 ## 試し方
 
@@ -162,6 +168,21 @@ printf A | /tmp/handmade-vm programs/echo-char.bin
 期待する出力:
 
 ```text
+A
+CPU halted.
+```
+
+プロンプト付きの最小サンプルも実行できます。
+
+```sh
+cc notes/vm.c -o /tmp/handmade-vm
+printf A | /tmp/handmade-vm programs/prompt-echo.bin
+```
+
+期待する出力:
+
+```text
+>
 A
 CPU halted.
 ```

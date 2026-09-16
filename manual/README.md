@@ -35,10 +35,13 @@
 | hello.bin 作成ツール | 最小バイナリを生成する | [specs/022-hello-binary-writer.md](specs/022-hello-binary-writer.md) |
 | small assembler | 最小アセンブリを `.bin` へ変換する | [specs/023-small-asm.md](specs/023-small-asm.md) |
 | echo-char sample | 入力した1文字をそのまま表示する外部プログラム | [specs/025-echo-char.md](specs/025-echo-char.md) |
+| prompt-echo sample | `>` を表示してから入力した1文字を表示する外部プログラム | [specs/026-prompt-echo.md](specs/026-prompt-echo.md) |
 
 Day 22 と Day 23 は開発補助ツールの追加なので、対応するCコードは `notes/` ではなく `tools/` に置きます。
 
 Day 25 はサンプルプログラムの追加なので、対応するコードは `notes/` ではなく `programs/echo-char.asm` と `programs/echo-char.bin` に置きます。解説は [test-code-explanations/025-echo-char.md](test-code-explanations/025-echo-char.md) にあります。
+
+Day 26 もサンプルプログラムの追加なので、対応するコードは `notes/` ではなく `programs/prompt-echo.asm` と `programs/prompt-echo.bin` に置きます。解説は [test-code-explanations/026-prompt-echo.md](test-code-explanations/026-prompt-echo.md) にあります。
 
 ## 使い分け
 

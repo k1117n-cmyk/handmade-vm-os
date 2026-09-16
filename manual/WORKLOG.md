@@ -4,6 +4,41 @@
 
 次回再開に必要な短い情報は [HANDOFF.md](HANDOFF.md) に置きます。
 
+## Day 26: prompt-echo sample program
+
+追加:
+
+```text
+programs/prompt-echo.asm
+programs/prompt-echo.bin
+manual/specs/026-prompt-echo.md
+manual/test-code-explanations/026-prompt-echo.md
+```
+
+更新:
+
+```text
+README.md
+programs/README.md
+manual/HANDOFF.md
+manual/README.md
+manual/WORKLOG.md
+ROADMAP.md
+manual/NEXT_INSTRUCTION_GUIDELINES.md
+```
+
+確認結果:
+
+```text
+printf A | /tmp/handmade-vm programs/prompt-echo.bin
+```
+
+```text
+>
+A
+CPU halted.
+```
+
 ## Day 24: SYSCALL read_char
 
 追加:

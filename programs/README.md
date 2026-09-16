@@ -86,3 +86,47 @@ printf A | /tmp/handmade-vm programs/echo-char.bin
 A
 CPU halted.
 ```
+
+## prompt-echo.asm / prompt-echo.bin
+
+`prompt-echo.asm` と `prompt-echo.bin` は、入力前に `>` を表示してから、入力した1文字をそのまま表示するサンプルプログラム。
+
+```asm
+MOVI R0, 62
+SYSCALL 0
+SYSCALL 2
+SYSCALL 0
+HALT
+```
+
+byte列:
+
+```text
+40 00 00 3E
+60 00 00 00
+60 00 00 02
+60 00 00 00
+01 00 00 00
+```
+
+アセンブリ表記から再生成:
+
+```sh
+cc tools/small-asm.c -o /tmp/small-asm
+/tmp/small-asm programs/prompt-echo.asm programs/prompt-echo.bin
+```
+
+実行:
+
+```sh
+cc notes/vm.c -o /tmp/handmade-vm
+printf A | /tmp/handmade-vm programs/prompt-echo.bin
+```
+
+期待出力:
+
+```text
+>
+A
+CPU halted.
+```

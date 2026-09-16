@@ -302,7 +302,9 @@ Day 24では、`SYSCALL 2` を「host標準入力から1 byte読み、`R0`へ入
 
 Day 25では、`SYSCALL 2` を使った最小echoプログラム `programs/echo-char.asm` と `programs/echo-char.bin` を追加した。
 
-次の作業候補は、1文字入力の次としてプロンプト表示つきechoを作ること。
+Day 26では、新しい命令を追加せず、`>` を表示してから1文字echoする `programs/prompt-echo.asm` と `programs/prompt-echo.bin` を追加した。
+
+次の作業候補は、1文字コマンド判定へ進むために、必要になった命令だけ `tools/small-asm.c` へ追加すること。
 
 短い再開手順は [manual/HANDOFF.md](manual/HANDOFF.md) を見る。
 

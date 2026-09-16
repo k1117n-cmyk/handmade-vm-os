@@ -6,7 +6,7 @@
 
 ## 現在地
 
-Day 25 `echo-char` サンプルまで完了しています。
+Day 26 `prompt-echo` サンプルまで完了しています。
 
 現在できること:
 
@@ -26,6 +26,13 @@ programs/echo-char.asm
   SYSCALL 0
   HALT
 
+programs/prompt-echo.asm
+  MOVI R0, 62
+  SYSCALL 0
+  SYSCALL 2
+  SYSCALL 0
+  HALT
+
 tools/small-asm.c
   MOVI Rn, imm / SYSCALL imm / HALT だけを .bin へ変換する
 ```
@@ -35,8 +42,8 @@ tools/small-asm.c
 次は候補Aを優先します。
 
 ```text
-候補A: 1文字入力の次としてプロンプト表示つきechoを作る
-候補B: small assembler が扱える命令を1つ増やす
+候補A: 1文字コマンド判定に進む前に、必要になった命令だけsmall assemblerへ追加する
+候補B: prompt-echoを題材に第6回記事を書く
 ```
 
 完了した仕様カードと個別テスト:
@@ -56,13 +63,21 @@ manual/specs/025-echo-char.md
 manual/test-code-explanations/025-echo-char.md
 ```
 
+完了したプロンプト付きechoプログラム:
+
+```text
+programs/prompt-echo.asm
+programs/prompt-echo.bin
+manual/specs/026-prompt-echo.md
+manual/test-code-explanations/026-prompt-echo.md
+```
+
 次の最初の成功条件:
 
 ```text
-> を表示する
-1文字読む
-読んだ文字を表示する
-CPU halted.
+入力文字が h なら help 側へ分岐する
+入力文字が q なら HALT 側へ分岐する
+それ以外なら ? を表示する
 ```
 
 最小echoプログラムの確認:
@@ -79,7 +94,22 @@ A
 CPU halted.
 ```
 
-いきなり行編集やOS風コマンドループへ進まず、まずは1文字入力だけを小さく確認します。
+prompt-echoプログラムの確認:
+
+```sh
+cc notes/vm.c -o /tmp/handmade-vm
+printf A | /tmp/handmade-vm programs/prompt-echo.bin
+```
+
+期待出力:
+
+```text
+>
+A
+CPU halted.
+```
+
+いきなり行編集やOS風コマンドループへ進まず、次は1文字コマンド判定に必要な部品だけを小さく確認します。
 
 ## 作業方針
 
