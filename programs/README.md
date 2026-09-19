@@ -130,3 +130,65 @@ printf A | /tmp/handmade-vm programs/prompt-echo.bin
 A
 CPU halted.
 ```
+
+## one-char-command.asm / one-char-command.bin
+
+`one-char-command.asm` と `one-char-command.bin` は、入力された1文字を `h`, `q`, その他に分けるサンプルプログラム。
+
+```asm
+MOVI R0, 62
+SYSCALL 0
+SYSCALL 2
+MOVI R1, 104
+CMP R0, R1
+JZ 0x1C
+JNZ 0x28
+MOVI R0, 72
+SYSCALL 0
+HALT
+MOVI R1, 113
+CMP R0, R1
+JZ 0x44
+JNZ 0x38
+MOVI R0, 63
+SYSCALL 0
+HALT
+HALT
+```
+
+`h` なら `H` を表示し、`q` ならそのまま停止し、それ以外なら `?` を表示する。
+
+アセンブリ表記から再生成:
+
+```sh
+cc tools/small-asm.c -o /tmp/small-asm
+/tmp/small-asm programs/one-char-command.asm programs/one-char-command.bin
+```
+
+実行:
+
+```sh
+cc notes/vm.c -o /tmp/handmade-vm
+printf h | /tmp/handmade-vm programs/one-char-command.bin
+printf q | /tmp/handmade-vm programs/one-char-command.bin
+printf x | /tmp/handmade-vm programs/one-char-command.bin
+```
+
+期待出力:
+
+```text
+>
+H
+CPU halted.
+```
+
+```text
+>
+CPU halted.
+```
+
+```text
+>
+?
+CPU halted.
+```

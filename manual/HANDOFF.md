@@ -6,7 +6,7 @@
 
 ## 現在地
 
-Day 26 `prompt-echo` サンプルまで完了しています。
+Day 27 `one-char-command` サンプルまで完了しています。
 
 現在できること:
 
@@ -33,8 +33,14 @@ programs/prompt-echo.asm
   SYSCALL 0
   HALT
 
+programs/one-char-command.asm
+  > を表示して1文字読み、h / q / その他で分岐する
+  h なら H を表示する
+  q ならそのまま HALT する
+  その他なら ? を表示する
+
 tools/small-asm.c
-  MOVI Rn, imm / SYSCALL imm / HALT だけを .bin へ変換する
+  MOVI Rn, imm / SYSCALL imm / HALT / CMP / JUMP / JZ / JNZ を .bin へ変換する
 ```
 
 ## 次回候補
@@ -42,8 +48,8 @@ tools/small-asm.c
 次は候補Aを優先します。
 
 ```text
-候補A: 1文字コマンド判定に進む前に、必要になった命令だけsmall assemblerへ追加する
-候補B: prompt-echoを題材に第6回記事を書く
+候補A: プロンプトへ戻るコマンドループを作る
+候補B: help表示に向けて文字列表示とデータ配置を整理する
 ```
 
 完了した仕様カードと個別テスト:
@@ -72,12 +78,21 @@ manual/specs/026-prompt-echo.md
 manual/test-code-explanations/026-prompt-echo.md
 ```
 
+完了した1文字コマンド判定プログラム:
+
+```text
+programs/one-char-command.asm
+programs/one-char-command.bin
+manual/specs/027-one-char-command.md
+manual/test-code-explanations/027-one-char-command.md
+```
+
 次の最初の成功条件:
 
 ```text
-入力文字が h なら help 側へ分岐する
-入力文字が q なら HALT 側へ分岐する
-それ以外なら ? を表示する
+1回入力して終わりではなく、JUMPでプロンプトへ戻る
+q のときだけ HALT する
+h やその他の入力では処理後にプロンプトへ戻る
 ```
 
 最小echoプログラムの確認:
@@ -109,7 +124,33 @@ A
 CPU halted.
 ```
 
-いきなり行編集やOS風コマンドループへ進まず、次は1文字コマンド判定に必要な部品だけを小さく確認します。
+one-char-commandプログラムの確認:
+
+```sh
+cc tools/small-asm.c -o /tmp/small-asm
+/tmp/small-asm programs/one-char-command.asm programs/one-char-command.bin
+cc notes/vm.c -o /tmp/handmade-vm
+printf h | /tmp/handmade-vm programs/one-char-command.bin
+printf q | /tmp/handmade-vm programs/one-char-command.bin
+printf x | /tmp/handmade-vm programs/one-char-command.bin
+```
+
+期待出力:
+
+```text
+>
+H
+CPU halted.
+
+>
+CPU halted.
+
+>
+?
+CPU halted.
+```
+
+いきなり行編集へ進まず、次はプロンプトへ戻る1文字コマンドループを小さく確認します。
 
 ## 作業方針
 
@@ -128,6 +169,12 @@ CPU halted.
 作業終わりには [DOC_UPDATE_CHECKLIST.md](DOC_UPDATE_CHECKLIST.md) を見て、周辺ファイルの更新漏れを確認します。
 
 命令番号やfieldは [instruction-types.md](instruction-types.md) と [reference/instruction-fields.md](reference/instruction-fields.md) を基準にします。
+
+## articles/ の扱い
+
+`articles/` はブログ用の下書き置き場で、意図的にgit管理外にしています。
+
+`articles/` 配下のファイルを作成・更新しても、git管理に入れるかどうかを毎回確認しません。ユーザーから明示的に依頼された場合だけ、git管理へ入れる方法を案内します。
 
 ## 再開時の確認
 

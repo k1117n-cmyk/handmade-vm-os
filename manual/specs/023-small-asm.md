@@ -55,3 +55,25 @@ cc notes/vm.c -o /tmp/handmade-vm
 A
 CPU halted.
 ```
+
+## Day 27時点の対応命令
+
+Day 27 の `one-char-command.asm` で1文字コマンド判定を書くため、`tools/small-asm.c` は次の命令にも対応する。
+
+```asm
+CMP R0, R1
+JUMP 0x10
+JZ 0x20
+JNZ 0x30
+```
+
+この時点では、まだラベルは扱わない。分岐先は即値アドレスで書く。
+
+命令値:
+
+```text
+CMP R0, R1 -> 0x24010000
+JUMP 0x10 -> 0x68000010
+JZ 0x20   -> 0x6A000020
+JNZ 0x30  -> 0x6B000030
+```
