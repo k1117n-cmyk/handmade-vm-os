@@ -192,3 +192,74 @@ CPU halted.
 ?
 CPU halted.
 ```
+
+## command-loop.asm / command-loop.bin
+
+`command-loop.asm` と `command-loop.bin` は、入力された1文字を `h`, `q`, Enter, space, その他に分け、`q` 以外ではプロンプトへ戻るサンプルプログラム。
+
+```asm
+MOVI R0, 62
+SYSCALL 3
+SYSCALL 2
+MOVI R1, 104
+CMP R0, R1
+JZ 0x5C
+JNZ 0x1C
+MOVI R1, 113
+CMP R0, R1
+JZ 0x74
+JNZ 0x2C
+MOVI R1, 10
+CMP R0, R1
+JZ 0x08
+JNZ 0x3C
+MOVI R1, 13
+CMP R0, R1
+JZ 0x08
+JNZ 0x4C
+MOVI R1, 32
+CMP R0, R1
+JZ 0x08
+JNZ 0x68
+MOVI R0, 72
+SYSCALL 0
+JUMP 0x00
+MOVI R0, 63
+SYSCALL 0
+JUMP 0x00
+HALT
+```
+
+`h` なら `H` を表示してプロンプトへ戻り、`q` なら停止し、Enter や space なら何も表示せず次の入力を待ち、それ以外なら `?` を表示してプロンプトへ戻る。
+
+アセンブリ表記から再生成:
+
+```sh
+make programs/command-loop.bin
+```
+
+実行:
+
+```sh
+make
+./handmade-vm programs/command-loop.bin
+```
+
+期待出力:
+
+```text
+>h
+H
+>x
+?
+>q
+CPU halted.
+```
+
+自動確認する場合:
+
+```sh
+make test
+```
+
+自動確認では入力文字のechoが表示されないため、`>H`, `>?`, `>CPU halted.` のように見える。

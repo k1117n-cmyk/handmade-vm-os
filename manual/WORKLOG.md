@@ -15,6 +15,44 @@ manual/specs/026-prompt-echo.md
 manual/test-code-explanations/026-prompt-echo.md
 ```
 
+## Day 28: command-loop sample program
+
+追加:
+
+```text
+programs/command-loop.asm
+programs/command-loop.bin
+manual/specs/028-command-loop.md
+manual/test-code-explanations/028-command-loop.md
+manual/specs/029-syscall-print-char-raw.md
+articles/2026-09-25-vm-command-loop-028-outline.md
+```
+
+更新:
+
+```text
+notes/vm.c
+README.md
+programs/README.md
+manual/HANDOFF.md
+manual/README.md
+manual/instruction-types.md
+manual/WORKLOG.md
+articles/ROADMAP.md
+```
+
+確認結果:
+
+```text
+make test
+```
+
+```text
+>H
+>?
+>CPU halted.
+```
+
 更新:
 
 ```text

@@ -6,7 +6,7 @@
 
 ## 現在地
 
-Day 27 `one-char-command` サンプルまで完了しています。
+Day 28 `command-loop` サンプルまで完了しています。
 
 現在できること:
 
@@ -15,6 +15,7 @@ notes/vm.c
   引数なしなら内蔵テストプログラムを実行する
   引数ありなら外部バイナリを memory[0] から読み込んで実行する
   SYSCALL 2 でhost標準入力から1 byte読んでR0へ入れる
+  SYSCALL 3 でR0の下位8bitを改行なしで表示する
 
 programs/hello.asm
   MOVI R0, 65
@@ -39,6 +40,13 @@ programs/one-char-command.asm
   q ならそのまま HALT する
   その他なら ? を表示する
 
+programs/command-loop.asm
+  > を改行なしで表示して1文字読み、h / q / Enter / space / その他で分岐する
+  h なら H を表示してプロンプトへ戻る
+  q なら HALT する
+  Enter や space なら何も表示せず次の入力を待つ
+  その他なら ? を表示してプロンプトへ戻る
+
 tools/small-asm.c
   MOVI Rn, imm / SYSCALL imm / HALT / CMP / JUMP / JZ / JNZ を .bin へ変換する
 ```
@@ -48,8 +56,8 @@ tools/small-asm.c
 次は候補Aを優先します。
 
 ```text
-候補A: プロンプトへ戻るコマンドループを作る
-候補B: help表示に向けて文字列表示とデータ配置を整理する
+候補A: 起動メッセージとhelp表示に向けて文字列表示とデータ配置を整理する
+候補B: 入力バッファの入口を作る
 ```
 
 完了した仕様カードと個別テスト:
@@ -87,12 +95,21 @@ manual/specs/027-one-char-command.md
 manual/test-code-explanations/027-one-char-command.md
 ```
 
+完了した1文字コマンドループプログラム:
+
+```text
+programs/command-loop.asm
+programs/command-loop.bin
+manual/specs/028-command-loop.md
+manual/test-code-explanations/028-command-loop.md
+```
+
 次の最初の成功条件:
 
 ```text
-1回入力して終わりではなく、JUMPでプロンプトへ戻る
-q のときだけ HALT する
-h やその他の入力では処理後にプロンプトへ戻る
+起動メッセージを表示する
+help用の文字列を表示する
+SYSCALL 1 で0終端文字列を表示する
 ```
 
 最小echoプログラムの確認:
@@ -150,7 +167,31 @@ CPU halted.
 CPU halted.
 ```
 
-いきなり行編集へ進まず、次はプロンプトへ戻る1文字コマンドループを小さく確認します。
+command-loopプログラムの確認:
+
+```sh
+make
+./handmade-vm programs/command-loop.bin
+```
+
+期待出力:
+
+```text
+>h
+H
+>x
+?
+>q
+CPU halted.
+```
+
+自動確認する場合:
+
+```sh
+make test
+```
+
+いきなり行編集へ進まず、次は起動メッセージやhelp表示に必要な文字列表示を小さく確認します。
 
 ## 作業方針
 

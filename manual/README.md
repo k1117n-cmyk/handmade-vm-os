@@ -34,9 +34,11 @@
 | 外部バイナリローダー | `program.bin` を `memory[0]` から読み込む | [specs/021-binary-loader.md](specs/021-binary-loader.md) |
 | hello.bin 作成ツール | 最小バイナリを生成する | [specs/022-hello-binary-writer.md](specs/022-hello-binary-writer.md) |
 | small assembler | 最小アセンブリを `.bin` へ変換する | [specs/023-small-asm.md](specs/023-small-asm.md) |
+| print_char_raw syscall | R0の1文字を改行なしで表示する | [specs/029-syscall-print-char-raw.md](specs/029-syscall-print-char-raw.md) |
 | echo-char sample | 入力した1文字をそのまま表示する外部プログラム | [specs/025-echo-char.md](specs/025-echo-char.md) |
 | prompt-echo sample | `>` を表示してから入力した1文字を表示する外部プログラム | [specs/026-prompt-echo.md](specs/026-prompt-echo.md) |
 | one-char-command sample | 1文字入力を `h`, `q`, その他に分岐する外部プログラム | [specs/027-one-char-command.md](specs/027-one-char-command.md) |
+| command-loop sample | `q` が入力されるまでプロンプトへ戻る外部プログラム | [specs/028-command-loop.md](specs/028-command-loop.md) |
 
 Day 22 と Day 23 は開発補助ツールの追加なので、対応するCコードは `notes/` ではなく `tools/` に置きます。
 
@@ -45,6 +47,8 @@ Day 25 はサンプルプログラムの追加なので、対応するコード�
 Day 26 もサンプルプログラムの追加なので、対応するコードは `notes/` ではなく `programs/prompt-echo.asm` と `programs/prompt-echo.bin` に置きます。解説は [test-code-explanations/026-prompt-echo.md](test-code-explanations/026-prompt-echo.md) にあります。
 
 Day 27 もサンプルプログラムの追加なので、対応するコードは `notes/` ではなく `programs/one-char-command.asm` と `programs/one-char-command.bin` に置きます。解説は [test-code-explanations/027-one-char-command.md](test-code-explanations/027-one-char-command.md) にあります。
+
+Day 28 もサンプルプログラムの追加なので、対応するコードは `notes/` ではなく `programs/command-loop.asm` と `programs/command-loop.bin` に置きます。解説は [test-code-explanations/028-command-loop.md](test-code-explanations/028-command-loop.md) にあります。
 
 ## 使い分け
 
@@ -78,7 +82,10 @@ Day 27 もサンプルプログラムの追加なので、対応するコード�
 | `CMP` | 2つのレジスタを比較してzero flagを更新する |
 | `MOVI` | 即値をレジスタへ入れる |
 | `SYSCALL` | VM外側のサービスを呼ぶ |
+| `SYSCALL 0` | `R0`の下位8bitを1文字として表示し、改行も表示する |
+| `SYSCALL 1` | `R0`が指す0終端文字列を表示する |
 | `SYSCALL 2` | host標準入力から1 byte読み、`R0`へ入れる |
+| `SYSCALL 3` | `R0`の下位8bitを1文字として改行なしで表示する |
 | `JUMP` | PCを即値アドレスへ変更する |
 | `CALLI` | 戻り先PCをスタックへ積んで即値アドレスへ移動する |
 | `JZ` | zero flagが立っているときだけPCを即値アドレスへ変更する |

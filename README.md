@@ -81,6 +81,10 @@ programs/
   echo-char.bin
   prompt-echo.asm
   prompt-echo.bin
+  one-char-command.asm
+  one-char-command.bin
+  command-loop.asm
+  command-loop.bin
 
 tools/
   small-asm.c
@@ -96,6 +100,8 @@ Day 22 と Day 23 はVM命令の個別テストではなく作成ツールの追
 Day 25 はサンプルプログラムの追加なので、`notes/025-...` はありません。対応するコードは `programs/echo-char.asm` と `programs/echo-char.bin` です。
 
 Day 26 もサンプルプログラムの追加なので、`notes/026-...` はありません。対応するコードは `programs/prompt-echo.asm` と `programs/prompt-echo.bin` です。
+
+Day 27 と Day 28 もサンプルプログラムの追加なので、`notes/027-...` と `notes/028-...` はありません。対応するコードは `programs/one-char-command.asm` / `programs/one-char-command.bin` と `programs/command-loop.asm` / `programs/command-loop.bin` です。
 
 `notes/vm.c` は、外部バイナリを読み込んで実行できます。
 
@@ -127,9 +133,44 @@ OS風プログラムに必要な入力系として、`SYSCALL 2` でhost標準�
 
 また、入力前に `>` を表示してから1文字echoする `programs/prompt-echo.asm` と `programs/prompt-echo.bin` も置いています。
 
+さらに、入力された1文字を `h`, `q`, その他に分ける `programs/one-char-command.asm` と、`q` が入力されるまでプロンプトへ戻る `programs/command-loop.asm` も置いています。
+
 ## 試し方
 
 現在の最小VMは `notes/vm.c` です。
+
+ルートディレクトリに `handmade-vm` を作る場合は、次のように実行します。
+
+```sh
+make
+```
+
+これで `./handmade-vm` と、`programs/*.asm` から生成する `programs/*.bin` が用意されます。
+
+プロンプトへ戻る1文字コマンドループは、手でVMを起動して確認できます。
+
+```sh
+./handmade-vm programs/command-loop.bin
+```
+
+起動後、キーボードから `h`、`x`、`q` を順番に入力します。各文字のあとに Enter を押してかまいません。
+
+```text
+>h
+H
+>x
+?
+>q
+CPU halted.
+```
+
+同じ確認を自動化する場合は、次のコマンドも使えます。
+
+```sh
+make test
+```
+
+従来どおり、一時ファイルとして `/tmp` にVMを作って試すこともできます。
 
 ```sh
 cc notes/vm.c -o /tmp/handmade-vm
@@ -185,6 +226,21 @@ printf A | /tmp/handmade-vm programs/prompt-echo.bin
 >
 A
 CPU halted.
+```
+
+プロンプトへ戻る1文字コマンドループも実行できます。
+
+```sh
+cc notes/vm.c -o /tmp/handmade-vm
+printf hxq | /tmp/handmade-vm programs/command-loop.bin
+```
+
+期待する出力:
+
+```text
+>H
+>?
+>CPU halted.
 ```
 
 個別の練習コードも同じようにコンパイルして実行できます。

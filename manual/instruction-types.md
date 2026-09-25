@@ -77,7 +77,7 @@ HALT
 | `3` | memory-register instruction | レジスタが指すメモリを読み書きする | `LDB`, `STB` |
 | `4` | immediate instruction | 命令内の即値を使う | `MOVI` |
 | `5` | direct memory instruction | 命令内の即値アドレスでメモリを読み書きする | `LDDI`, `STDI` |
-| `6` | syscall / control flow instruction | VM外側のサービス呼び出し、またはPC変更 | `SYSCALL 0`, `SYSCALL 1`, `SYSCALL 2`, `JUMP`, `CALLI`, `JZ`, `JNZ` |
+| `6` | syscall / control flow instruction | VM外側のサービス呼び出し、またはPC変更 | `SYSCALL 0`, `SYSCALL 1`, `SYSCALL 2`, `SYSCALL 3`, `JUMP`, `CALLI`, `JZ`, `JNZ` |
 | `7` | stack instruction | スタックへ値を積む、または取り出す | `PUSH`, `POP` |
 
 未使用の `type` は、現時点では未定義です。
@@ -106,6 +106,7 @@ RET:  inst == 0x02000000
 | `SYSCALL 0` | `type=6, op=0, imm=0` | `imm`, `R0` | syscall instruction | [specs/006-syscall-print-char.md](specs/006-syscall-print-char.md) |
 | `SYSCALL 1` | `type=6, op=0, imm=1` | `imm`, `R0` | syscall instruction | [specs/007-syscall-print-string.md](specs/007-syscall-print-string.md) |
 | `SYSCALL 2` | `type=6, op=0, imm=2` | `imm`, `R0` | syscall instruction | [specs/024-syscall-read-char.md](specs/024-syscall-read-char.md) |
+| `SYSCALL 3` | `type=6, op=0, imm=3` | `imm`, `R0` | syscall instruction | [specs/029-syscall-print-char-raw.md](specs/029-syscall-print-char-raw.md) |
 | `JUMP imm` | `type=6, op=8` | `imm` | control flow instruction | [specs/018-jump-jz.md](specs/018-jump-jz.md) |
 | `CALLI imm` | `type=6, op=9` | `imm`, `SP` | control flow instruction | [specs/020-calli-ret.md](specs/020-calli-ret.md) |
 | `JZ imm` | `type=6, op=10` | `imm`, `zero_flag` | control flow instruction | [specs/018-jump-jz.md](specs/018-jump-jz.md) |
@@ -133,6 +134,7 @@ RET:  inst == 0x02000000
 | `SYSCALL 0` | `0x60000000` | `60 00 00 00` |
 | `SYSCALL 1` | `0x60000001` | `60 00 00 01` |
 | `SYSCALL 2` | `0x60000002` | `60 00 00 02` |
+| `SYSCALL 3` | `0x60000003` | `60 00 00 03` |
 | `JUMP 0x10` | `0x68000010` | `68 00 00 10` |
 | `CALLI 0x20` | `0x69000020` | `69 00 00 20` |
 | `JZ 0x20` | `0x6A000020` | `6A 00 00 20` |

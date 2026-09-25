@@ -1,6 +1,9 @@
 .DS_Store
 notes/*-test
 notes/vm
+handmade-vm
+tools/small-asm
+tools/write-hello-bin
 articles/
 *.o
 *.out

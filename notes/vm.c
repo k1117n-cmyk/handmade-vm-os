@@ -244,6 +244,8 @@ static void execute(VM *vm, DecodedInst inst) {
             } else {
                 vm->regs[0] = (uint8_t)ch;
             }
+        } else if (inst.imm == 3) {
+            putchar(vm->regs[0] & 0xFF);
         } else {
             printf("unimplemented syscall: %u\n", inst.imm);
             vm->running = false;
