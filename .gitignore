@@ -4,6 +4,7 @@ notes/vm
 handmade-vm
 tools/small-asm
 tools/write-hello-bin
+tools/write-boot-message-bin
 articles/
 *.o
 *.out

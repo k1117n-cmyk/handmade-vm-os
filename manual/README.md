@@ -39,6 +39,7 @@
 | prompt-echo sample | `>` を表示してから入力した1文字を表示する外部プログラム | [specs/026-prompt-echo.md](specs/026-prompt-echo.md) |
 | one-char-command sample | 1文字入力を `h`, `q`, その他に分岐する外部プログラム | [specs/027-one-char-command.md](specs/027-one-char-command.md) |
 | command-loop sample | `q` が入力されるまでプロンプトへ戻る外部プログラム | [specs/028-command-loop.md](specs/028-command-loop.md) |
+| boot-message sample | 起動メッセージとhelp用文字列を表示する外部プログラム | [specs/029-boot-message.md](specs/029-boot-message.md) |
 
 Day 22 と Day 23 は開発補助ツールの追加なので、対応するCコードは `notes/` ではなく `tools/` に置きます。
 
@@ -49,6 +50,8 @@ Day 26 もサンプルプログラムの追加なので、対応するコード�
 Day 27 もサンプルプログラムの追加なので、対応するコードは `notes/` ではなく `programs/one-char-command.asm` と `programs/one-char-command.bin` に置きます。解説は [test-code-explanations/027-one-char-command.md](test-code-explanations/027-one-char-command.md) にあります。
 
 Day 28 もサンプルプログラムの追加なので、対応するコードは `notes/` ではなく `programs/command-loop.asm` と `programs/command-loop.bin` に置きます。解説は [test-code-explanations/028-command-loop.md](test-code-explanations/028-command-loop.md) にあります。
+
+Day 29 もサンプルプログラムの追加なので、対応するコードは `notes/` ではなく `tools/write-boot-message-bin.c` と `programs/boot-message.bin` に置きます。解説は [test-code-explanations/029-boot-message.md](test-code-explanations/029-boot-message.md) にあります。
 
 ## 使い分け
 

@@ -6,7 +6,7 @@
 
 ## 現在地
 
-Day 28 `command-loop` サンプルまで完了しています。
+Day 29 `boot-message` サンプルまで完了しています。
 
 現在できること:
 
@@ -47,16 +47,23 @@ programs/command-loop.asm
   Enter や space なら何も表示せず次の入力を待つ
   その他なら ? を表示してプロンプトへ戻る
 
+programs/boot-message.bin
+  命令列の後ろに0終端文字列を配置する
+  起動時に Welcome to Handmade VM を表示する
+  h なら help用文字列を表示してプロンプトへ戻る
+  q なら終了メッセージを表示して HALT する
+  tools/write-boot-message-bin.c で生成する
+
 tools/small-asm.c
   MOVI Rn, imm / SYSCALL imm / HALT / CMP / JUMP / JZ / JNZ を .bin へ変換する
 ```
 
 ## 次回候補
 
-次は候補Aを優先します。
+次は候補Bを優先します。
 
 ```text
-候補A: 起動メッセージとhelp表示に向けて文字列表示とデータ配置を整理する
+候補A: help / quit のような単語コマンドを読むために入力バッファを作る
 候補B: 入力バッファの入口を作る
 ```
 
@@ -104,12 +111,20 @@ manual/specs/028-command-loop.md
 manual/test-code-explanations/028-command-loop.md
 ```
 
+完了した起動メッセージ表示プログラム:
+
+```text
+programs/boot-message.bin
+tools/write-boot-message-bin.c
+manual/specs/029-boot-message.md
+manual/test-code-explanations/029-boot-message.md
+```
+
 次の最初の成功条件:
 
 ```text
-起動メッセージを表示する
-help用の文字列を表示する
-SYSCALL 1 で0終端文字列を表示する
+help / quit のような複数文字コマンドを読む
+Enterまでの入力をVM内メモリに貯める
 ```
 
 最小echoプログラムの確認:
@@ -191,7 +206,26 @@ CPU halted.
 make test
 ```
 
-いきなり行編集へ進まず、次は起動メッセージやhelp表示に必要な文字列表示を小さく確認します。
+boot-messageプログラムの確認:
+
+```sh
+make run-boot-message
+```
+
+期待出力:
+
+```text
+Welcome to Handmade VM
+>h
+Commands:
+h: help
+q: quit
+>>q
+Goodbye from Handmade VM
+CPU halted.
+```
+
+いきなり本格的な行編集へ進まず、次は `help` や `quit` のような単語を読むための入力バッファを小さく確認します。
 
 ## 作業方針
 

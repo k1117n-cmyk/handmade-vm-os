@@ -263,3 +263,51 @@ make test
 ```
 
 自動確認では入力文字のechoが表示されないため、`>H`, `>?`, `>CPU halted.` のように見える。
+
+## boot-message.bin
+
+`boot-message.bin` は、命令列の後ろに0終端文字列を置き、起動メッセージ、help表示、終了メッセージを表示する1文字コマンドループのサンプルプログラム。
+
+```text
+0x00000000: MOVI R0, 0x100
+0x00000004: SYSCALL 1
+0x00000008: MOVI R0, 62
+0x0000000C: SYSCALL 3
+0x00000010: SYSCALL 2
+...
+0x00000064: MOVI R0, 0x140
+0x00000068: SYSCALL 1
+0x0000006C: JUMP 0x08
+0x00000070: MOVI R0, 0x180
+0x00000074: SYSCALL 1
+0x00000078: HALT
+
+0x00000100: "Welcome to Handmade VM\n\0"
+0x00000140: "Commands:\nh: help\nq: quit\n\0"
+0x00000180: "Goodbye from Handmade VM\n\0"
+```
+
+再生成:
+
+```sh
+make programs/boot-message.bin
+```
+
+実行:
+
+```sh
+make run-boot-message
+```
+
+期待出力:
+
+```text
+Welcome to Handmade VM
+>h
+Commands:
+h: help
+q: quit
+>>q
+Goodbye from Handmade VM
+CPU halted.
+```
