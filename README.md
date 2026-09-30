@@ -85,10 +85,13 @@ programs/
   one-char-command.bin
   command-loop.asm
   command-loop.bin
+  line-buffer.bin
 
 tools/
   small-asm.c
   write-hello-bin.c
+  write-boot-message-bin.c
+  write-line-buffer-bin.c
 ```
 
 `manual/` は仕様、補助資料、テストコード解説をまとめたマニュアルです。
@@ -108,6 +111,20 @@ Day 27 と Day 28 もサンプルプログラムの追加なので、`notes/027-
 ```text
 ./vm program.bin
 ```
+
+引数なしで起動した場合は、host側のmonitor modeに入ります。monitorは、入力された外部バイナリのパスを読み、その `.bin` を新しいVMへ読み込んで実行します。
+
+```text
+./handmade-vm
+Welcome to Handmade VM
+>programs/hello.bin
+A
+CPU halted.
+>quit
+Goodbye from Handmade VM
+```
+
+これはまだVM上のOSではありません。host側のCコードがファイル名を読み、外部バイナリを開いて `memory[0]` へ読み込む入口です。
 
 最初のサンプルとして、`MOVI R0, 65`, `SYSCALL 0`, `HALT` だけの小さな `programs/hello.asm` と `programs/hello.bin` を置いています。
 
@@ -134,6 +151,8 @@ OS風プログラムに必要な入力系として、`SYSCALL 2` でhost標準�
 また、入力前に `>` を表示してから1文字echoする `programs/prompt-echo.asm` と `programs/prompt-echo.bin` も置いています。
 
 さらに、入力された1文字を `h`, `q`, その他に分ける `programs/one-char-command.asm` と、`q` が入力されるまでプロンプトへ戻る `programs/command-loop.asm` も置いています。
+
+起動メッセージとhelp表示を持つ `programs/boot-message.bin`、Enterまでの入力をVM内メモリに貯める `programs/line-buffer.bin` も置いています。どちらも、命令列と文字列データを専用writerで生成するサンプルです。
 
 ## 試し方
 
@@ -170,11 +189,47 @@ CPU halted.
 make test
 ```
 
-従来どおり、一時ファイルとして `/tmp` にVMを作って試すこともできます。
+引数なしで起動すると、monitor modeに入ります。
 
 ```sh
-cc notes/vm.c -o /tmp/handmade-vm
-/tmp/handmade-vm
+./handmade-vm
+```
+
+手動では、プロンプトに実行したい外部バイナリのパスを入力します。
+
+```text
+Welcome to Handmade VM
+>programs/hello.bin
+A
+CPU halted.
+>quit
+Goodbye from Handmade VM
+```
+
+自動確認する場合は、次のターゲットを使えます。
+
+```sh
+make test-monitor
+```
+
+期待する出力:
+
+```text
+Welcome to Handmade VM
+>A
+CPU halted.
+>Type a word, then Enter
+>You typed: help
+CPU halted.
+>Goodbye from Handmade VM
+```
+
+パイプで入力した場合は端末側の入力echoがないため、monitorの `>` と実行したプログラムの出力が同じ行に続いて見えます。
+
+内蔵テストプログラムを実行する場合は、`--self-test` を渡します。
+
+```sh
+./handmade-vm --self-test
 ```
 
 期待する出力:
@@ -241,6 +296,20 @@ printf hxq | /tmp/handmade-vm programs/command-loop.bin
 >H
 >?
 >CPU halted.
+```
+
+Enterまでの入力をVM内メモリに保存するサンプルも実行できます。
+
+```sh
+make test-line-buffer
+```
+
+期待する出力:
+
+```text
+Type a word, then Enter
+>You typed: help
+CPU halted.
 ```
 
 個別の練習コードも同じようにコンパイルして実行できます。

@@ -5,6 +5,7 @@ handmade-vm
 tools/small-asm
 tools/write-hello-bin
 tools/write-boot-message-bin
+tools/write-line-buffer-bin
 articles/
 *.o
 *.out

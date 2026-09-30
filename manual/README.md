@@ -32,6 +32,7 @@
 | 機能 | 概要 | 仕様 |
 |---|---|---|
 | 外部バイナリローダー | `program.bin` を `memory[0]` から読み込む | [specs/021-binary-loader.md](specs/021-binary-loader.md) |
+| monitor mode | 引数なしで起動し、実行する `.bin` をhost側プロンプトから選ぶ | [specs/031-monitor-mode.md](specs/031-monitor-mode.md) |
 | hello.bin 作成ツール | 最小バイナリを生成する | [specs/022-hello-binary-writer.md](specs/022-hello-binary-writer.md) |
 | small assembler | 最小アセンブリを `.bin` へ変換する | [specs/023-small-asm.md](specs/023-small-asm.md) |
 | print_char_raw syscall | R0の1文字を改行なしで表示する | [specs/029-syscall-print-char-raw.md](specs/029-syscall-print-char-raw.md) |
@@ -40,6 +41,7 @@
 | one-char-command sample | 1文字入力を `h`, `q`, その他に分岐する外部プログラム | [specs/027-one-char-command.md](specs/027-one-char-command.md) |
 | command-loop sample | `q` が入力されるまでプロンプトへ戻る外部プログラム | [specs/028-command-loop.md](specs/028-command-loop.md) |
 | boot-message sample | 起動メッセージとhelp用文字列を表示する外部プログラム | [specs/029-boot-message.md](specs/029-boot-message.md) |
+| line-buffer sample | Enterまでの入力をVM内メモリに保存する外部プログラム | [specs/030-line-buffer.md](specs/030-line-buffer.md) |
 
 Day 22 と Day 23 は開発補助ツールの追加なので、対応するCコードは `notes/` ではなく `tools/` に置きます。
 
@@ -52,6 +54,10 @@ Day 27 もサンプルプログラムの追加なので、対応するコード�
 Day 28 もサンプルプログラムの追加なので、対応するコードは `notes/` ではなく `programs/command-loop.asm` と `programs/command-loop.bin` に置きます。解説は [test-code-explanations/028-command-loop.md](test-code-explanations/028-command-loop.md) にあります。
 
 Day 29 もサンプルプログラムの追加なので、対応するコードは `notes/` ではなく `tools/write-boot-message-bin.c` と `programs/boot-message.bin` に置きます。解説は [test-code-explanations/029-boot-message.md](test-code-explanations/029-boot-message.md) にあります。
+
+Day 30 もサンプルプログラムの追加なので、対応するコードは `notes/` ではなく `tools/write-line-buffer-bin.c` と `programs/line-buffer.bin` に置きます。解説は [test-code-explanations/030-line-buffer.md](test-code-explanations/030-line-buffer.md) にあります。
+
+Day 31 はVM起動機能の追加なので、対応するコードは `notes/vm.c` に入ります。仕様は [specs/031-monitor-mode.md](specs/031-monitor-mode.md)、解説は [test-code-explanations/031-monitor-mode.md](test-code-explanations/031-monitor-mode.md) にあります。
 
 ## 使い分け
 

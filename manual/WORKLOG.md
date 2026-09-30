@@ -4,6 +4,79 @@
 
 次回再開に必要な短い情報は [HANDOFF.md](HANDOFF.md) に置きます。
 
+## Day 31: monitor mode
+
+追加:
+
+```text
+manual/specs/031-monitor-mode.md
+manual/test-code-explanations/031-monitor-mode.md
+```
+
+更新:
+
+```text
+notes/vm.c
+Makefile
+README.md
+manual/HANDOFF.md
+manual/README.md
+manual/WORKLOG.md
+```
+
+確認結果:
+
+```text
+make test-monitor
+```
+
+```text
+Welcome to Handmade VM
+>A
+CPU halted.
+>Type a word, then Enter
+>You typed: help
+CPU halted.
+>Goodbye from Handmade VM
+```
+
+内蔵テストは `./handmade-vm --self-test` に移した。
+
+## Day 30: line-buffer sample program
+
+追加:
+
+```text
+programs/line-buffer.bin
+tools/write-line-buffer-bin.c
+manual/specs/030-line-buffer.md
+manual/test-code-explanations/030-line-buffer.md
+```
+
+更新:
+
+```text
+Makefile
+README.md
+programs/README.md
+manual/HANDOFF.md
+manual/README.md
+manual/WORKLOG.md
+ROADMAP.md
+```
+
+確認結果:
+
+```text
+make test-line-buffer
+```
+
+```text
+Type a word, then Enter
+>You typed: help
+CPU halted.
+```
+
 ## Day 26: prompt-echo sample program
 
 追加:

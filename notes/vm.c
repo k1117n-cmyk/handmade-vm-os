@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define MEMORY_SIZE (1024 * 1024)
 #define REGISTER_COUNT 8
@@ -22,6 +23,13 @@ typedef struct {
     uint8_t rs;
     uint32_t imm;
 } DecodedInst;
+
+static void init_vm(VM *vm) {
+    memset(vm, 0, sizeof(*vm));
+    vm->pc = 0x00000000;
+    vm->sp = 0x00100000;
+    vm->running = true;
+}
 
 static uint32_t read_u32_be(const uint8_t *memory, uint32_t address) {
     return ((uint32_t)memory[address] << 24) |
@@ -374,27 +382,82 @@ static void load_test_program(VM *vm) {
     vm->memory[0x00000112] = 0x00;
 }
 
-int main(int argc, char **argv) {
-    VM vm = {0};
+static bool run_program_file(const char *path) {
+    VM vm;
 
-    if (argc > 2) {
-        fprintf(stderr, "usage: %s [program.bin]\n", argv[0]);
-        return 1;
-    }
+    init_vm(&vm);
 
-    vm.pc = 0x00000000;
-    vm.sp = 0x00100000;
-    vm.running = true;
-
-    if (argc == 2) {
-        if (!load_program_file(&vm, argv[1])) {
-            return 1;
-        }
-    } else {
-        load_test_program(&vm);
+    if (!load_program_file(&vm, path)) {
+        return false;
     }
 
     run(&vm);
+    return true;
+}
+
+static void strip_line_end(char *line) {
+    size_t length = strlen(line);
+
+    while (length > 0 && (line[length - 1] == '\n' || line[length - 1] == '\r')) {
+        line[length - 1] = '\0';
+        length--;
+    }
+}
+
+static bool is_quit_command(const char *line) {
+    return strcmp(line, "quit") == 0 || strcmp(line, "q") == 0 || strcmp(line, "exit") == 0;
+}
+
+static void run_monitor(void) {
+    char line[256];
+
+    printf("Welcome to Handmade VM\n");
+
+    while (true) {
+        printf(">");
+        fflush(stdout);
+
+        if (fgets(line, sizeof(line), stdin) == NULL) {
+            putchar('\n');
+            break;
+        }
+
+        strip_line_end(line);
+
+        if (line[0] == '\0') {
+            continue;
+        }
+
+        if (is_quit_command(line)) {
+            printf("Goodbye from Handmade VM\n");
+            break;
+        }
+
+        run_program_file(line);
+    }
+}
+
+int main(int argc, char **argv) {
+    VM vm;
+
+    if (argc > 2) {
+        fprintf(stderr, "usage: %s [--self-test|program.bin]\n", argv[0]);
+        return 1;
+    }
+
+    if (argc == 2) {
+        init_vm(&vm);
+
+        if (strcmp(argv[1], "--self-test") == 0) {
+            load_test_program(&vm);
+        } else if (!load_program_file(&vm, argv[1])) {
+            return 1;
+        }
+
+        run(&vm);
+    } else {
+        run_monitor();
+    }
 
     return 0;
 }

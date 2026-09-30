@@ -6,14 +6,18 @@
 
 ## 現在地
 
-Day 29 `boot-message` サンプルまで完了しています。
+Day 31 `monitor mode` まで完了しています。
 
 現在できること:
 
 ```text
 notes/vm.c
-  引数なしなら内蔵テストプログラムを実行する
+  引数なしならhost側monitor modeを起動する
   引数ありなら外部バイナリを memory[0] から読み込んで実行する
+  --self-test なら内蔵テストプログラムを実行する
+  monitor modeでは Welcome to Handmade VM と > を表示する
+  monitor modeでは入力された .bin を新しいVMへ読み込んで実行する
+  monitor modeでは quit / q / exit で終了する
   SYSCALL 2 でhost標準入力から1 byte読んでR0へ入れる
   SYSCALL 3 でR0の下位8bitを改行なしで表示する
 
@@ -54,18 +58,27 @@ programs/boot-message.bin
   q なら終了メッセージを表示して HALT する
   tools/write-boot-message-bin.c で生成する
 
+programs/line-buffer.bin
+  Type a word, then Enter と > を表示する
+  Enterまでの入力を memory[0x180] から1 byteずつ保存する
+  最大63 byteまで保存し、最後に0 byteを書いて0終端文字列にする
+  入力後に You typed: と保存した文字列を表示する
+  tools/write-line-buffer-bin.c で生成する
+
 tools/small-asm.c
   MOVI Rn, imm / SYSCALL imm / HALT / CMP / JUMP / JZ / JNZ を .bin へ変換する
 ```
 
 ## 次回候補
 
-次は候補Bを優先します。
+次は候補Aを優先します。
 
 ```text
-候補A: help / quit のような単語コマンドを読むために入力バッファを作る
-候補B: 入力バッファの入口を作る
+候補A: 入力バッファに入った文字列を help / quit と比較して分岐する
+候補B: 入力バッファ処理をサブルーチン風に切り出す
 ```
+
+monitor modeはhost側の起動ランチャーであり、まだVM上のOSではありません。VM上のプログラムからhostファイルを開く仕組みは、今後の仮想ディスクやファイル読み込みsyscallのテーマとして扱います。
 
 完了した仕様カードと個別テスト:
 
@@ -120,11 +133,28 @@ manual/specs/029-boot-message.md
 manual/test-code-explanations/029-boot-message.md
 ```
 
+完了した入力バッファ入口プログラム:
+
+```text
+programs/line-buffer.bin
+tools/write-line-buffer-bin.c
+manual/specs/030-line-buffer.md
+manual/test-code-explanations/030-line-buffer.md
+```
+
+完了したmonitor mode:
+
+```text
+notes/vm.c
+manual/specs/031-monitor-mode.md
+manual/test-code-explanations/031-monitor-mode.md
+```
+
 次の最初の成功条件:
 
 ```text
-help / quit のような複数文字コマンドを読む
-Enterまでの入力をVM内メモリに貯める
+入力バッファに入った help をhelpコマンドとして扱う
+入力バッファに入った quit を終了コマンドとして扱う
 ```
 
 最小echoプログラムの確認:
@@ -225,7 +255,53 @@ Goodbye from Handmade VM
 CPU halted.
 ```
 
-いきなり本格的な行編集へ進まず、次は `help` や `quit` のような単語を読むための入力バッファを小さく確認します。
+line-bufferプログラムの確認:
+
+```sh
+make test-line-buffer
+```
+
+期待出力:
+
+```text
+Type a word, then Enter
+>You typed: help
+CPU halted.
+```
+
+monitor modeの確認:
+
+```sh
+make test-monitor
+```
+
+期待出力:
+
+```text
+Welcome to Handmade VM
+>A
+CPU halted.
+>Type a word, then Enter
+>You typed: help
+CPU halted.
+>Goodbye from Handmade VM
+```
+
+内蔵テストの確認:
+
+```sh
+./handmade-vm --self-test
+```
+
+期待出力:
+
+```text
+A
+VM flow complete.
+CPU halted.
+```
+
+いきなり本格的な行編集へ進まず、次は入力バッファに入った文字列を固定文字列と比較するところを小さく確認します。
 
 ## 作業方針
 
