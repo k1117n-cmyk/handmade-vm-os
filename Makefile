@@ -5,6 +5,7 @@ VM := handmade-vm
 SMALL_ASM := tools/small-asm
 BOOT_MESSAGE_WRITER := tools/write-boot-message-bin
 LINE_BUFFER_WRITER := tools/write-line-buffer-bin
+WORD_COMMAND_WRITER := tools/write-word-command-bin
 
 ASM_PROGRAMS := \
 	programs/hello.asm \
@@ -14,9 +15,9 @@ ASM_PROGRAMS := \
 	programs/command-loop.asm
 
 BIN_PROGRAMS := $(ASM_PROGRAMS:.asm=.bin)
-DATA_PROGRAMS := programs/boot-message.bin programs/line-buffer.bin
+DATA_PROGRAMS := programs/boot-message.bin programs/line-buffer.bin programs/word-command.bin
 
-.PHONY: all programs run-boot-message run-line-buffer run-command-loop test test-monitor test-boot-message test-line-buffer clean
+.PHONY: all programs run-boot-message run-line-buffer run-word-command run-command-loop test test-monitor test-boot-message test-line-buffer test-word-command test-word-command-quit test-word-command-unknown clean
 
 all: $(VM) programs
 
@@ -32,6 +33,9 @@ $(BOOT_MESSAGE_WRITER): tools/write-boot-message-bin.c
 $(LINE_BUFFER_WRITER): tools/write-line-buffer-bin.c
 	$(CC) $(CFLAGS) $< -o $@
 
+$(WORD_COMMAND_WRITER): tools/write-word-command-bin.c
+	$(CC) $(CFLAGS) $< -o $@
+
 programs: $(BIN_PROGRAMS) $(DATA_PROGRAMS)
 
 programs/%.bin: programs/%.asm $(SMALL_ASM)
@@ -43,11 +47,17 @@ programs/boot-message.bin: $(BOOT_MESSAGE_WRITER)
 programs/line-buffer.bin: $(LINE_BUFFER_WRITER)
 	$(LINE_BUFFER_WRITER) $@
 
+programs/word-command.bin: $(WORD_COMMAND_WRITER)
+	$(WORD_COMMAND_WRITER) $@
+
 run-boot-message: $(VM) programs/boot-message.bin
 	./$(VM) programs/boot-message.bin
 
 run-line-buffer: $(VM) programs/line-buffer.bin
 	./$(VM) programs/line-buffer.bin
+
+run-word-command: $(VM) programs/word-command.bin
+	./$(VM) programs/word-command.bin
 
 run-command-loop: $(VM) programs/command-loop.bin
 	./$(VM) programs/command-loop.bin
@@ -64,5 +74,14 @@ test-boot-message: $(VM) programs/boot-message.bin
 test-line-buffer: $(VM) programs/line-buffer.bin
 	printf 'help\n' | ./$(VM) programs/line-buffer.bin
 
+test-word-command: $(VM) programs/word-command.bin
+	printf 'help\n' | ./$(VM) programs/word-command.bin
+
+test-word-command-quit: $(VM) programs/word-command.bin
+	printf 'quit\n' | ./$(VM) programs/word-command.bin
+
+test-word-command-unknown: $(VM) programs/word-command.bin
+	printf 'hello\n' | ./$(VM) programs/word-command.bin
+
 clean:
-	rm -f $(VM) $(SMALL_ASM) $(BOOT_MESSAGE_WRITER) $(LINE_BUFFER_WRITER)
+	rm -f $(VM) $(SMALL_ASM) $(BOOT_MESSAGE_WRITER) $(LINE_BUFFER_WRITER) $(WORD_COMMAND_WRITER)

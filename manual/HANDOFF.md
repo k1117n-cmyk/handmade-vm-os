@@ -6,7 +6,7 @@
 
 ## 現在地
 
-Day 31 `monitor mode` まで完了しています。
+Day 32 `word-command.bin` まで完了しています。
 
 現在できること:
 
@@ -65,6 +65,15 @@ programs/line-buffer.bin
   入力後に You typed: と保存した文字列を表示する
   tools/write-line-buffer-bin.c で生成する
 
+programs/word-command.bin
+  Command> を表示する
+  Enterまでの入力を memory[0x500] から1 byteずつ保存する
+  入力バッファを help / quit と1 byteずつ比較する
+  help なら help用文字列を表示して HALT する
+  quit なら終了メッセージを表示して HALT する
+  その他なら Unknown command を表示して HALT する
+  tools/write-word-command-bin.c で生成する
+
 tools/small-asm.c
   MOVI Rn, imm / SYSCALL imm / HALT / CMP / JUMP / JZ / JNZ を .bin へ変換する
 ```
@@ -74,8 +83,8 @@ tools/small-asm.c
 次は候補Aを優先します。
 
 ```text
-候補A: 入力バッファに入った文字列を help / quit と比較して分岐する
-候補B: 入力バッファ処理をサブルーチン風に切り出す
+候補A: 入力バッファ処理をサブルーチン風に切り出す
+候補B: 文字列比較処理をサブルーチン風に切り出す
 ```
 
 monitor modeはhost側の起動ランチャーであり、まだVM上のOSではありません。VM上のプログラムからhostファイルを開く仕組みは、今後の仮想ディスクやファイル読み込みsyscallのテーマとして扱います。
@@ -150,11 +159,20 @@ manual/specs/031-monitor-mode.md
 manual/test-code-explanations/031-monitor-mode.md
 ```
 
+完了した複数文字コマンド判定プログラム:
+
+```text
+programs/word-command.bin
+tools/write-word-command-bin.c
+manual/specs/032-word-command.md
+manual/test-code-explanations/032-word-command.md
+```
+
 次の最初の成功条件:
 
 ```text
-入力バッファに入った help をhelpコマンドとして扱う
-入力バッファに入った quit を終了コマンドとして扱う
+入力バッファ読み込み、固定文字列比較、結果表示の重複した命令列を少し整理する
+既存の help / quit / unknown の動作を壊さない
 ```
 
 最小echoプログラムの確認:
@@ -269,6 +287,29 @@ Type a word, then Enter
 CPU halted.
 ```
 
+word-commandプログラムの確認:
+
+```sh
+make test-word-command
+make test-word-command-quit
+make test-word-command-unknown
+```
+
+期待出力:
+
+```text
+Command> Commands:
+help: show help
+quit: quit
+CPU halted.
+
+Command> Goodbye from Handmade VM
+CPU halted.
+
+Command> Unknown command
+CPU halted.
+```
+
 monitor modeの確認:
 
 ```sh
@@ -301,7 +342,7 @@ VM flow complete.
 CPU halted.
 ```
 
-いきなり本格的な行編集へ進まず、次は入力バッファに入った文字列を固定文字列と比較するところを小さく確認します。
+いきなり本格的な行編集へ進まず、次は重複した入力バッファ処理や文字列比較処理を少し整理します。
 
 ## 作業方針
 

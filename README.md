@@ -86,12 +86,14 @@ programs/
   command-loop.asm
   command-loop.bin
   line-buffer.bin
+  word-command.bin
 
 tools/
   small-asm.c
   write-hello-bin.c
   write-boot-message-bin.c
   write-line-buffer-bin.c
+  write-word-command-bin.c
 ```
 
 `manual/` は仕様、補助資料、テストコード解説をまとめたマニュアルです。
@@ -152,7 +154,7 @@ OS風プログラムに必要な入力系として、`SYSCALL 2` でhost標準�
 
 さらに、入力された1文字を `h`, `q`, その他に分ける `programs/one-char-command.asm` と、`q` が入力されるまでプロンプトへ戻る `programs/command-loop.asm` も置いています。
 
-起動メッセージとhelp表示を持つ `programs/boot-message.bin`、Enterまでの入力をVM内メモリに貯める `programs/line-buffer.bin` も置いています。どちらも、命令列と文字列データを専用writerで生成するサンプルです。
+起動メッセージとhelp表示を持つ `programs/boot-message.bin`、Enterまでの入力をVM内メモリに貯める `programs/line-buffer.bin`、入力バッファを `help` / `quit` と比較する `programs/word-command.bin` も置いています。これらは、命令列と文字列データを専用writerで生成するサンプルです。
 
 ## 試し方
 
@@ -309,6 +311,29 @@ make test-line-buffer
 ```text
 Type a word, then Enter
 >You typed: help
+CPU halted.
+```
+
+入力バッファを複数文字コマンドとして比較するサンプルも実行できます。
+
+```sh
+make test-word-command
+make test-word-command-quit
+make test-word-command-unknown
+```
+
+期待する出力:
+
+```text
+Command> Commands:
+help: show help
+quit: quit
+CPU halted.
+
+Command> Goodbye from Handmade VM
+CPU halted.
+
+Command> Unknown command
 CPU halted.
 ```
 

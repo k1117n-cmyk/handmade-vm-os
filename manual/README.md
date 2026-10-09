@@ -42,6 +42,7 @@
 | command-loop sample | `q` が入力されるまでプロンプトへ戻る外部プログラム | [specs/028-command-loop.md](specs/028-command-loop.md) |
 | boot-message sample | 起動メッセージとhelp用文字列を表示する外部プログラム | [specs/029-boot-message.md](specs/029-boot-message.md) |
 | line-buffer sample | Enterまでの入力をVM内メモリに保存する外部プログラム | [specs/030-line-buffer.md](specs/030-line-buffer.md) |
+| word-command sample | 入力バッファを `help` / `quit` と比較する外部プログラム | [specs/032-word-command.md](specs/032-word-command.md) |
 
 Day 22 と Day 23 は開発補助ツールの追加なので、対応するCコードは `notes/` ではなく `tools/` に置きます。
 
@@ -58,6 +59,8 @@ Day 29 もサンプルプログラムの追加なので、対応するコード�
 Day 30 もサンプルプログラムの追加なので、対応するコードは `notes/` ではなく `tools/write-line-buffer-bin.c` と `programs/line-buffer.bin` に置きます。解説は [test-code-explanations/030-line-buffer.md](test-code-explanations/030-line-buffer.md) にあります。
 
 Day 31 はVM起動機能の追加なので、対応するコードは `notes/vm.c` に入ります。仕様は [specs/031-monitor-mode.md](specs/031-monitor-mode.md)、解説は [test-code-explanations/031-monitor-mode.md](test-code-explanations/031-monitor-mode.md) にあります。
+
+Day 32 もサンプルプログラムの追加なので、対応するコードは `tools/write-word-command-bin.c` と `programs/word-command.bin` に置きます。解説は [test-code-explanations/032-word-command.md](test-code-explanations/032-word-command.md) にあります。
 
 ## 使い分け
 

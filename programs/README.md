@@ -365,3 +365,56 @@ Type a word, then Enter
 >You typed: help
 CPU halted.
 ```
+
+## word-command.bin
+
+`word-command.bin` は、Enterまでの入力をVM内メモリに保存し、入力バッファを `help` / `quit` と比較するサンプルプログラム。
+
+```text
+0x00000000: MOVI R0, 0x300
+0x00000004: SYSCALL 1
+0x00000008: MOVI R1, 0x500
+0x0000000C: SYSCALL 2
+...
+0x00000044: MOVI R1, 0x500
+0x00000048: LDB R0, [R1]
+0x0000004C: MOVI R2, 104
+0x00000050: CMP R0, R2
+0x00000054: JNZ compare_quit
+...
+
+0x00000300: "Command> \0"
+0x00000340: "Commands:\nhelp: show help\nquit: quit\n\0"
+0x000003A0: "Goodbye from Handmade VM\n\0"
+0x000003E0: "Unknown command\n\0"
+0x00000500: 入力バッファ
+```
+
+再生成:
+
+```sh
+make programs/word-command.bin
+```
+
+実行:
+
+```sh
+make test-word-command
+make test-word-command-quit
+make test-word-command-unknown
+```
+
+期待出力:
+
+```text
+Command> Commands:
+help: show help
+quit: quit
+CPU halted.
+
+Command> Goodbye from Handmade VM
+CPU halted.
+
+Command> Unknown command
+CPU halted.
+```
