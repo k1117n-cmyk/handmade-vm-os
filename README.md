@@ -87,6 +87,8 @@ programs/
   command-loop.bin
   line-buffer.bin
   word-command.bin
+  word-command-subroutine.bin
+  word-command-compare.bin
 
 tools/
   small-asm.c
@@ -94,6 +96,8 @@ tools/
   write-boot-message-bin.c
   write-line-buffer-bin.c
   write-word-command-bin.c
+  write-word-command-subroutine-bin.c
+  write-word-command-compare-bin.c
 ```
 
 `manual/` は仕様、補助資料、テストコード解説をまとめたマニュアルです。
@@ -154,7 +158,7 @@ OS風プログラムに必要な入力系として、`SYSCALL 2` でhost標準�
 
 さらに、入力された1文字を `h`, `q`, その他に分ける `programs/one-char-command.asm` と、`q` が入力されるまでプロンプトへ戻る `programs/command-loop.asm` も置いています。
 
-起動メッセージとhelp表示を持つ `programs/boot-message.bin`、Enterまでの入力をVM内メモリに貯める `programs/line-buffer.bin`、入力バッファを `help` / `quit` と比較する `programs/word-command.bin` も置いています。これらは、命令列と文字列データを専用writerで生成するサンプルです。
+起動メッセージとhelp表示を持つ `programs/boot-message.bin`、Enterまでの入力をVM内メモリに貯める `programs/line-buffer.bin`、入力バッファを `help` / `quit` と比較する `programs/word-command.bin` も置いています。Day 33 の `programs/word-command-subroutine.bin` は、入力部分を `CALLI` / `RET` で呼び出す版です。これらは、命令列と文字列データを専用writerで生成するサンプルです。
 
 ## 試し方
 
@@ -337,6 +341,12 @@ Command> Unknown command
 CPU halted.
 ```
 
+入力処理をサブルーチンに分けた版は次で確認できます。`help` / `quit` / その他の出力は上と同じです。
+
+```sh
+make test-word-command-subroutine
+```
+
 個別の練習コードも同じようにコンパイルして実行できます。
 
 ```sh
@@ -444,3 +454,15 @@ LDB R0, [R1]    regs[0] = memory[regs[1]]
 参考にしている教材や記事は [ATTRIBUTION.md](ATTRIBUTION.md) にまとめています。
 
 GitHub公開前の確認手順は [PUBLISHING.md](PUBLISHING.md) にまとめています。
+
+### Day 34: 文字列比較を共通サブルーチンへ
+
+`programs/word-command-compare.bin` は、Day 33の入力サブルーチンに加え、`help` / `quit` の比較を同じ `string_equal` で行います。R1・R2で文字列を渡し、R0で一致なら1、不一致なら0を受け取ります。
+
+```sh
+make run-word-command-compare
+# help / quit / hello の3分岐を順に確認
+make test-word-command-compare
+```
+
+生成元は `tools/write-word-command-compare-bin.c`。入力なしで起動するmonitorからも `programs/word-command-compare.bin` を指定できます。[比較ルーチンの解説](manual/test-code-explanations/034-word-command-compare.md)で命令列を追えます。

@@ -418,3 +418,42 @@ CPU halted.
 Command> Unknown command
 CPU halted.
 ```
+
+## word-command-subroutine.bin
+
+`word-command-subroutine.bin` はDay 33の入力処理を `CALLI` / `RET` で切り出した版。`CALLI` の戻り先から `help` / `quit` の比較を始める。入力は `memory[0x500]` から最大63 byteで、最後に0 byteを置く。比較と表示はDay 32と同じ。
+
+再生成と実行:
+
+```sh
+make programs/word-command-subroutine.bin
+make test-word-command-subroutine
+```
+
+先頭の命令列:
+
+```text
+0x00000000: MOVI R0, 0x300
+0x00000004: SYSCALL 1
+0x00000008: CALLI 0x100
+0x0000000C: help比較の開始
+```
+
+## word-command-compare.bin
+
+Day 34では `read_line` に加えて `string_equal` をCALLI/RETで呼ぶ。入力は従来どおり最大63 byte。help / quit / unknownの表示はDay 33と同じ。
+
+```sh
+make programs/word-command-compare.bin
+make run-word-command-compare
+make test-word-command-compare
+```
+
+writerは `tools/write-word-command-compare-bin.c`。直接生成する場合:
+
+```sh
+cc tools/write-word-command-compare-bin.c -o /tmp/write-word-command-compare-bin
+/tmp/write-word-command-compare-bin programs/word-command-compare.bin
+```
+
+配置は命令列 `0x000..0x0DF`、read_line `0x064`、string_equal `0x0A8`。表示文字列は従来の `0x300/0x340/0x3A0/0x3E0`、比較語は `0x420` と `0x430`、入力バッファは `0x500`。比較は0終端も含むため、`helpful` はunknownになる。

@@ -111,6 +111,8 @@ CPU v1 で完了した直近の節目:
 9. 起動メッセージとhelp表示
 10. Enterまでの入力をVM内メモリへ保存する入力バッファ
 11. 引数なし起動で外部バイナリを選べるhost側monitor mode
+12. 入力バッファの help / quit 文字列比較
+13. 入力バッファ処理の CALLI / RET サブルーチン化
 ```
 
 現在の hello 実行:
@@ -137,7 +139,7 @@ CPU halted.
 
 この時点では、まだ本格的なアセンブラは作らない。`tools/small-asm.c` は `MOVI`, `SYSCALL`, `HALT`, `CMP`, `JUMP`, `JZ`, `JNZ` だけを扱う最小ツールとして育てる。
 
-次は、入力バッファに保存した文字列を `help` や `quit` と比較し、複数文字コマンドとして分岐できるようにする。
+Day 34 までで、入力処理と文字列比較をそれぞれ `CALLI` / `RET` で呼び出す形にした。次は、この2つを使った複数文字コマンドのループを候補とする。
 
 今後、自作OS側で必要になったら追加する命令:
 
@@ -312,7 +314,7 @@ Day 25では、`SYSCALL 2` を使った最小echoプログラム `programs/echo-
 
 Day 26では、新しい命令を追加せず、`>` を表示してから1文字echoする `programs/prompt-echo.asm` と `programs/prompt-echo.bin` を追加した。
 
-次の作業候補は、1文字コマンド判定へ進むために、必要になった命令だけ `tools/small-asm.c` へ追加すること。
+次の作業候補は、Day 34 の入力・比較サブルーチンを使い、help / unknown の後にプロンプトへ戻ること。quitで終了する。
 
 短い再開手順は [manual/HANDOFF.md](manual/HANDOFF.md) を見る。
 

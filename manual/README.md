@@ -43,6 +43,8 @@
 | boot-message sample | 起動メッセージとhelp用文字列を表示する外部プログラム | [specs/029-boot-message.md](specs/029-boot-message.md) |
 | line-buffer sample | Enterまでの入力をVM内メモリに保存する外部プログラム | [specs/030-line-buffer.md](specs/030-line-buffer.md) |
 | word-command sample | 入力バッファを `help` / `quit` と比較する外部プログラム | [specs/032-word-command.md](specs/032-word-command.md) |
+| word-command-compare sample | 文字列比較を共通サブルーチンで行う外部プログラム | [specs/034-word-command-compare.md](specs/034-word-command-compare.md) |
+| word-command-subroutine sample | 入力処理を `CALLI` / `RET` で呼ぶ外部プログラム | [specs/033-word-command-subroutine.md](specs/033-word-command-subroutine.md) |
 
 Day 22 と Day 23 は開発補助ツールの追加なので、対応するCコードは `notes/` ではなく `tools/` に置きます。
 
@@ -61,6 +63,8 @@ Day 30 もサンプルプログラムの追加なので、対応するコード�
 Day 31 はVM起動機能の追加なので、対応するコードは `notes/vm.c` に入ります。仕様は [specs/031-monitor-mode.md](specs/031-monitor-mode.md)、解説は [test-code-explanations/031-monitor-mode.md](test-code-explanations/031-monitor-mode.md) にあります。
 
 Day 32 もサンプルプログラムの追加なので、対応するコードは `tools/write-word-command-bin.c` と `programs/word-command.bin` に置きます。解説は [test-code-explanations/032-word-command.md](test-code-explanations/032-word-command.md) にあります。
+
+Day 33 もサンプルプログラムの追加です。`tools/write-word-command-subroutine-bin.c` が `programs/word-command-subroutine.bin` を生成します。解説は [test-code-explanations/033-word-command-subroutine.md](test-code-explanations/033-word-command-subroutine.md) にあります。
 
 ## 使い分け
 
@@ -108,3 +112,5 @@ Day 32 もサンプルプログラムの追加なので、対応するコード�
 | `STDI` | メモリへ4 byte書き込む |
 | `PUSH` | レジスタの32bit値をスタックへ積む |
 | `POP` | スタックから32bit値をレジスタへ取り出す |
+
+Day 34のwriterは `tools/write-word-command-compare-bin.c` です。[解説](test-code-explanations/034-word-command-compare.md)で、VM上の比較ループと戻り値を確認できます。

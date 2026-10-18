@@ -6,7 +6,13 @@
 
 ## 現在地
 
-Day 32 `word-command.bin` まで完了しています。
+Day 34 `word-command-compare.bin` まで完了しています。
+
+最新ブログ原稿は `articles/unix-cafe-handmade-vm-14.txt`（Day 34、文字列比較の共通サブルーチン化）。前回の記事は `articles/unix-cafe-handmade-vm-13.txt`（Day 33）。記事14はWordPressブロック形式の下書きで、未公開です。
+
+Day 34では `tools/write-word-command-compare-bin.c` を追加し、入力と文字列比較をそれぞれCALLI/RETで呼びます。R1/R2に文字列の先頭を渡し、R0は一致なら1、不一致なら0。R0〜R4とzero flagは変更されます。
+
+確認: `make test-word-command-compare`。仕様は `specs/034-word-command-compare.md`、解説は `test-code-explanations/034-word-command-compare.md`。
 
 現在できること:
 
@@ -74,17 +80,23 @@ programs/word-command.bin
   その他なら Unknown command を表示して HALT する
   tools/write-word-command-bin.c で生成する
 
+programs/word-command-subroutine.bin
+  入力バッファ処理を CALLI / RET で呼ぶサブルーチンに分ける
+  戻った後の help / quit / unknown 判定は Day 32 と同じ
+  tools/write-word-command-subroutine-bin.c で生成する
+
 tools/small-asm.c
   MOVI Rn, imm / SYSCALL imm / HALT / CMP / JUMP / JZ / JNZ を .bin へ変換する
 ```
 
 ## 次回候補
 
-次は候補Aを優先します。
+候補Bまで完了しました。次は複数文字コマンドを繰り返し入力するループを候補とします。
 
 ```text
-候補A: 入力バッファ処理をサブルーチン風に切り出す
-候補B: 文字列比較処理をサブルーチン風に切り出す
+完了した候補A: 入力バッファ処理を CALLI / RET で切り出す
+完了した候補B: 文字列比較処理をサブルーチン風に切り出す
+次回候補: help / unknown の後は再入力し、quitで終了する
 ```
 
 monitor modeはhost側の起動ランチャーであり、まだVM上のOSではありません。VM上のプログラムからhostファイルを開く仕組みは、今後の仮想ディスクやファイル読み込みsyscallのテーマとして扱います。
@@ -168,11 +180,21 @@ manual/specs/032-word-command.md
 manual/test-code-explanations/032-word-command.md
 ```
 
+完了した入力サブルーチン版:
+
+```text
+programs/word-command-subroutine.bin
+tools/write-word-command-subroutine-bin.c
+manual/specs/033-word-command-subroutine.md
+manual/test-code-explanations/033-word-command-subroutine.md
+```
+
 次の最初の成功条件:
 
 ```text
-入力バッファ読み込み、固定文字列比較、結果表示の重複した命令列を少し整理する
-既存の help / quit / unknown の動作を壊さない
+help / unknown の後に Command> へ戻る
+quitで HALT する
+繰り返し入力の前に63 byte上限後の残り入力とCRLFの扱いを決める
 ```
 
 最小echoプログラムの確認:
@@ -310,6 +332,14 @@ Command> Unknown command
 CPU halted.
 ```
 
+入力サブルーチン版の確認:
+
+```sh
+make test-word-command-subroutine
+```
+
+`help` / `quit` / その他の出力は `word-command.bin` と同じです。
+
 monitor modeの確認:
 
 ```sh
@@ -342,7 +372,7 @@ VM flow complete.
 CPU halted.
 ```
 
-いきなり本格的な行編集へ進まず、次は重複した入力バッファ処理や文字列比較処理を少し整理します。
+いきなり本格的な行編集へ進まず、次は入力・比較サブルーチンを使うループを検討します。
 
 ## 作業方針
 
