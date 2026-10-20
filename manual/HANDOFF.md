@@ -12,7 +12,11 @@ Day 35ではhelp / unknownの後にCommand>へ戻り、quitで終了します。
 
 確認: `make test-word-command-loop`（Python 3、26ケースの自動照合）。仕様は `specs/035-word-command-loop.md`、解説は `test-code-explanations/035-word-command-loop.md`。実行は `make run-word-command-loop`。
 
-最新ブログ原稿は `articles/unix-cafe-handmade-vm-14.txt`（Day 34、文字列比較の共通サブルーチン化）。前回の記事は `articles/unix-cafe-handmade-vm-13.txt`（Day 33）。記事14はWordPressブロック形式の下書きで、未公開です。
+最新ブログ原稿は `articles/unix-cafe-handmade-vm-15.txt`（Day 35、複数文字コマンドのループ）。前回の記事は `articles/unix-cafe-handmade-vm-14.txt`（Day 34、文字列比較の共通サブルーチン化）。記事15はWordPressブロック形式の下書きで、未公開です。
+
+Day 34の記事構成案は `articles/2026-10-19-vm-word-command-subroutine-034-outline.md`。記事14の本文に合わせて構成を補完済みです。
+
+Day 35の記事構成案は `articles/2026-10-20-vm-word-command-loop-035-outline.md`。記事15の本文を作成済みです。記事中の4つの出力例をVM実行と照合し、WordPressブロックの対応を確認しています。構成は手動実行、JUMPによる反復、63 byte上限後の読み捨て、CRLF、終端0、自動テストの順です。
 
 Day 34では `tools/write-word-command-compare-bin.c` を追加し、入力と文字列比較をそれぞれCALLI/RETで呼びます。R1/R2に文字列の先頭を渡し、R0は一致なら1、不一致なら0。R0〜R4とzero flagは変更されます。
 
@@ -94,6 +98,8 @@ tools/small-asm.c
 ```
 
 ## 次回候補
+
+ブログ全体の順序は `articles/ROADMAP.md` に整理済みです。第15回までの到達点と、次のecho候補、assembler拡張・引数・行編集・保存の順序案を分けています。echoの具体例は仕様未確定の提案です。
 
 入力・比較サブルーチンと複数文字コマンドのループまで完了しました。
 

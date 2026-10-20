@@ -1,5 +1,7 @@
 # Handmade VM Roadmap
 
+最終整理: 2026-10-20。実装の現在地はDay 35。この技術ロードマップでは、記事番号と実装段階を区別し、実装済みの機能と今後の設計候補を分けて記録する。
+
 ## Goal
 
 自作CPUの上に自作OSを載せ、その上で自作シェルを動かし、最後に自作エディターを開ける仮想マシンを完成させる。
@@ -38,31 +40,30 @@ host macOS/Linux
 
 - 1MB memory
 - 32bit instruction
-- 20bit address space
+- アドレス値・PC・SPは32bit。使用できるメモリ範囲は `0x00000..0xFFFFF`、命令の即値フィールドは20bit
 - `R0`-`R7`, `SP`, `PC`
-- `SYSCALL`
-- interrupt
-- later: MMU and page fault
+- `SYSCALL 0`: 1文字と改行を表示
+- `SYSCALL 1`: 0終端文字列を表示
+- `SYSCALL 2`: host標準入力から1 byteを読む
+- `SYSCALL 3`: 1文字を改行なしで表示
+
+割り込み、MMU、ページフォールトは未実装の長期候補。現在のコマンドループを動かす前提にはしない。
 
 既存の `os.asm` と `os.bin` は、すぐに動かす対象ではなく、将来の到達例として参照する。必要な概念は現在仕様に合わせて小さく作り直す。
 
-Day 15 `POP` 以降の短期的な命令追加順は、ブログ記事とのつながりを優先して [manual/NEXT_INSTRUCTION_GUIDELINES.md](manual/NEXT_INSTRUCTION_GUIDELINES.md) にまとめる。
+基本命令を追加した順序と今後の判断方針は、ブログ記事とのつながりを含めて [manual/NEXT_INSTRUCTION_GUIDELINES.md](manual/NEXT_INSTRUCTION_GUIDELINES.md) にまとめる。
 
-今の次の節目は、Cコード内に命令を直接置くVMから、外部バイナリを読み込んで実行するVMへ進むこと。
+外部バイナリの読み込みと入出力は実装済み。現在はDay 35の `programs/word-command-loop.bin` で、help / unknownの後に再入力し、quitで終了するところまで進んでいる。
 
-```text
-./vm programs/hello.bin
-```
-
-この段階では、まだOSを起動しない。まずは `MOVI`, `SYSCALL`, `HALT` だけで作った小さな `programs/hello.bin` を読み込み、期待通りに実行できることを確認する。
+次の候補は、小さな組み込みコマンドの追加。echoを題材に、入力と出力を仕様カードで決める。ブログの説明順と中期候補は `articles/ROADMAP.md`、作業再開点は [manual/HANDOFF.md](manual/HANDOFF.md) を参照する。
 
 ## Milestones
 
-### 1. CPU v1
+### 1. CPU / VMの基礎（実装済み）
 
 現在の `notes/vm.c` を、学習用の統合VMとして育てる。
 
-必要な機能:
+現在の機能:
 
 - 1MB の byte-addressed memory
 - 32bit big-endian instruction fetch
@@ -89,15 +90,15 @@ Day 15 `POP` 以降の短期的な命令追加順は、ブログ記事とのつ�
 - `POP`
 - `CALLI`
 - `RET`
-- `JPI` / `JUMP`
-- `JPZI` / `JZ`
-- `JPNZI` / `JNZ`
+- `JUMP`
+- `JZ`
+- `JNZ`
 - `SYSCALL`
 - `HALT`
 
-外部バイナリローダーは、C配列に命令を直接置く段階から、`./vm programs/hello.bin` で実行する段階へ進むための節目として追加した。
+外部バイナリローダーは、C配列に命令を直接置く段階から、`./handmade-vm programs/hello.bin` で実行する段階へ進むための節目として追加した。
 
-CPU v1 で完了した直近の節目:
+VM・host側ツール・VM上のサンプルで完了した節目:
 
 ```text
 1. 外部バイナリローダー
@@ -113,6 +114,8 @@ CPU v1 で完了した直近の節目:
 11. 引数なし起動で外部バイナリを選べるhost側monitor mode
 12. 入力バッファの help / quit 文字列比較
 13. 入力バッファ処理の CALLI / RET サブルーチン化
+14. 文字列比較の共通サブルーチン化
+15. 複数文字コマンドループと、上限後・CRLFの残り入力の処理
 ```
 
 現在の hello 実行:
@@ -137,116 +140,104 @@ A
 CPU halted.
 ```
 
-この時点では、まだ本格的なアセンブラは作らない。`tools/small-asm.c` は `MOVI`, `SYSCALL`, `HALT`, `CMP`, `JUMP`, `JZ`, `JNZ` だけを扱う最小ツールとして育てる。
+現在の `tools/small-asm.c` は `MOVI`, `SYSCALL`, `HALT`, `CMP`, `JUMP`, `JZ`, `JNZ` を扱う。Day 35などのサンプルは専用writerで生成する。今後は必要に応じて、命令対応、ラベル解決、文字列データ配置を別々の課題として拡張する。
 
-Day 34 までで、入力処理と文字列比較をそれぞれ `CALLI` / `RET` で呼び出す形にした。次は、この2つを使った複数文字コマンドのループを候補とする。
+Day 35までで、入力・比較サブルーチンを使った複数文字コマンドループが完成した。保存上限は63 byteで、上限後もLFまで消費する。CRは無視し、CR単独では入力を確定しない。
 
-今後、自作OS側で必要になったら追加する命令:
+命令名の `JPI` / `JPZI` / `JPNZI` は参考教材側の呼び名で、現在のJUMP / JZ / JNZに相当する。small-asmが扱う表記とは区別する。
 
-- `SBT`
-- `SBTI`
-- `NOT`
-- `JPUI`
-- `JPNUI`
-- `underflow_flag`
+今後必要になれば、比較フラグやビット操作などを追加する。参考教材の `SBT` / `SBTI` / `NOT` / `JPUI` / `JPNUI` をそのまま実装予定とはせず、現在のISAで必要な意味・命令形式を仕様カードで定義する。`underflow_flag` は命令ではなく条件フラグの候補として扱う。
 
-### 2. OS v1
+### 2. VM上のコマンドループからOSのサービスへ
 
-今回のVM仕様に合わせて、小さな自作OSを一から書く。
-
-OS v1 は、外部バイナリローダーが動いてから始める。
-
-成功条件:
-
-- 自作OSの起動メッセージが表示される
-- `>` プロンプトが表示される
-- 1文字入力を受け取れる
-- 入力行をメモリに保存できる
-- 最初の組み込みコマンドが動く
-
-最初のOS風プログラム:
+OS風の入口として、起動メッセージ、1文字入力、行入力、組み込みコマンドは実装済み。Day 35ではhelp / quitを使う行単位のループまで進んだ。
 
 ```text
-起動メッセージを出す
-> を出す
-1文字読む
-h なら H を表示して > に戻る
-q なら HALT
-その他なら ? を表示して > に戻る
+host側monitor（実装済み）
+  ファイル名を読み、hostファイルを開く
+  新しいVMへ.binを読み込んで実行する
+
+VM上のプログラム（実装済み）
+  表示と入力のsyscallを使う
+  入力バッファを比較し、組み込みコマンドを実行する
 ```
 
-この時点で次の構成が成立する。
+次にOSとして何を受け持つかを、小さなサービスごとに設計する。現在はVM上からファイルを開く機能、別の実行プログラムを読み込む機能、プロセス管理はない。
+
+候補となる節目:
+
+- 入出力やバッファ処理を、呼び出しの約束とともに整理する。
+- 保存先をhostファイルにするか仮想ディスクにするかを決める。
+- 読み書きの成功・失敗をVM側へ返す仕組みを作る。
+- 別プログラムをロードし、終了後に戻る仕組みを設計する。
+
+hostファイル用syscallを追加する段階と、VM上に自作ファイルシステムを作る段階は分ける。OSの機能が必要になる前に、組み込みコマンドやメモリ上の行編集を進めてもよい。
+
+### 3. Shell v1（組み込みコマンドから育てる）
+
+現在のhelp / quit / unknownを出発点にする。次の第一候補はechoなどのコマンド追加で、入力と出力の具体例から仕様を決める。
+
+短期の順序案:
 
 ```text
-自作CPU VM
-  -> 自作OS
-  -> OS内蔵シェル風コマンドループ
+コマンドを1つ追加する
+  → 必要に応じてsmall-asmを拡張する
+  → コマンド名と引数を分ける
+  → メモリ上のデータを扱うコマンドへ進む
 ```
 
-### 3. Shell v1
+コマンド候補と前提:
 
-最初から C の shell をそのまま移植しない。
+| 候補 | 必要になるもの |
+|---|---|
+| echo | 表示対象の入力方法、バッファの再利用規則 |
+| hexdump | 最初はVM内メモリの範囲指定と16進表示。ファイルを対象にするなら読み込み機能 |
+| edit | 編集用バッファと操作。最初はメモリ上の行編集 |
+| cat | ファイルまたは仮想ディスクの読み込み機能 |
+| clear | 端末表示の制御方法と、そのVM側インターフェース |
+| run | ローダーと起動・終了・復帰の約束 |
 
-まずは自作OS内の小さなコマンドループを shell として育てる。
+将来、shellを `shell.bin` としてOSから分離する。これは未実装であり、先に次の実行規約を決める必要がある。
 
-追加候補:
+### 4. Executable ABI（設計候補・未確定）
 
-- `clear`
-- `cat`
-- `hexdump`
-- `edit`
-- `run`
-- `help`
+OSとユーザープログラムの境界を決める。現在はhost側ローダーが新しいVMのmemory[0]へ読み込み、PC=0から実行する。VM上のOSから別プログラムを呼び出す規約はまだない。
 
-後で、自作した shell を `shell.bin` として OS から分離する。
+設計時に決める項目:
 
-```text
-os.bin
-  -> shell.bin
-```
+- ロード先と入口アドレス。OSやshellのメモリを上書きしない配置。
+- PC・SP・レジスタを起動時にどう設定し、復帰時に何を戻すか。
+- 引数、戻り値、エラーを渡す場所。
+- 呼び出し側と呼び出される側のどちらが各レジスタを保存するか。
+- プログラムの終了をRETにするか、専用の終了syscallにするか。
 
-### 4. Executable ABI
+同一VMへロードする場合、入口を単純に0へ固定すると常駐するコードと衝突し得る。配置や退避の設計が必要。現在MMUはないため、論理アドレス空間が分離されているとは扱わない。
 
-OS とユーザープログラムの境界を決める。
+RETを終了方法にする場合は、呼び出し側が有効な戻り先をスタックへ積む必要がある。HALTは現在VMを停止する命令で、VM上のshellへ戻る機能ではない。新しい終了syscallの番号や動作は未定。
 
-初期案:
+read_lineやstring_equalのレジスタ利用は、現在のサンプル内の約束。すべてのプログラムに適用するABIとして確定したものではない。
 
-- program entry: logical address `0x00000`
-- return: `RET` or `SYSCALL exit`
-- `R0`: syscall argument 1
-- `R1`: syscall argument 2
-- `R0`: syscall return value
-- `SP`: user stack
-- caller-saved: `R0`-`R7`
+### 5. Editor v1（段階的に追加）
 
-必要に応じて後で拡張する。
+既存エディターの設計を参考にしながら、まず小さな行編集を一から作る。
 
-### 5. Editor v1
+| 段階 | 成功条件 | 必要なもの |
+|---|---|---|
+| メモリ上の1行編集 | 入力した行を保持し、表示・置換できる | 現在の行入力・文字列表示、編集用バッファ |
+| 複数行の編集 | 行を選び、追加・置換・削除できる | 行のデータ構造、容量上限、行指定 |
+| 保存と読み込み | 編集結果を保存して読み戻せる | ファイルまたは仮想ディスクへの入出力とエラー処理 |
+| shellから起動・復帰 | editで入り、終了後にshellへ戻る | プログラムを分ける場合はローダーと実行規約 |
+| 画面全体を使う編集 | キー操作、カーソル移動、再描画ができる | キー単位の入力、端末制御、画面状態の管理 |
 
-いきなり kilo 全体を移植しない。
+最初の行編集は現在のsyscallを使って始められる。raw mode、clear screen、move cursor、open / read / write / close、exitなどをすべて先に揃える必要はない。追加するインターフェースは各段階の仕様カードで決める。
 
-まずは小さな line editor または screen editor を作る。
-
-最低限必要な syscall:
-
-- print char
-- print string
-- read key
-- clear screen
-- move cursor
-- open file
-- read file
-- write file
-- close file
-- exit process
-
-最初の成功条件:
+将来の到達例:
 
 ```text
 > edit memo.txt
 ```
 
-でエディター画面が開き、文字入力、保存、終了ができる。
+で編集を始め、保存してshellへ戻る。これは最初の成功条件ではなく、保存と起動・復帰まで整えた後の目標とする。
 
 ### 6. C-like Application Layer
 
@@ -269,6 +260,16 @@ C ソースをそのまま自作CPUで動かすには、次が必要になる。
 
 ## Current Target
 
+現在のサンプルを実行する:
+
+```sh
+make run-word-command-loop
+```
+
+Command>へhelp、hello、quitを順に入力する。自動照合は `make test-word-command-loop`（Python 3、26ケース）。
+
+次はechoなどの追加コマンドの仕様カードを書く。実装の前に、入力形式、表示内容、既存ループへの戻り方を決める。
+
 現在の基本実行:
 
 ```text
@@ -284,7 +285,18 @@ cc notes/vm.c -o /tmp/handmade-vm
 /tmp/handmade-vm
 ```
 
-現在の期待出力:
+引数なしではhost側monitorが起動する。
+
+```text
+Welcome to Handmade VM
+>
+```
+
+内蔵テストは `--self-test` で実行する。
+
+```sh
+/tmp/handmade-vm --self-test
+```
 
 ```text
 A
@@ -314,7 +326,7 @@ Day 25では、`SYSCALL 2` を使った最小echoプログラム `programs/echo-
 
 Day 26では、新しい命令を追加せず、`>` を表示してから1文字echoする `programs/prompt-echo.asm` と `programs/prompt-echo.bin` を追加した。
 
-次の作業候補は、Day 34 の入力・比較サブルーチンを使い、help / unknown の後にプロンプトへ戻ること。quitで終了する。
+Day 35では、入力・比較サブルーチンを使い、help / unknown後に再入力し、quitで終了するループを追加した。次の作業候補はechoなどのコマンド追加で、具体的な動作は仕様カードで決める。
 
 短い再開手順は [manual/HANDOFF.md](manual/HANDOFF.md) を見る。
 
@@ -328,15 +340,18 @@ Day 26では、新しい命令を追加せず、`>` を表示してから1文字
 - main execution loop structure
 - optional trace output
 
-今回の企画で一から作るもの:
+実装済みで、今後も自作して拡張するもの:
 
 - memory model
 - register file
 - instruction decoder
 - syscall implementation
 - binary loader
+
+必要になった段階で設計する長期候補:
+
 - interrupt model
-- later: MMU
+- MMU、ページング、メモリ保護
 
 ## Recommended Repository Shape
 
