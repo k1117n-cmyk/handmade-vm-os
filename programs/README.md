@@ -457,3 +457,22 @@ cc tools/write-word-command-compare-bin.c -o /tmp/write-word-command-compare-bin
 ```
 
 配置は命令列 `0x000..0x0DF`、read_line `0x064`、string_equal `0x0A8`。表示文字列は従来の `0x300/0x340/0x3A0/0x3E0`、比較語は `0x420` と `0x430`、入力バッファは `0x500`。比較は0終端も含むため、`helpful` はunknownになる。
+
+## word-command-loop.bin
+
+Day 35はhelp / unknownの後にプロンプトへ戻り、quitで停止する版です。入力と比較はCALLI / RETで呼びます。最大63 byteを保存し、残りもLFまで消費します。CRは読み捨てるためCRLFにも対応し、CR単独では確定しません。空行はunknown、途中EOFではVMが停止します。
+
+```sh
+make programs/word-command-loop.bin
+make run-word-command-loop
+make test-word-command-loop
+```
+
+`tools/write-word-command-loop-bin.c` が生成します。直接生成する場合は次の形です。
+
+```sh
+cc tools/write-word-command-loop-bin.c -o /tmp/write-word-command-loop-bin
+/tmp/write-word-command-loop-bin programs/word-command-loop.bin
+```
+
+配置はDay 34と同じです。[解説](../manual/test-code-explanations/035-word-command-loop.md)にループと入力境界の扱いをまとめています。自動テストはPython 3が必要です。

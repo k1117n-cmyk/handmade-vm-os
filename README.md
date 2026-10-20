@@ -89,6 +89,7 @@ programs/
   word-command.bin
   word-command-subroutine.bin
   word-command-compare.bin
+  word-command-loop.bin
 
 tools/
   small-asm.c
@@ -98,6 +99,7 @@ tools/
   write-word-command-bin.c
   write-word-command-subroutine-bin.c
   write-word-command-compare-bin.c
+  write-word-command-loop-bin.c
 ```
 
 `manual/` は仕様、補助資料、テストコード解説をまとめたマニュアルです。
@@ -466,3 +468,15 @@ make test-word-command-compare
 ```
 
 生成元は `tools/write-word-command-compare-bin.c`。入力なしで起動するmonitorからも `programs/word-command-compare.bin` を指定できます。[比較ルーチンの解説](manual/test-code-explanations/034-word-command-compare.md)で命令列を追えます。
+
+### Day 35: 複数文字コマンドを繰り返す
+
+`programs/word-command-loop.bin` はhelp / unknownの表示後に再入力し、quitで終了します。最大63 byteを保存し、超過分もLFまで読み捨てます。CRは無視するためCRLFにも対応します（CR単独では確定しません）。
+
+```sh
+make run-word-command-loop
+# help、hello、quit を順に入力
+make test-word-command-loop
+```
+
+writerは `tools/write-word-command-loop-bin.c`。テストはPython 3で26ケースの出力を自動照合します。[仕様](manual/specs/035-word-command-loop.md)と[命令列の解説](manual/test-code-explanations/035-word-command-loop.md)を参照してください。

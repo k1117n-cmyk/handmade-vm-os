@@ -655,3 +655,10 @@ cc notes/vm.c -o /tmp/handmade-vm
 A
 CPU halted.
 ```
+
+
+## Day 35: 複数文字コマンドのループ
+
+`tools/write-word-command-loop-bin.c` と `programs/word-command-loop.bin` を追加。help / unknown後はJUMPで先頭へ戻り、quitでHALTする。read_lineは63 byteを保存後もLFまで消費する。CRを無視しCRLFに対応（CR単独は非対応）。VM本体とDay 34のサンプルは変更なし。
+
+仕様カード、解説、Makefile、README類、HANDOFFを更新。`make test-word-command-loop` で26ケースの標準出力・標準エラー・終了コードを照合。境界入力、EOF、1,000回のhelp、monitor復帰を含む。既存hello.binとsmall-asmによる再生成版も `A` / `CPU halted.` を確認。記事14は参照のみ。

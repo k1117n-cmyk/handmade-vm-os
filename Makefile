@@ -16,9 +16,9 @@ ASM_PROGRAMS := \
 	programs/command-loop.asm
 
 BIN_PROGRAMS := $(ASM_PROGRAMS:.asm=.bin)
-DATA_PROGRAMS := programs/word-command-compare.bin programs/boot-message.bin programs/line-buffer.bin programs/word-command.bin programs/word-command-subroutine.bin
+DATA_PROGRAMS := programs/word-command-loop.bin programs/word-command-compare.bin programs/boot-message.bin programs/line-buffer.bin programs/word-command.bin programs/word-command-subroutine.bin
 
-.PHONY: run-word-command-compare test-word-command-compare all programs run-boot-message run-line-buffer run-word-command run-word-command-subroutine run-command-loop test test-monitor test-boot-message test-line-buffer test-word-command test-word-command-quit test-word-command-unknown test-word-command-subroutine clean
+.PHONY: run-word-command-loop test-word-command-loop run-word-command-compare test-word-command-compare all programs run-boot-message run-line-buffer run-word-command run-word-command-subroutine run-command-loop test test-monitor test-boot-message test-line-buffer test-word-command test-word-command-quit test-word-command-unknown test-word-command-subroutine clean
 
 all: $(VM) programs
 
@@ -99,7 +99,7 @@ test-word-command-subroutine: $(VM) programs/word-command-subroutine.bin
 	printf 'hello\n' | ./$(VM) programs/word-command-subroutine.bin
 
 clean:
-	rm -f tools/write-word-command-compare-bin $(VM) $(SMALL_ASM) $(BOOT_MESSAGE_WRITER) $(LINE_BUFFER_WRITER) $(WORD_COMMAND_WRITER) $(WORD_COMMAND_SUBROUTINE_WRITER)
+	rm -f tools/write-word-command-loop-bin tools/write-word-command-compare-bin $(VM) $(SMALL_ASM) $(BOOT_MESSAGE_WRITER) $(LINE_BUFFER_WRITER) $(WORD_COMMAND_WRITER) $(WORD_COMMAND_SUBROUTINE_WRITER)
 
 tools/write-word-command-compare-bin: tools/write-word-command-compare-bin.c
 	$(CC) $(CFLAGS) $< -o $@
@@ -114,3 +114,15 @@ test-word-command-compare: $(VM) programs/word-command-compare.bin
 	printf 'help\n' | ./$(VM) programs/word-command-compare.bin
 	printf 'quit\n' | ./$(VM) programs/word-command-compare.bin
 	printf 'hello\n' | ./$(VM) programs/word-command-compare.bin
+
+tools/write-word-command-loop-bin: tools/write-word-command-loop-bin.c
+	$(CC) $(CFLAGS) $< -o $@
+
+programs/word-command-loop.bin: tools/write-word-command-loop-bin
+	$< $@
+
+run-word-command-loop: $(VM) programs/word-command-loop.bin
+	./$(VM) programs/word-command-loop.bin
+
+test-word-command-loop: $(VM) programs/word-command-loop.bin
+	python3 tools/test-word-command-loop.py ./$(VM)

@@ -6,7 +6,11 @@
 
 ## 現在地
 
-Day 34 `word-command-compare.bin` まで完了しています。
+Day 35 `word-command-loop.bin` まで完了しています。
+
+Day 35ではhelp / unknownの後にCommand>へ戻り、quitで終了します。入力は最大63 byteを保存し、超過分はLFまで読み捨てます。CRは無視（CRLF対応、CR単独では確定しない）。途中EOFは既存syscallで停止します。
+
+確認: `make test-word-command-loop`（Python 3、26ケースの自動照合）。仕様は `specs/035-word-command-loop.md`、解説は `test-code-explanations/035-word-command-loop.md`。実行は `make run-word-command-loop`。
 
 最新ブログ原稿は `articles/unix-cafe-handmade-vm-14.txt`（Day 34、文字列比較の共通サブルーチン化）。前回の記事は `articles/unix-cafe-handmade-vm-13.txt`（Day 33）。記事14はWordPressブロック形式の下書きで、未公開です。
 
@@ -91,13 +95,9 @@ tools/small-asm.c
 
 ## 次回候補
 
-候補Bまで完了しました。次は複数文字コマンドを繰り返し入力するループを候補とします。
+入力・比較サブルーチンと複数文字コマンドのループまで完了しました。
 
-```text
-完了した候補A: 入力バッファ処理を CALLI / RET で切り出す
-完了した候補B: 文字列比較処理をサブルーチン風に切り出す
-次回候補: help / unknown の後は再入力し、quitで終了する
-```
+次回候補: VM上で入力文字列を表示するechoコマンドを追加する。まず固定の `echo` と完全一致した場合の動作を決め、引数分割や行編集は別の段階で扱う。
 
 monitor modeはhost側の起動ランチャーであり、まだVM上のOSではありません。VM上のプログラムからhostファイルを開く仕組みは、今後の仮想ディスクやファイル読み込みsyscallのテーマとして扱います。
 
@@ -189,13 +189,17 @@ manual/specs/033-word-command-subroutine.md
 manual/test-code-explanations/033-word-command-subroutine.md
 ```
 
-次の最初の成功条件:
+完了した複数文字コマンドループ:
 
 ```text
-help / unknown の後に Command> へ戻る
-quitで HALT する
-繰り返し入力の前に63 byte上限後の残り入力とCRLFの扱いを決める
+programs/word-command-loop.bin
+tools/write-word-command-loop-bin.c
+tools/test-word-command-loop.py
+manual/specs/035-word-command-loop.md
+manual/test-code-explanations/035-word-command-loop.md
 ```
+
+次の最初の成功条件（候補）: echoコマンドの入力・出力を仕様カードで決め、help / quit / unknownとの共存を確認する。
 
 最小echoプログラムの確認:
 
@@ -372,7 +376,7 @@ VM flow complete.
 CPU halted.
 ```
 
-いきなり本格的な行編集へ進まず、次は入力・比較サブルーチンを使うループを検討します。
+入力・比較サブルーチンを使うループはDay 35で完了しました。本格的な行編集へ進む前に、コマンドを1つ増やす練習を候補とします。
 
 ## 作業方針
 
