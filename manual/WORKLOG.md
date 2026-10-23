@@ -669,3 +669,10 @@ CPU halted.
 仕様カードで、echoと完全一致した後にText>で次の1行を読み、表示してCommand>へ戻る動作を決定。`tools/write-echo-command-bin.c`、`programs/echo-command.bin`、`tools/test-echo-command.py`を追加。入力・比較ルーチンを再利用し、同じ入力バッファへ本文を書きます。本文のquitは終了命令になりません。改行はSYSCALL 3で出力します。
 
 `make test-echo-command`で54ケース成功。VM本体とDay 35の実装は変更なし。仕様、解説、Makefile、README類、HANDOFF、記事ROADMAPを更新。第16回の構成案・WordPress形式の本文を作成し、実行例とブロック対応を照合。記事はgit管理外の未公開下書きです。次はDay 37・第17回のsmall-asm命令対応拡張の仕様決め。
+
+
+## Day 37: small-asmの命令対応拡張（2026-10-23）
+
+Day 36 writerと照合し、不足していたLDB / STB / INC / CALLI / RETをsmall-asmへ追加。仕様カードで角括弧、R0〜R7、20bit即値、エラーと既存字句規則の継承を決定。14命令のasm-memory-callサンプルはメモリへA/Bを書き、同じサブルーチンを2回呼んで表示する。
+
+`make test-small-asm`の59ケースで固定バイト列、境界値、不正入力、既存5サンプル、Day 36 writerの入力・比較ルーチンとの一致、実VM出力を確認。Day 36の54ケース、Day 35の26ケースも回帰確認。VM本体は変更なし。仕様、解説、Makefile、README類、ROADMAP、HANDOFFを更新。第17回の構成案とWordPress形式の本文を作成。記事はgit管理外の未公開下書き。次はDay 38・第18回の固定長命令列のラベル対応の仕様決め。

@@ -91,6 +91,8 @@ programs/
   word-command-compare.bin
   word-command-loop.bin
   echo-command.bin
+  asm-memory-call.asm
+  asm-memory-call.bin
 
 tools/
   small-asm.c
@@ -495,3 +497,14 @@ make test-echo-command
 入力はコマンド・本文とも最大63 byte、CRを無視しLFで確定、超過分もLFまで消費します。途中EOFでは未完の行を実行・表示せず停止します。本文が空なら改行だけを表示します。
 
 writerは `tools/write-echo-command-bin.c`、自動テストは `tools/test-echo-command.py`（Python 3、54ケース）です。[仕様](manual/specs/036-echo-command.md)と[解説](manual/test-code-explanations/036-echo-command.md)を参照してください。
+
+## Day 37: small-asmの命令対応拡張
+
+`tools/small-asm.c`に`LDB Rd, [Rs]`、`STB [Rd], Rs`、`INC Rd`、`CALLI imm`、`RET`を追加しました。既存7命令と合わせて12命令に対応します。呼び出し先は数値で指定し、レジスタはR0〜R7です。角括弧の内部に空白は入れません。ラベルと文字列データは今後の課題です。
+
+```sh
+make run-asm-memory-call
+make test-small-asm
+```
+
+サンプルはAとBをメモリへ保存し、同じサブルーチンを2回呼んで1文字ずつ表示します。実行結果は`A`、`B`、`CPU halted.`の3行です。Python 3による59ケースのテストで、命令値、不正入力、既存サンプルとDay 36 writerとの一致、VM実行を確認します。[仕様](manual/specs/037-small-asm-instructions.md)と[解説](manual/test-code-explanations/037-small-asm-instructions.md)を参照してください。

@@ -77,3 +77,7 @@ JUMP 0x10 -> 0x68000010
 JZ 0x20   -> 0x6A000020
 JNZ 0x30  -> 0x6B000030
 ```
+
+## Day 37の拡張
+
+LDB / STB / INC / CALLI / RETの追加構文は[037-small-asm-instructions.md](037-small-asm-instructions.md)を参照。数値オペランドの12命令に対応します。

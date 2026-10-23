@@ -489,3 +489,13 @@ make test-echo-command
 入力はコマンド・本文とも最大63 byte、CRを無視しLFで確定、超過分もLFまで消費します。途中EOFでは未完の行を実行・表示せず停止します。本文が空なら改行だけを表示します。
 
 writerは `tools/write-echo-command-bin.c`、自動テストは `tools/test-echo-command.py`（Python 3、54ケース）です。[仕様](../manual/specs/036-echo-command.md)と[解説](../manual/test-code-explanations/036-echo-command.md)を参照してください。
+
+## Day 37: アセンブリでメモリ操作とサブルーチンを書く
+
+`asm-memory-call.asm`は14命令、56 byteのサンプルです。0x500へA、0x501へBを書き、0x28のサブルーチンを2回呼んで表示します。
+
+```sh
+make run-asm-memory-call
+```
+
+実行出力は`A`、`B`、`CPU halted.`の3行です。生成のみなら`make programs/asm-memory-call.bin`。命令間の空白やコメントは配置に影響しませんが、命令を増減すると数値の呼び出し先も変更が必要です。[解説](../manual/test-code-explanations/037-small-asm-instructions.md)を参照してください。

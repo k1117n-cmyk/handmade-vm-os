@@ -44,6 +44,15 @@ static int parse_register(const char *text, uint8_t *reg) {
     return 1;
 }
 
+static int parse_memory_register(const char *text, uint8_t *reg) {
+    if (strlen(text) != 4 || text[0] != '[' || text[3] != ']') {
+        return 0;
+    }
+
+    char name[] = {text[1], text[2], '\0'};
+    return parse_register(name, reg);
+}
+
 static int parse_imm20(const char *text, uint32_t *value) {
     char *end = NULL;
 
@@ -84,12 +93,12 @@ static int assemble_line(char *line, uint32_t *inst) {
         return 0;
     }
 
-    if (strcmp(mnemonic, "HALT") == 0) {
+    if (strcmp(mnemonic, "HALT") == 0 || strcmp(mnemonic, "RET") == 0) {
         if (strtok(NULL, " \t\r\n") != NULL) {
             return -1;
         }
 
-        *inst = 0x01000000;
+        *inst = strcmp(mnemonic, "HALT") == 0 ? 0x01000000 : 0x02000000;
         return 1;
     }
 
@@ -129,6 +138,45 @@ static int assemble_line(char *line, uint32_t *inst) {
         return 1;
     }
 
+    if (strcmp(mnemonic, "INC") == 0) {
+        char *reg_text = strtok(NULL, " \t\r\n");
+        uint8_t reg;
+
+        if (reg_text == NULL || strtok(NULL, " \t\r\n") != NULL ||
+            !parse_register(reg_text, &reg)) {
+            return -1;
+        }
+
+        *inst = 0x20000000 | ((uint32_t)reg << 20);
+        return 1;
+    }
+
+    if (strcmp(mnemonic, "LDB") == 0 || strcmp(mnemonic, "STB") == 0) {
+        char *rd_text = strtok(NULL, " \t\r\n");
+        char *rs_text = strtok(NULL, " \t\r\n");
+        uint8_t rd;
+        uint8_t rs;
+        int is_load = strcmp(mnemonic, "LDB") == 0;
+
+        if (rd_text == NULL || rs_text == NULL || strtok(NULL, " \t\r\n") != NULL) {
+            return -1;
+        }
+
+        if (is_load) {
+            if (!parse_register(rd_text, &rd) || !parse_memory_register(rs_text, &rs)) {
+                return -1;
+            }
+        } else {
+            if (!parse_memory_register(rd_text, &rd) || !parse_register(rs_text, &rs)) {
+                return -1;
+            }
+        }
+
+        *inst = (is_load ? 0x30000000 : 0x31000000) |
+                ((uint32_t)rd << 20) | ((uint32_t)rs << 16);
+        return 1;
+    }
+
     if (strcmp(mnemonic, "CMP") == 0) {
         char *rd_text = strtok(NULL, " \t\r\n");
         char *rs_text = strtok(NULL, " \t\r\n");
@@ -148,7 +196,7 @@ static int assemble_line(char *line, uint32_t *inst) {
         return 1;
     }
 
-    if (strcmp(mnemonic, "JUMP") == 0 || strcmp(mnemonic, "JZ") == 0 || strcmp(mnemonic, "JNZ") == 0) {
+    if (strcmp(mnemonic, "JUMP") == 0 || strcmp(mnemonic, "JZ") == 0 || strcmp(mnemonic, "JNZ") == 0 || strcmp(mnemonic, "CALLI") == 0) {
         char *imm_text = strtok(NULL, " \t\r\n");
 
         if (imm_text == NULL || strtok(NULL, " \t\r\n") != NULL) {
@@ -165,6 +213,8 @@ static int assemble_line(char *line, uint32_t *inst) {
 
         if (strcmp(mnemonic, "JUMP") == 0) {
             op = 8;
+        } else if (strcmp(mnemonic, "CALLI") == 0) {
+            op = 9;
         } else if (strcmp(mnemonic, "JZ") == 0) {
             op = 10;
         } else {

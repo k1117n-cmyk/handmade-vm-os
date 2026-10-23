@@ -34,6 +34,7 @@
 | 外部バイナリローダー | `program.bin` を `memory[0]` から読み込む | [specs/021-binary-loader.md](specs/021-binary-loader.md) |
 | monitor mode | 引数なしで起動し、実行する `.bin` をhost側プロンプトから選ぶ | [specs/031-monitor-mode.md](specs/031-monitor-mode.md) |
 | hello.bin 作成ツール | 最小バイナリを生成する | [specs/022-hello-binary-writer.md](specs/022-hello-binary-writer.md) |
+| small-asm命令対応拡張 | メモリ操作とサブルーチンの5命令を追加 | [specs/037-small-asm-instructions.md](specs/037-small-asm-instructions.md) |
 | small assembler | 最小アセンブリを `.bin` へ変換する | [specs/023-small-asm.md](specs/023-small-asm.md) |
 | print_char_raw syscall | R0の1文字を改行なしで表示する | [specs/029-syscall-print-char-raw.md](specs/029-syscall-print-char-raw.md) |
 | echo-char sample | 入力した1文字をそのまま表示する外部プログラム | [specs/025-echo-char.md](specs/025-echo-char.md) |
@@ -120,3 +121,5 @@ Day 34のwriterは `tools/write-word-command-compare-bin.c` です。[解説](te
 Day 35のwriterは `tools/write-word-command-loop-bin.c` です。[解説](test-code-explanations/035-word-command-loop.md)で、反復と上限後の読み捨て、LF / CRLFの扱いを確認できます。
 
 Day 36のwriterは `tools/write-echo-command-bin.c` です。[解説](test-code-explanations/036-echo-command.md)で、echoへの分岐、入力バッファの再利用、本文表示を確認できます。`make test-echo-command` で54ケースを照合します。
+
+Day 37はホスト側のsmall-asmを拡張します。[解説](test-code-explanations/037-small-asm-instructions.md)と`make test-small-asm`（59ケース）で、構文から命令値への変換とVM実行を確認できます。

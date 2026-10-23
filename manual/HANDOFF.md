@@ -6,14 +6,14 @@
 
 ## 再開時の段取り（最初に読む）
 
-Day 36・第16回は、実装・原稿作成・検証まで完了済みです。次の開始地点は **Day 37・第17回のsmall-asm命令対応拡張の仕様決め**です。対象命令とオペランドの範囲はまだ確定していません。
+Day 37・第17回は、実装・原稿作成・検証まで完了済みです。次の開始地点は **Day 38・第18回のsmall-asmラベル対応の仕様決め**です。ラベル名の規則、重複・未定義の扱い、前方参照の解決方法はまだ確定していません。
 
 「このファイルを読んで作業を再開してください」と依頼されたら、次の順に進めます。
 
-1. この開始地点と、ユーザーの最新の指示を確認する。完了済みのDay 36・第16回を今回の作業として扱わない。
+1. この開始地点と、ユーザーの最新の指示を確認する。完了済みのDay 37・第17回を今回の作業として扱わない。
 2. 作業ツリーと必要な既存動作を確認する。これは再開の準備であり、確認結果の報告だけで作業を終えない。同じセッションで確認済みなら、変更や問題がない限り繰り返さない。
-3. Day 37の仕様カードに着手する。small-asmで現在使える命令と、既存writerが生成する命令を照合し、今回追加する命令・オペランドを小さく決める。ラベルと文字列データは別の段階とする。
-4. 仕様に沿って実装・動作確認を進め、第17回の記事構成・本文へつなげる。必要な判断があれば具体的な論点を示し、単に「次へ進めてよいか」を確認するために止まらない。
+3. Day 38の仕様カードに着手する。固定長命令列のラベル定義と参照、前方参照の解決、重複・未定義エラーを小さく決める。文字列データと配置指示は別の段階とする。
+4. 仕様に沿って実装・動作確認を進め、第18回の記事構成・本文へつなげる。必要な判断があれば具体的な論点を示し、単に「次へ進めてよいか」を確認するために止まらない。
 5. 記事構成と本文の作成は、既存のファイル形式と書式を参考にする。記事構成のmdファイルには、スラッグ、タグ、ディスクリプション、アイキャッチ用のプロンプトを追記する。
 6. 作業終了時に、実際に完了した範囲と次の着手点をこのファイルへ更新する。
 
@@ -21,13 +21,21 @@ Day 36・第16回は、実装・原稿作成・検証まで完了済みです。
 
 ## 現在地
 
+Day 37のsmall-asm命令対応拡張まで完了しています。LDB / STB / INC / CALLI / RETを加え、数値オペランドの12命令に対応しました。角括弧内部の空白は不可、レジスタはR0〜R7、CALLIは20bit即値です。
+
+`make test-small-asm`の59ケースで命令値、不正入力、既存5サンプル、Day 36 writerの命令部分との一致、VM実行を確認。`make run-asm-memory-call`はA / B / CPU halted.を表示します。仕様は`specs/037-small-asm-instructions.md`、解説は`test-code-explanations/037-small-asm-instructions.md`です。
+
+最新原稿は`articles/unix-cafe-handmade-vm-17.txt`、構成案は`articles/2026-10-23-vm-small-asm-instructions-037-outline.md`。WordPress形式の未公開下書きで、構成案にスラッグ・タグ・ディスクリプション・アイキャッチ用プロンプトを記載しています。VM本体とecho writerは変更していません。
+
+以下は前回までの完了内容です。
+
 Day 36 `echo-command.bin` まで完了しています。
 
 echoに完全一致するとText>で次の1行を読み、文字列とLFを表示してCommand>へ戻ります。コマンドと本文は0x500のバッファを共用します。本文のhelp / quitは文字列として表示します。入力は最大63 byte、CR無視、LFまで消費。途中EOFでは未完の本文を表示せず停止します。
 
 確認: `make test-echo-command`（Python 3、54ケース）。仕様は `specs/036-echo-command.md`、解説は `test-code-explanations/036-echo-command.md`。実行は `make run-echo-command`。VM本体とDay 35の実装は変更していません。
 
-最新原稿は `articles/unix-cafe-handmade-vm-16.txt`（WordPressブロック形式の未公開下書き）。構成案は `articles/2026-10-22-vm-echo-command-036-outline.md`。本文の出力例とブロック対応を確認済みです。
+第16回の原稿は `articles/unix-cafe-handmade-vm-16.txt`（WordPressブロック形式の未公開下書き）。構成案は `articles/2026-10-22-vm-echo-command-036-outline.md`。本文の出力例とブロック対応を確認済みです。
 
 以下は前回までの完了内容です。
 
@@ -117,14 +125,14 @@ programs/word-command-subroutine.bin
   tools/write-word-command-subroutine-bin.c で生成する
 
 tools/small-asm.c
-  MOVI Rn, imm / SYSCALL imm / HALT / CMP / JUMP / JZ / JNZ を .bin へ変換する
+  MOVI / SYSCALL / HALT / CMP / JUMP / JZ / JNZ / LDB / STB / INC / CALLI / RET を .bin へ変換する
 ```
 
-## 次の作業: Day 37・第17回
+## 次の作業: Day 38・第18回
 
-ブログ全体の順序は `articles/ROADMAP.md` に整理済みです。Day 36・第16回のechoは完了済みです。
+ブログ全体の順序は `articles/ROADMAP.md` に整理済みです。Day 37・第17回の命令対応拡張は完了済みです。
 
-次に着手する作業は、small-asmの命令対応拡張の仕様カードです。既存writerの出力と照合できる対象命令を選びます。ラベル・文字列データ・引数分割・行編集は後の段階です。
+次に着手する作業は、small-asmのラベル対応の仕様カードです。固定長の命令列に絞り、数値指定との共存と前方参照を扱います。文字列データ・引数分割・行編集は後の段階です。
 
 monitor modeはhost側の起動ランチャーであり、まだVM上のOSではありません。VM上のプログラムからhostファイルを開く仕組みは、今後の仮想ディスクやファイル読み込みsyscallのテーマとして扱います。
 
@@ -236,7 +244,7 @@ manual/specs/036-echo-command.md
 manual/test-code-explanations/036-echo-command.md
 ```
 
-次の最初の成功条件: small-asmで追加対応する命令とオペランドを仕様カードで決め、既存writerと命令コードを照合する。
+次の最初の成功条件: ラベル定義と参照の規則を仕様カードで決め、数値版と同じbyte列を生成する。前方参照・重複・未定義も確認する。
 
 最小echoプログラムの確認:
 
@@ -413,7 +421,7 @@ VM flow complete.
 CPU halted.
 ```
 
-入力・比較サブルーチンを使うループはDay 35で完了しました。Day 36ではechoの追加まで完了しました。次はsmall-asmの命令対応を増やします。
+入力・比較サブルーチンを使うループはDay 35で完了しました。Day 36ではechoの追加まで完了しました。Day 37でsmall-asmの5命令対応も完了し、次はラベル対応へ進みます。
 
 ## 作業方針
 
