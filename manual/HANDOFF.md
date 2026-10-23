@@ -4,15 +4,38 @@
 
 過去の作業ログは [WORKLOG.md](WORKLOG.md) に移しました。
 
+## 再開時の段取り（最初に読む）
+
+Day 36・第16回は、実装・原稿作成・検証まで完了済みです。次の開始地点は **Day 37・第17回のsmall-asm命令対応拡張の仕様決め**です。対象命令とオペランドの範囲はまだ確定していません。
+
+「このファイルを読んで作業を再開してください」と依頼されたら、次の順に進めます。
+
+1. この開始地点と、ユーザーの最新の指示を確認する。完了済みのDay 36・第16回を今回の作業として扱わない。
+2. 作業ツリーと必要な既存動作を確認する。これは再開の準備であり、確認結果の報告だけで作業を終えない。同じセッションで確認済みなら、変更や問題がない限り繰り返さない。
+3. Day 37の仕様カードに着手する。small-asmで現在使える命令と、既存writerが生成する命令を照合し、今回追加する命令・オペランドを小さく決める。ラベルと文字列データは別の段階とする。
+4. 仕様に沿って実装・動作確認を進め、第17回の記事構成・本文へつなげる。必要な判断があれば具体的な論点を示し、単に「次へ進めてよいか」を確認するために止まらない。
+5. 記事構成と本文の作成は、既存のファイル形式と書式を参考にする。記事構成のmdファイルには、スラッグ、タグ、ディスクリプション、アイキャッチ用のプロンプトを追記する。
+6. 作業終了時に、実際に完了した範囲と次の着手点をこのファイルへ更新する。
+
+原稿の完成状況と公開状況は別に扱います。完了済み原稿の「未公開」という記録は、原稿作成・検証が未完了という意味ではなく、次の実装へ進む妨げにもなりません。ユーザーから指定がない限り、完了済み原稿の再編集・公開確認を再開作業にしません。
+
 ## 現在地
 
-Day 35 `word-command-loop.bin` まで完了しています。
+Day 36 `echo-command.bin` まで完了しています。
+
+echoに完全一致するとText>で次の1行を読み、文字列とLFを表示してCommand>へ戻ります。コマンドと本文は0x500のバッファを共用します。本文のhelp / quitは文字列として表示します。入力は最大63 byte、CR無視、LFまで消費。途中EOFでは未完の本文を表示せず停止します。
+
+確認: `make test-echo-command`（Python 3、54ケース）。仕様は `specs/036-echo-command.md`、解説は `test-code-explanations/036-echo-command.md`。実行は `make run-echo-command`。VM本体とDay 35の実装は変更していません。
+
+最新原稿は `articles/unix-cafe-handmade-vm-16.txt`（WordPressブロック形式の未公開下書き）。構成案は `articles/2026-10-22-vm-echo-command-036-outline.md`。本文の出力例とブロック対応を確認済みです。
+
+以下は前回までの完了内容です。
 
 Day 35ではhelp / unknownの後にCommand>へ戻り、quitで終了します。入力は最大63 byteを保存し、超過分はLFまで読み捨てます。CRは無視（CRLF対応、CR単独では確定しない）。途中EOFは既存syscallで停止します。
 
 確認: `make test-word-command-loop`（Python 3、26ケースの自動照合）。仕様は `specs/035-word-command-loop.md`、解説は `test-code-explanations/035-word-command-loop.md`。実行は `make run-word-command-loop`。
 
-最新ブログ原稿は `articles/unix-cafe-handmade-vm-15.txt`（Day 35、複数文字コマンドのループ）。前回の記事は `articles/unix-cafe-handmade-vm-14.txt`（Day 34、文字列比較の共通サブルーチン化）。記事15はWordPressブロック形式の下書きで、未公開です。
+第15回のブログ原稿は `articles/unix-cafe-handmade-vm-15.txt`（Day 35、複数文字コマンドのループ）。前回の記事は `articles/unix-cafe-handmade-vm-14.txt`（Day 34、文字列比較の共通サブルーチン化）。記事15はWordPressブロック形式の下書きで、未公開です。
 
 Day 34の記事構成案は `articles/2026-10-19-vm-word-command-subroutine-034-outline.md`。記事14の本文に合わせて構成を補完済みです。
 
@@ -97,13 +120,11 @@ tools/small-asm.c
   MOVI Rn, imm / SYSCALL imm / HALT / CMP / JUMP / JZ / JNZ を .bin へ変換する
 ```
 
-## 次回候補
+## 次の作業: Day 37・第17回
 
-ブログ全体の順序は `articles/ROADMAP.md` に整理済みです。第15回までの到達点と、次のecho候補、assembler拡張・引数・行編集・保存の順序案を分けています。echoの具体例は仕様未確定の提案です。
+ブログ全体の順序は `articles/ROADMAP.md` に整理済みです。Day 36・第16回のechoは完了済みです。
 
-入力・比較サブルーチンと複数文字コマンドのループまで完了しました。
-
-次回候補: VM上で入力文字列を表示するechoコマンドを追加する。まず固定の `echo` と完全一致した場合の動作を決め、引数分割や行編集は別の段階で扱う。
+次に着手する作業は、small-asmの命令対応拡張の仕様カードです。既存writerの出力と照合できる対象命令を選びます。ラベル・文字列データ・引数分割・行編集は後の段階です。
 
 monitor modeはhost側の起動ランチャーであり、まだVM上のOSではありません。VM上のプログラムからhostファイルを開く仕組みは、今後の仮想ディスクやファイル読み込みsyscallのテーマとして扱います。
 
@@ -205,7 +226,17 @@ manual/specs/035-word-command-loop.md
 manual/test-code-explanations/035-word-command-loop.md
 ```
 
-次の最初の成功条件（候補）: echoコマンドの入力・出力を仕様カードで決め、help / quit / unknownとの共存を確認する。
+完了したechoコマンド:
+
+```text
+programs/echo-command.bin
+tools/write-echo-command-bin.c
+tools/test-echo-command.py
+manual/specs/036-echo-command.md
+manual/test-code-explanations/036-echo-command.md
+```
+
+次の最初の成功条件: small-asmで追加対応する命令とオペランドを仕様カードで決め、既存writerと命令コードを照合する。
 
 最小echoプログラムの確認:
 
@@ -382,7 +413,7 @@ VM flow complete.
 CPU halted.
 ```
 
-入力・比較サブルーチンを使うループはDay 35で完了しました。本格的な行編集へ進む前に、コマンドを1つ増やす練習を候補とします。
+入力・比較サブルーチンを使うループはDay 35で完了しました。Day 36ではechoの追加まで完了しました。次はsmall-asmの命令対応を増やします。
 
 ## 作業方針
 

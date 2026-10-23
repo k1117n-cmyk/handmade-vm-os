@@ -10,6 +10,7 @@ tools/write-word-command-bin
 tools/write-word-command-subroutine-bin
 tools/write-word-command-compare-bin
 tools/write-word-command-loop-bin
+tools/write-echo-command-bin
 articles/
 *.o
 *.out

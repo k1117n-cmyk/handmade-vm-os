@@ -662,3 +662,10 @@ CPU halted.
 `tools/write-word-command-loop-bin.c` と `programs/word-command-loop.bin` を追加。help / unknown後はJUMPで先頭へ戻り、quitでHALTする。read_lineは63 byteを保存後もLFまで消費する。CRを無視しCRLFに対応（CR単独は非対応）。VM本体とDay 34のサンプルは変更なし。
 
 仕様カード、解説、Makefile、README類、HANDOFFを更新。`make test-word-command-loop` で26ケースの標準出力・標準エラー・終了コードを照合。境界入力、EOF、1,000回のhelp、monitor復帰を含む。既存hello.binとsmall-asmによる再生成版も `A` / `CPU halted.` を確認。記事14は参照のみ。
+
+
+## Day 36: echoコマンド（2026-10-22）
+
+仕様カードで、echoと完全一致した後にText>で次の1行を読み、表示してCommand>へ戻る動作を決定。`tools/write-echo-command-bin.c`、`programs/echo-command.bin`、`tools/test-echo-command.py`を追加。入力・比較ルーチンを再利用し、同じ入力バッファへ本文を書きます。本文のquitは終了命令になりません。改行はSYSCALL 3で出力します。
+
+`make test-echo-command`で54ケース成功。VM本体とDay 35の実装は変更なし。仕様、解説、Makefile、README類、HANDOFF、記事ROADMAPを更新。第16回の構成案・WordPress形式の本文を作成し、実行例とブロック対応を照合。記事はgit管理外の未公開下書きです。次はDay 37・第17回のsmall-asm命令対応拡張の仕様決め。

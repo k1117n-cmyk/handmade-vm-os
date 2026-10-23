@@ -45,6 +45,7 @@
 | word-command sample | 入力バッファを `help` / `quit` と比較する外部プログラム | [specs/032-word-command.md](specs/032-word-command.md) |
 | word-command-compare sample | 文字列比較を共通サブルーチンで行う外部プログラム | [specs/034-word-command-compare.md](specs/034-word-command-compare.md) |
 | word-command-loop sample | help / unknownの後に再入力する外部プログラム | [specs/035-word-command-loop.md](specs/035-word-command-loop.md) |
+| echo-command sample | 次の1行を表示してコマンド入力へ戻る | [specs/036-echo-command.md](specs/036-echo-command.md) |
 | word-command-subroutine sample | 入力処理を `CALLI` / `RET` で呼ぶ外部プログラム | [specs/033-word-command-subroutine.md](specs/033-word-command-subroutine.md) |
 
 Day 22 と Day 23 は開発補助ツールの追加なので、対応するCコードは `notes/` ではなく `tools/` に置きます。
@@ -117,3 +118,5 @@ Day 33 もサンプルプログラムの追加です。`tools/write-word-command
 Day 34のwriterは `tools/write-word-command-compare-bin.c` です。[解説](test-code-explanations/034-word-command-compare.md)で、VM上の比較ループと戻り値を確認できます。
 
 Day 35のwriterは `tools/write-word-command-loop-bin.c` です。[解説](test-code-explanations/035-word-command-loop.md)で、反復と上限後の読み捨て、LF / CRLFの扱いを確認できます。
+
+Day 36のwriterは `tools/write-echo-command-bin.c` です。[解説](test-code-explanations/036-echo-command.md)で、echoへの分岐、入力バッファの再利用、本文表示を確認できます。`make test-echo-command` で54ケースを照合します。

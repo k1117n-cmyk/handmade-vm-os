@@ -476,3 +476,16 @@ cc tools/write-word-command-loop-bin.c -o /tmp/write-word-command-loop-bin
 ```
 
 配置はDay 34と同じです。[解説](../manual/test-code-explanations/035-word-command-loop.md)にループと入力境界の扱いをまとめています。自動テストはPython 3が必要です。
+
+## Day 36: echoコマンド
+
+`programs/echo-command.bin` はhelp / quitのループにechoを追加します。`echo`と完全一致すると`Text> `で次の1行を読み、表示して`Command> `へ戻ります。本文のhelpやquitは文字として表示します。`echo hello`の引数形式はまだ扱いません。
+
+```sh
+make run-echo-command
+make test-echo-command
+```
+
+入力はコマンド・本文とも最大63 byte、CRを無視しLFで確定、超過分もLFまで消費します。途中EOFでは未完の行を実行・表示せず停止します。本文が空なら改行だけを表示します。
+
+writerは `tools/write-echo-command-bin.c`、自動テストは `tools/test-echo-command.py`（Python 3、54ケース）です。[仕様](../manual/specs/036-echo-command.md)と[解説](../manual/test-code-explanations/036-echo-command.md)を参照してください。
