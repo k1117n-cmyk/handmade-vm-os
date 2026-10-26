@@ -499,3 +499,14 @@ make run-asm-memory-call
 ```
 
 実行出力は`A`、`B`、`CPU halted.`の3行です。生成のみなら`make programs/asm-memory-call.bin`。命令間の空白やコメントは配置に影響しませんが、命令を増減すると数値の呼び出し先も変更が必要です。[解説](../manual/test-code-explanations/037-small-asm-instructions.md)を参照してください。
+
+## Day 38: ラベルでサブルーチンを呼ぶ
+
+`asm-label-call.asm` は数値版 `asm-memory-call.asm` の2個のCALLIを `CALLI print_byte` に置き換えたサンプルです。14命令・56 byteは数値版と同じです。
+
+```sh
+make run-asm-label-call
+cmp programs/asm-memory-call.bin programs/asm-label-call.bin
+```
+
+実行出力はA / B / CPU halted.の3行です。cmpは一致なら無出力で終了します。生成のみなら `make programs/asm-label-call.bin`。ラベルは命令を消費せず、前の命令数×4の位置を表します。[解説](../manual/test-code-explanations/038-small-asm-labels.md)で前方参照と数値版との対応を確認できます。

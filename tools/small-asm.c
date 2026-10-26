@@ -6,6 +6,45 @@
 #include <string.h>
 
 #define MAX_LINE_LENGTH 256
+#define MAX_LABEL_LENGTH 63
+#define MAX_LABELS 256
+#define MAX_INSTRUCTIONS 262144u
+
+typedef struct {
+    char name[MAX_LABEL_LENGTH + 1];
+    uint32_t address;
+} Label;
+
+static Label labels[MAX_LABELS];
+static unsigned int label_count;
+static int current_pass;
+static const char *diagnostic;
+
+/* Input has already been normalized to uppercase ASCII. */
+static int valid_label(const char *name) {
+    size_t length = strlen(name);
+    if (length == 0 || length > MAX_LABEL_LENGTH ||
+        !((name[0] >= 'A' && name[0] <= 'Z') || name[0] == '_')) {
+        return 0;
+    }
+    for (size_t i = 1; i < length; i++) {
+        if (!((name[i] >= 'A' && name[i] <= 'Z') ||
+              (name[i] >= '0' && name[i] <= '9') || name[i] == '_')) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+static int find_label(const char *name, uint32_t *address) {
+    for (unsigned int i = 0; i < label_count; i++) {
+        if (strcmp(labels[i].name, name) == 0) {
+            *address = labels[i].address;
+            return 1;
+        }
+    }
+    return 0;
+}
 
 static void write_u32_be(FILE *file, uint32_t value) {
     fputc((value >> 24) & 0xFF, file);
@@ -65,6 +104,59 @@ static int parse_imm20(const char *text, uint32_t *value) {
 
     *value = (uint32_t)parsed;
     return 1;
+}
+
+static int parse_target(const char *text, uint32_t *value) {
+    if (parse_imm20(text, value)) {
+        return 1;
+    }
+    if (!valid_label(text)) {
+        return 0;
+    }
+    if (current_pass == 1) {
+        *value = 0; /* All definitions will be available on pass 2. */
+        return 1;
+    }
+    if (!find_label(text, value)) {
+        diagnostic = "undefined label";
+        return 0;
+    }
+    return 1;
+}
+
+/* Remove comments before interpreting colons or commas. */
+static char *prepare_line(char *line, uint32_t address) {
+    line[strcspn(line, ";#")] = '\0';
+    char *clean = trim(line);
+    uppercase(clean);
+    char *colon = strchr(clean, ':');
+    if (colon != NULL) {
+        *colon = '\0';
+        char *name = trim(clean);
+        uint32_t ignored;
+        if (!valid_label(name) || strchr(colon + 1, ':') != NULL) {
+            diagnostic = "invalid label definition";
+            return NULL;
+        }
+        if (address > 0xFFFFF) {
+            diagnostic = "label address out of range";
+            return NULL;
+        }
+        if (current_pass == 1) {
+            if (find_label(name, &ignored)) {
+                diagnostic = "duplicate label";
+                return NULL;
+            }
+            if (label_count == MAX_LABELS) {
+                diagnostic = "too many labels";
+                return NULL;
+            }
+            strcpy(labels[label_count].name, name);
+            labels[label_count++].address = address;
+        }
+        clean = trim(colon + 1);
+    }
+    return clean;
 }
 
 static int assemble_line(char *line, uint32_t *inst) {
@@ -205,7 +297,7 @@ static int assemble_line(char *line, uint32_t *inst) {
 
         uint32_t imm;
 
-        if (!parse_imm20(imm_text, &imm)) {
+        if (!parse_target(imm_text, &imm)) {
             return -1;
         }
 
@@ -241,61 +333,87 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    FILE *output = fopen(argv[2], "wb");
-
-    if (output == NULL) {
-        perror(argv[2]);
+    FILE *staged = tmpfile();
+    if (staged == NULL) {
+        perror("temporary output");
         fclose(input);
         return 1;
     }
 
     char line[MAX_LINE_LENGTH];
-    unsigned int line_number = 0;
     unsigned int instruction_count = 0;
+    for (current_pass = 1; current_pass <= 2; current_pass++) {
+        unsigned int line_number = 0;
+        instruction_count = 0;
+        while (fgets(line, sizeof(line), input) != NULL) {
+            line_number++;
+            diagnostic = "unsupported or invalid instruction";
+            if (strchr(line, '\n') == NULL && !feof(input)) {
+                diagnostic = "line too long";
+                goto source_error;
+            }
+            char *clean = prepare_line(line, instruction_count * 4);
+            if (clean == NULL) {
+                goto source_error;
+            }
+            uint32_t inst;
+            int result = assemble_line(clean, &inst);
+            if (result < 0) {
+                goto source_error;
+            }
+            if (result > 0) {
+                if (instruction_count == MAX_INSTRUCTIONS) {
+                    diagnostic = "program too large";
+                    goto source_error;
+                }
+                if (current_pass == 2) {
+                    write_u32_be(staged, inst);
+                }
+                instruction_count++;
+            }
+            continue;
 
-    while (fgets(line, sizeof(line), input) != NULL) {
-        line_number++;
-
-        if (strchr(line, '\n') == NULL && !feof(input)) {
-            fprintf(stderr, "%s:%u: line too long\n", argv[1], line_number);
-            fclose(output);
+source_error:
+            fprintf(stderr, "%s:%u: %s\n", argv[1], line_number, diagnostic);
+            fclose(staged);
             fclose(input);
             return 1;
         }
-
-        uint32_t inst;
-        int result = assemble_line(line, &inst);
-
-        if (result < 0) {
-            fprintf(stderr, "%s:%u: unsupported or invalid instruction\n", argv[1], line_number);
-            fclose(output);
+        if (ferror(input) || (current_pass == 1 && fseek(input, 0, SEEK_SET) != 0)) {
+            perror(argv[1]);
+            fclose(staged);
             fclose(input);
             return 1;
         }
-
-        if (result > 0) {
-            write_u32_be(output, inst);
-            instruction_count++;
-        }
     }
-
-    if (ferror(input)) {
-        perror(argv[1]);
-        fclose(output);
-        fclose(input);
-        return 1;
-    }
-
-    if (ferror(output)) {
-        perror(argv[2]);
-        fclose(output);
-        fclose(input);
-        return 1;
-    }
-
-    fclose(output);
     fclose(input);
 
+    if (ferror(staged) || fflush(staged) != 0 || fseek(staged, 0, SEEK_SET) != 0) {
+        perror("temporary output");
+        fclose(staged);
+        return 1;
+    }
+    FILE *output = fopen(argv[2], "wb");
+    if (output == NULL) {
+        perror(argv[2]);
+        fclose(staged);
+        return 1;
+    }
+    int byte;
+    while ((byte = fgetc(staged)) != EOF) {
+        if (fputc(byte, output) == EOF) {
+            break;
+        }
+    }
+    int failed = ferror(staged) || ferror(output);
+    if (fclose(output) != 0) {
+        failed = 1;
+    }
+    fclose(staged);
+    if (failed) {
+        fprintf(stderr, "%s: output copy failed\n", argv[2]);
+        return 1;
+    }
     printf("assembled %u instructions to %s\n", instruction_count, argv[2]);
     return 0;
 }

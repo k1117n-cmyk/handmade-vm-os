@@ -93,6 +93,8 @@ programs/
   echo-command.bin
   asm-memory-call.asm
   asm-memory-call.bin
+  asm-label-call.asm
+  asm-label-call.bin
 
 tools/
   small-asm.c
@@ -500,11 +502,22 @@ writerは `tools/write-echo-command-bin.c`、自動テストは `tools/test-echo
 
 ## Day 37: small-asmの命令対応拡張
 
-`tools/small-asm.c`に`LDB Rd, [Rs]`、`STB [Rd], Rs`、`INC Rd`、`CALLI imm`、`RET`を追加しました。既存7命令と合わせて12命令に対応します。呼び出し先は数値で指定し、レジスタはR0〜R7です。角括弧の内部に空白は入れません。ラベルと文字列データは今後の課題です。
+`tools/small-asm.c`に`LDB Rd, [Rs]`、`STB [Rd], Rs`、`INC Rd`、`CALLI imm`、`RET`を追加しました。既存7命令と合わせて12命令に対応します。呼び出し先は数値で指定し、レジスタはR0〜R7です。角括弧の内部に空白は入れません。Day 37時点では数値指定のみです。ラベルは下記のDay 38で追加し、文字列データは今後扱います。
 
 ```sh
 make run-asm-memory-call
 make test-small-asm
 ```
 
-サンプルはAとBをメモリへ保存し、同じサブルーチンを2回呼んで1文字ずつ表示します。実行結果は`A`、`B`、`CPU halted.`の3行です。Python 3による59ケースのテストで、命令値、不正入力、既存サンプルとDay 36 writerとの一致、VM実行を確認します。[仕様](manual/specs/037-small-asm-instructions.md)と[解説](manual/test-code-explanations/037-small-asm-instructions.md)を参照してください。
+サンプルはAとBをメモリへ保存し、同じサブルーチンを2回呼んで1文字ずつ表示します。実行結果は`A`、`B`、`CPU halted.`の3行です。Day 37時点ではPython 3による59ケースのテストで、命令値、不正入力、既存サンプルとDay 36 writerとの一致、VM実行を確認します。[仕様](manual/specs/037-small-asm-instructions.md)と[解説](manual/test-code-explanations/037-small-asm-instructions.md)を参照してください。
+
+## Day 38: small-asmのラベル対応
+
+分岐とCALLIの宛先を `CALLI print_byte` のように名前で指定できます。`print_byte:` はその位置のアドレスを定義し、出力byteを増やしません。前方参照にも対応し、数値指定も引き続き使えます。名前はASCII英字か `_` で始まる英数字・`_` の最大63文字で、大小文字を区別しません。MOVIとSYSCALLは数値のみです。
+
+```sh
+make run-asm-label-call
+make test-small-asm test-small-asm-labels
+```
+
+数値版と同じ56 byteを生成し、A / B / CPU halted.を表示します。既存57ケースとラベル44ケースを自動照合します（旧59ケースのうちラベル関係2件はラベル用テストへ移動）。重複・未定義・上限エラーも検査し、入力エラー時は指定出力を保持します。[仕様](manual/specs/038-small-asm-labels.md)と[解説](manual/test-code-explanations/038-small-asm-labels.md)を参照してください。

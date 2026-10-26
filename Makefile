@@ -14,7 +14,8 @@ ASM_PROGRAMS := \
 	programs/prompt-echo.asm \
 	programs/one-char-command.asm \
 	programs/command-loop.asm \
-	programs/asm-memory-call.asm
+	programs/asm-memory-call.asm \
+	programs/asm-label-call.asm
 
 BIN_PROGRAMS := $(ASM_PROGRAMS:.asm=.bin)
 DATA_PROGRAMS := programs/echo-command.bin programs/word-command-loop.bin programs/word-command-compare.bin programs/boot-message.bin programs/line-buffer.bin programs/word-command.bin programs/word-command-subroutine.bin
@@ -147,3 +148,11 @@ test-small-asm: $(SMALL_ASM) $(VM) programs/echo-command.bin
 
 run-asm-memory-call: $(VM) programs/asm-memory-call.bin
 	./$(VM) programs/asm-memory-call.bin
+
+.PHONY: test-small-asm-labels run-asm-label-call
+
+test-small-asm-labels: $(SMALL_ASM) $(VM)
+	python3 tools/test-small-asm-labels.py ./$(SMALL_ASM) ./$(VM)
+
+run-asm-label-call: $(VM) programs/asm-label-call.bin
+	./$(VM) programs/asm-label-call.bin

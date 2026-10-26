@@ -676,3 +676,13 @@ CPU halted.
 Day 36 writerと照合し、不足していたLDB / STB / INC / CALLI / RETをsmall-asmへ追加。仕様カードで角括弧、R0〜R7、20bit即値、エラーと既存字句規則の継承を決定。14命令のasm-memory-callサンプルはメモリへA/Bを書き、同じサブルーチンを2回呼んで表示する。
 
 `make test-small-asm`の59ケースで固定バイト列、境界値、不正入力、既存5サンプル、Day 36 writerの入力・比較ルーチンとの一致、実VM出力を確認。Day 36の54ケース、Day 35の26ケースも回帰確認。VM本体は変更なし。仕様、解説、Makefile、README類、ROADMAP、HANDOFFを更新。第17回の構成案とWordPress形式の本文を作成。記事はgit管理外の未公開下書き。次はDay 38・第18回の固定長命令列のラベル対応の仕様決め。
+
+## Day 38: small-asmのラベル対応（2026-10-26）
+
+- 仕様カード `specs/038-small-asm-labels.md` を作成後、2パスの名前解決を実装。
+- 分岐とCALLIの前後参照、重複・未定義診断、入力エラー時の出力保持を追加。
+- `programs/asm-label-call.asm` / `.bin` を追加。数値版と同じ56 byte。
+- 既存57ケースとラベル44ケース、VM実行、echo 54ケース、コマンドループ26ケース、monitorと内蔵テストを確認。
+- 第18回の構成案・WordPress本文を作成（未公開・git管理外）。本文のコード・出力・ブロック対応を確認。
+- README、manual索引、programs索引、両ROADMAP、命令追加ガイド、HANDOFFを更新。
+- 次はDay 39・第19回に向け、文字列データ・配置指示の最小仕様を決める。

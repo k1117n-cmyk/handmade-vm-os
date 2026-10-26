@@ -47,7 +47,7 @@ with tempfile.TemporaryDirectory(prefix='small-asm-test-') as directory:
         'RET R0', 'RET 0', 'INC', 'INC R8', 'INC R10', 'INC R-1',
         'INC [R0]', 'INC R0 R1', 'CALLI', 'CALLI -1', 'CALLI 0x100000',
         'CALLI 1048576', 'CALLI 999999999999999999999999999999',
-        'CALLI routine', 'CALLI 12x', 'CALLI 08', 'CALLI 0 R0',
+        'CALLI 12x', 'CALLI 08', 'CALLI 0 R0',
         'LDB', 'LDB R0', 'LDB R0, R1', 'LDB [R0], R1',
         'LDB R8, [R0]', 'LDB R0, [R8]', 'LDB R0, [R10]',
         'LDB R0, [R1', 'LDB R0, R1]', 'LDB R0, [[R1]]',
@@ -55,7 +55,7 @@ with tempfile.TemporaryDirectory(prefix='small-asm-test-') as directory:
         'LDB R0, [R1], R2', 'STB', 'STB [R1]', 'STB R1, R0',
         'STB R0, [R1]', 'STB [R8], R0', 'STB [R0], R8',
         'STB [R0], [R1]', 'STB [[R0]], R1', 'STB [R0], R1 R2',
-        'loop:', '.byte 65', 'MOV R0, R1',
+        '.byte 65', 'MOV R0, R1',
     ]
     for text in invalid:
         result = assemble('; first line\n' + text + '\n')
