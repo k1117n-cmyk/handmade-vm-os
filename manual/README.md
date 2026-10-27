@@ -34,6 +34,7 @@
 | 外部バイナリローダー | `program.bin` を `memory[0]` から読み込む | [specs/021-binary-loader.md](specs/021-binary-loader.md) |
 | monitor mode | 引数なしで起動し、実行する `.bin` をhost側プロンプトから選ぶ | [specs/031-monitor-mode.md](specs/031-monitor-mode.md) |
 | hello.bin 作成ツール | 最小バイナリを生成する | [specs/022-hello-binary-writer.md](specs/022-hello-binary-writer.md) |
+| small-asm文字列・配置 | ASCII文字列・終端0・整列・MOVIの名前参照 | [specs/039-small-asm-strings.md](specs/039-small-asm-strings.md) |
 | small-asmラベル対応 | 前方参照を含む分岐・CALLIの名前解決 | [specs/038-small-asm-labels.md](specs/038-small-asm-labels.md) |
 | small-asm命令対応拡張 | メモリ操作とサブルーチンの5命令を追加 | [specs/037-small-asm-instructions.md](specs/037-small-asm-instructions.md) |
 | small assembler | 最小アセンブリを `.bin` へ変換する | [specs/023-small-asm.md](specs/023-small-asm.md) |
@@ -126,3 +127,5 @@ Day 36のwriterは `tools/write-echo-command-bin.c` です。[解説](test-code-
 Day 37はホスト側のsmall-asmを拡張します。[解説](test-code-explanations/037-small-asm-instructions.md)と`make test-small-asm`（Day 37時点で59ケース）で、構文から命令値への変換とVM実行を確認できます。
 
 Day 38はsmall-asmのラベル対応です。[解説](test-code-explanations/038-small-asm-labels.md)と`make test-small-asm-labels`（44ケース）で、2回読み取りによる参照解決を確認します。既存テストはラベル関係2件を移し、57ケースです。
+
+Day 39はsmall-asmの文字列・配置対応です。[解説](test-code-explanations/039-small-asm-strings.md)と `make test-small-asm-strings`（52ケース）で確認します。Day 38のMOVIラベル拒否テストは受理テストへ変更し、44ケースを維持しています。

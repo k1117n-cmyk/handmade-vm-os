@@ -54,6 +54,7 @@ with tempfile.TemporaryDirectory(prefix='small-asm-labels-') as directory:
     words('loop:\nJUMP 4\nCALLI loop\nJZ 0x0\nJNZ +4\n',
           [0x68000004, 0x69000000, 0x6A000000, 0x6B000004])
     words('entry:\r\n\thalt\r\nend:\r\n', [0x01000000])
+    words('a: MOVI R0, a\n', [0x40000000])
     words('loop:', [])
     words('JUMP end\nHALT\nend:', [0x68000008, 0x01000000])
     name = 'a' * 63
@@ -76,7 +77,6 @@ with tempfile.TemporaryDirectory(prefix='small-asm-labels-') as directory:
         ('日本語: HALT\n', 1, 'invalid label definition'),
         ('a' * 64 + ': HALT\n', 1, 'invalid label definition'),
         ('JUMP ' + 'a' * 64 + '\n', 1, 'unsupported or invalid instruction'),
-        ('a: MOVI R0, a\n', 1, 'unsupported or invalid instruction'),
         ('a: SYSCALL a\n', 1, 'unsupported or invalid instruction'),
         ('a: JUMP a+4\n', 1, 'unsupported or invalid instruction'),
         ('a: JUMP a R0\n', 1, 'unsupported or invalid instruction'),

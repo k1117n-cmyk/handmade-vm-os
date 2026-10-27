@@ -510,3 +510,16 @@ cmp programs/asm-memory-call.bin programs/asm-label-call.bin
 ```
 
 実行出力はA / B / CPU halted.の3行です。cmpは一致なら無出力で終了します。生成のみなら `make programs/asm-label-call.bin`。ラベルは命令を消費せず、前の命令数×4の位置を表します。[解説](../manual/test-code-explanations/038-small-asm-labels.md)で前方参照と数値版との対応を確認できます。
+
+
+## Day 39: 命令と文字列を同じソースへ書く
+
+`asm-string.asm` はJUMPで文字列を飛び越し、MOVIで先頭アドレスをR0へ渡してSYSCALL 1で表示します。`.string` が終端0を加え、`.align 4` が命令の位置を揃えます。
+
+```sh
+make run-asm-string
+make test-small-asm-strings
+xxd programs/asm-string.bin
+```
+
+生成のみなら `make programs/asm-string.bin`。4命令と12 byteの文字列で28 byteです。出力はHello, VM! / CPU halted.の2行です。[解説](../manual/test-code-explanations/039-small-asm-strings.md)に配置の手計算があります。

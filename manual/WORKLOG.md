@@ -686,3 +686,12 @@ Day 36 writerと照合し、不足していたLDB / STB / INC / CALLI / RETをsm
 - 第18回の構成案・WordPress本文を作成（未公開・git管理外）。本文のコード・出力・ブロック対応を確認。
 - README、manual索引、programs索引、両ROADMAP、命令追加ガイド、HANDOFFを更新。
 - 次はDay 39・第19回に向け、文字列データ・配置指示の最小仕様を決める。
+
+
+## Day 39: small-asmの文字列・配置（2026-10-27）
+
+仕様カードを先に作成し、ASCIIの.string、終端0、.align 4、MOVIのラベル参照を実装。引用符内の大小文字・記号を保存し、2パスの位置計算をbyte数へ変更。未整列命令と出力上限を検査する。サンプルasm-stringは28 byteでHello, VM!と改行を表示。
+
+既存57ケース、ラベル44ケース、文字列52ケースが通過。ラベルテストのMOVI拒否ケースは受理ケースへ更新。make all/test/monitor、echo 54ケース、word-command-loop 26ケース、self-test、既存helloと再生成hello、xxd、数値版とラベル版のcmpを確認。VM本体とwriterは変更なし。
+
+仕様、解説、Makefile、README類、両ROADMAP、命令追加ガイド、HANDOFFを更新。第19回の構成案・WordPress本文を作成し、コード・出力・ブロック対応を照合。記事はgit管理外の未公開下書き。次はDay 40・第20回に向け、echoの.asm移行、0x500バッファとの関係、絶対配置指示の要否を仕様として決める。

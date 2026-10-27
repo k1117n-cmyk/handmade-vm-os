@@ -502,7 +502,7 @@ writerは `tools/write-echo-command-bin.c`、自動テストは `tools/test-echo
 
 ## Day 37: small-asmの命令対応拡張
 
-`tools/small-asm.c`に`LDB Rd, [Rs]`、`STB [Rd], Rs`、`INC Rd`、`CALLI imm`、`RET`を追加しました。既存7命令と合わせて12命令に対応します。呼び出し先は数値で指定し、レジスタはR0〜R7です。角括弧の内部に空白は入れません。Day 37時点では数値指定のみです。ラベルは下記のDay 38で追加し、文字列データは今後扱います。
+`tools/small-asm.c`に`LDB Rd, [Rs]`、`STB [Rd], Rs`、`INC Rd`、`CALLI imm`、`RET`を追加しました。既存7命令と合わせて12命令に対応します。呼び出し先は数値で指定し、レジスタはR0〜R7です。角括弧の内部に空白は入れません。Day 37時点では数値指定のみです。ラベルは下記のDay 38で追加し、文字列データは下記のDay 39で扱います。
 
 ```sh
 make run-asm-memory-call
@@ -513,7 +513,7 @@ make test-small-asm
 
 ## Day 38: small-asmのラベル対応
 
-分岐とCALLIの宛先を `CALLI print_byte` のように名前で指定できます。`print_byte:` はその位置のアドレスを定義し、出力byteを増やしません。前方参照にも対応し、数値指定も引き続き使えます。名前はASCII英字か `_` で始まる英数字・`_` の最大63文字で、大小文字を区別しません。MOVIとSYSCALLは数値のみです。
+分岐とCALLIの宛先を `CALLI print_byte` のように名前で指定できます。`print_byte:` はその位置のアドレスを定義し、出力byteを増やしません。前方参照にも対応し、数値指定も引き続き使えます。名前はASCII英字か `_` で始まる英数字・`_` の最大63文字で、大小文字を区別しません。Day 38時点ではMOVIとSYSCALLは数値のみです（MOVIのラベル参照はDay 39で追加）。
 
 ```sh
 make run-asm-label-call
@@ -521,3 +521,15 @@ make test-small-asm test-small-asm-labels
 ```
 
 数値版と同じ56 byteを生成し、A / B / CPU halted.を表示します。既存57ケースとラベル44ケースを自動照合します（旧59ケースのうちラベル関係2件はラベル用テストへ移動）。重複・未定義・上限エラーも検査し、入力エラー時は指定出力を保持します。[仕様](manual/specs/038-small-asm-labels.md)と[解説](manual/test-code-explanations/038-small-asm-labels.md)を参照してください。
+
+
+## Day 39: small-asmの文字列と配置
+
+`.string "Hello, VM!\n"` でASCIIの0終端文字列を置き、`.align 4` で次の命令位置を4の倍数へ揃えます。`MOVI R0, message` でデータのラベルも参照できます。
+
+```sh
+make run-asm-string
+make test-small-asm-strings
+```
+
+`programs/asm-string.asm` から28 byteの `.bin` を生成し、Hello, VM! / CPU halted.を表示します。文字列用52ケースを自動照合。VM本体とwriterは変更していません。[仕様](manual/specs/039-small-asm-strings.md)と[解説](manual/test-code-explanations/039-small-asm-strings.md)を参照してください。

@@ -8,7 +8,7 @@
 #define MAX_LINE_LENGTH 256
 #define MAX_LABEL_LENGTH 63
 #define MAX_LABELS 256
-#define MAX_INSTRUCTIONS 262144u
+#define MAX_PROGRAM_BYTES 0x100000u
 
 typedef struct {
     char name[MAX_LABEL_LENGTH + 1];
@@ -124,17 +124,52 @@ static int parse_target(const char *text, uint32_t *value) {
     return 1;
 }
 
-/* Remove comments before interpreting colons or commas. */
+/* Normalize syntax, but preserve quoted bytes and punctuation. */
+static char *normalize_line(char *line) {
+    int quoted = 0;
+    char *colon = NULL;
+    for (char *p = line; *p != '\0'; p++) {
+        if (quoted) {
+            if (*p == '\\' && p[1] != '\0') {
+                p++;
+            } else if (*p == '"') {
+                quoted = 0;
+            }
+        } else if (*p == '"') {
+            quoted = 1;
+        } else if (*p == ';' || *p == '#') {
+            *p = '\0';
+            break;
+        } else {
+            *p = toupper((unsigned char)*p);
+            if (*p == ':') {
+                if (colon != NULL) {
+                    diagnostic = "invalid label definition";
+                    return NULL;
+                }
+                colon = p;
+            }
+        }
+    }
+    return line;
+}
+
+/* Quoted colons belong to string data, not label definitions. */
 static char *prepare_line(char *line, uint32_t address) {
-    line[strcspn(line, ";#")] = '\0';
+    if (normalize_line(line) == NULL) {
+        return NULL;
+    }
     char *clean = trim(line);
-    uppercase(clean);
     char *colon = strchr(clean, ':');
+    char *quote = strchr(clean, '"');
+    if (quote != NULL && colon != NULL && quote < colon) {
+        colon = NULL;
+    }
     if (colon != NULL) {
         *colon = '\0';
         char *name = trim(clean);
         uint32_t ignored;
-        if (!valid_label(name) || strchr(colon + 1, ':') != NULL) {
+        if (!valid_label(name)) {
             diagnostic = "invalid label definition";
             return NULL;
         }
@@ -157,6 +192,64 @@ static char *prepare_line(char *line, uint32_t address) {
         clean = trim(colon + 1);
     }
     return clean;
+}
+
+/* Return a byte sequence for a directive, 0 for an instruction, -1 on error. */
+static int assemble_directive(char *line, uint32_t address,
+                              unsigned char *bytes, unsigned int *length) {
+    if (*line != '.') {
+        return 0;
+    }
+    char *args = line;
+    while (*args != '\0' && !isspace((unsigned char)*args)) {
+        args++;
+    }
+    if (*args != '\0') {
+        *args++ = '\0';
+    }
+    args = trim(args);
+    *length = 0;
+    if (strcmp(line, ".ALIGN") == 0) {
+        uint32_t alignment;
+        if (!parse_imm20(args, &alignment) || alignment != 4) {
+            diagnostic = "invalid alignment";
+            return -1;
+        }
+        *length = (4 - address % 4) % 4;
+        memset(bytes, 0, *length);
+        return 1;
+    }
+    if (strcmp(line, ".STRING") != 0) {
+        return -1;
+    }
+    diagnostic = "invalid string";
+    if (*args++ != '"') {
+        return -1;
+    }
+    while (*args != '"') {
+        unsigned char byte = (unsigned char)*args++;
+        if (byte < 0x20 || byte > 0x7E) {
+            return -1;
+        }
+        if (byte == '\\') {
+            switch (*args++) {
+                case 'n': byte = '\n'; break;
+                case 'r': byte = '\r'; break;
+                case 't': byte = '\t'; break;
+                case '\\': byte = '\\'; break;
+                case '"': byte = '"'; break;
+                default:
+                    diagnostic = "unsupported string escape";
+                    return -1;
+            }
+        }
+        bytes[(*length)++] = byte;
+    }
+    if (*trim(args + 1) != '\0') {
+        return -1;
+    }
+    bytes[(*length)++] = 0;
+    return 1;
 }
 
 static int assemble_line(char *line, uint32_t *inst) {
@@ -222,7 +315,7 @@ static int assemble_line(char *line, uint32_t *inst) {
         uint8_t reg;
         uint32_t imm;
 
-        if (!parse_register(reg_text, &reg) || !parse_imm20(imm_text, &imm)) {
+        if (!parse_register(reg_text, &reg) || !parse_target(imm_text, &imm)) {
             return -1;
         }
 
@@ -345,6 +438,7 @@ int main(int argc, char **argv) {
     for (current_pass = 1; current_pass <= 2; current_pass++) {
         unsigned int line_number = 0;
         instruction_count = 0;
+        uint32_t address = 0;
         while (fgets(line, sizeof(line), input) != NULL) {
             line_number++;
             diagnostic = "unsupported or invalid instruction";
@@ -352,9 +446,26 @@ int main(int argc, char **argv) {
                 diagnostic = "line too long";
                 goto source_error;
             }
-            char *clean = prepare_line(line, instruction_count * 4);
+            char *clean = prepare_line(line, address);
             if (clean == NULL) {
                 goto source_error;
+            }
+            unsigned char bytes[MAX_LINE_LENGTH];
+            unsigned int length;
+            int directive = assemble_directive(clean, address, bytes, &length);
+            if (directive < 0) {
+                goto source_error;
+            }
+            if (directive > 0) {
+                if (length > MAX_PROGRAM_BYTES - address) {
+                    diagnostic = "program too large";
+                    goto source_error;
+                }
+                if (current_pass == 2) {
+                    fwrite(bytes, 1, length, staged);
+                }
+                address += length;
+                continue;
             }
             uint32_t inst;
             int result = assemble_line(clean, &inst);
@@ -362,7 +473,11 @@ int main(int argc, char **argv) {
                 goto source_error;
             }
             if (result > 0) {
-                if (instruction_count == MAX_INSTRUCTIONS) {
+                if (address % 4 != 0) {
+                    diagnostic = "instruction address is not aligned";
+                    goto source_error;
+                }
+                if (4 > MAX_PROGRAM_BYTES - address) {
                     diagnostic = "program too large";
                     goto source_error;
                 }
@@ -370,6 +485,7 @@ int main(int argc, char **argv) {
                     write_u32_be(staged, inst);
                 }
                 instruction_count++;
+                address += 4;
             }
             continue;
 
