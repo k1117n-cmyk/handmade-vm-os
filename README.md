@@ -533,3 +533,14 @@ make test-small-asm-strings
 ```
 
 `programs/asm-string.asm` から28 byteの `.bin` を生成し、Hello, VM! / CPU halted.を表示します。文字列用52ケースを自動照合。VM本体とwriterは変更していません。[仕様](manual/specs/039-small-asm-strings.md)と[解説](manual/test-code-explanations/039-small-asm-strings.md)を参照してください。
+
+## Day 40: echoを.asmへ移す
+
+`programs/asm-echo-command.asm`から、70命令と8文字列の421 byteを生成します。文字列は命令の直後へ並べ、入力バッファは0x500を維持します。絶対配置指示の追加は不要でした。
+
+```sh
+make run-asm-echo-command
+make test-asm-echo-command
+```
+
+echoの後にhello、quitを各行で入力すると、本文を表示してコマンド入力へ戻り、終了します。テストは配置照合と既存writer版・asm版それぞれ54ケースです。[仕様](manual/specs/040-asm-echo-command.md)と[解説](manual/test-code-explanations/040-asm-echo-command.md)を参照してください。

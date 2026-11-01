@@ -48,6 +48,7 @@
 | word-command sample | 入力バッファを `help` / `quit` と比較する外部プログラム | [specs/032-word-command.md](specs/032-word-command.md) |
 | word-command-compare sample | 文字列比較を共通サブルーチンで行う外部プログラム | [specs/034-word-command-compare.md](specs/034-word-command-compare.md) |
 | word-command-loop sample | help / unknownの後に再入力する外部プログラム | [specs/035-word-command-loop.md](specs/035-word-command-loop.md) |
+| echoの.asm移行 | 文字列の連続配置・0x500バッファ・54ケース照合 | [specs/040-asm-echo-command.md](specs/040-asm-echo-command.md) |
 | echo-command sample | 次の1行を表示してコマンド入力へ戻る | [specs/036-echo-command.md](specs/036-echo-command.md) |
 | word-command-subroutine sample | 入力処理を `CALLI` / `RET` で呼ぶ外部プログラム | [specs/033-word-command-subroutine.md](specs/033-word-command-subroutine.md) |
 
@@ -129,3 +130,5 @@ Day 37はホスト側のsmall-asmを拡張します。[解説](test-code-explana
 Day 38はsmall-asmのラベル対応です。[解説](test-code-explanations/038-small-asm-labels.md)と`make test-small-asm-labels`（44ケース）で、2回読み取りによる参照解決を確認します。既存テストはラベル関係2件を移し、57ケースです。
 
 Day 39はsmall-asmの文字列・配置対応です。[解説](test-code-explanations/039-small-asm-strings.md)と `make test-small-asm-strings`（52ケース）で確認します。Day 38のMOVIラベル拒否テストは受理テストへ変更し、44ケースを維持しています。
+
+Day 40はechoの.asm移行です。[解説](test-code-explanations/040-asm-echo-command.md)と `make test-asm-echo-command`で、配置とwriter版・asm版それぞれ54ケースを照合します。

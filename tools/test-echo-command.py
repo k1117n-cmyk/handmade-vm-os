@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 VM = sys.argv[1] if len(sys.argv) > 1 else './handmade-vm'
-PROGRAM = 'programs/echo-command.bin'
+PROGRAM = sys.argv[2] if len(sys.argv) > 2 else 'programs/echo-command.bin'
 HELP = b'Command> Commands:\nhelp: show help\nquit: quit\necho: read and print a line\n'
 UNKNOWN = b'Command> Unknown command\n'
 QUIT = b'Command> Goodbye from Handmade VM\nCPU halted.\n'

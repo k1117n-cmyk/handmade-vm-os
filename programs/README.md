@@ -523,3 +523,14 @@ xxd programs/asm-string.bin
 ```
 
 生成のみなら `make programs/asm-string.bin`。4命令と12 byteの文字列で28 byteです。出力はHello, VM! / CPU halted.の2行です。[解説](../manual/test-code-explanations/039-small-asm-strings.md)に配置の手計算があります。
+
+## Day 40: echoを.asmへ移す
+
+`programs/asm-echo-command.asm`から、70命令と8文字列の421 byteを生成します。文字列は命令の直後へ並べ、入力バッファは0x500を維持します。絶対配置指示の追加は不要でした。
+
+```sh
+make run-asm-echo-command
+make test-asm-echo-command
+```
+
+echoの後にhello、quitを各行で入力すると、本文を表示してコマンド入力へ戻り、終了します。テストは配置照合と既存writer版・asm版それぞれ54ケースです。[仕様](../manual/specs/040-asm-echo-command.md)と[解説](../manual/test-code-explanations/040-asm-echo-command.md)を参照してください。

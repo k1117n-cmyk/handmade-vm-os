@@ -695,3 +695,11 @@ Day 36 writerと照合し、不足していたLDB / STB / INC / CALLI / RETをsm
 既存57ケース、ラベル44ケース、文字列52ケースが通過。ラベルテストのMOVI拒否ケースは受理ケースへ更新。make all/test/monitor、echo 54ケース、word-command-loop 26ケース、self-test、既存helloと再生成hello、xxd、数値版とラベル版のcmpを確認。VM本体とwriterは変更なし。
 
 仕様、解説、Makefile、README類、両ROADMAP、命令追加ガイド、HANDOFFを更新。第19回の構成案・WordPress本文を作成し、コード・出力・ブロック対応を照合。記事はgit管理外の未公開下書き。次はDay 40・第20回に向け、echoの.asm移行、0x500バッファとの関係、絶対配置指示の要否を仕様として決める。
+
+## Day 40: echoの.asm移行（2026-11-01）
+
+配置を調べ、絶対配置指示なしで命令直後へ文字列を並べる仕様を決定。asm-echo-command.asm / .binを追加。70命令280 byte、8文字列141 byteで計421 byte。0x500の入力バッファを維持。
+
+配置テストで参照先8個のMOVI、全文字列、その他の命令一致、バッファとの非重複を確認。既存echoテストに任意のバイナリ引数を加え、writer版54ケース・asm版54ケースが通過。手動入力相当のecho / hello / quit出力とxxdも確認。VM・small-asm・writerの変更なし。
+
+第20回の構成案とWordPress本文を作成（未公開・git管理外）。仕様・解説・利用手順・索引・ロードマップ・再開点を更新。次はDay 41・第21回に向けたコマンドと引数の分割仕様。

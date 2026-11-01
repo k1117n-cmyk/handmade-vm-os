@@ -16,7 +16,8 @@ ASM_PROGRAMS := \
 	programs/command-loop.asm \
 	programs/asm-memory-call.asm \
 	programs/asm-label-call.asm \
-	programs/asm-string.asm
+	programs/asm-string.asm \
+	programs/asm-echo-command.asm
 
 BIN_PROGRAMS := $(ASM_PROGRAMS:.asm=.bin)
 DATA_PROGRAMS := programs/echo-command.bin programs/word-command-loop.bin programs/word-command-compare.bin programs/boot-message.bin programs/line-buffer.bin programs/word-command.bin programs/word-command-subroutine.bin
@@ -165,3 +166,12 @@ test-small-asm-strings: $(SMALL_ASM) $(VM)
 
 run-asm-string: $(VM) programs/asm-string.bin
 	./$(VM) programs/asm-string.bin
+
+.PHONY: run-asm-echo-command test-asm-echo-command
+run-asm-echo-command: $(VM) programs/asm-echo-command.bin
+	./$(VM) programs/asm-echo-command.bin
+
+test-asm-echo-command: $(VM) programs/asm-echo-command.bin programs/echo-command.bin
+	python3 tools/test-asm-echo-command.py programs/echo-command.bin programs/asm-echo-command.bin
+	python3 tools/test-echo-command.py ./$(VM) programs/echo-command.bin
+	python3 tools/test-echo-command.py ./$(VM) programs/asm-echo-command.bin
