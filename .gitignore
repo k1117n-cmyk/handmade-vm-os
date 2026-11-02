@@ -16,3 +16,4 @@ articles/
 *.out
 /build/
 /dist/
+wp/
