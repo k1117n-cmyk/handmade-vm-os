@@ -17,7 +17,8 @@ ASM_PROGRAMS := \
 	programs/asm-memory-call.asm \
 	programs/asm-label-call.asm \
 	programs/asm-string.asm \
-	programs/asm-echo-command.asm
+	programs/asm-echo-command.asm \
+	programs/command-arguments.asm
 
 BIN_PROGRAMS := $(ASM_PROGRAMS:.asm=.bin)
 DATA_PROGRAMS := programs/echo-command.bin programs/word-command-loop.bin programs/word-command-compare.bin programs/boot-message.bin programs/line-buffer.bin programs/word-command.bin programs/word-command-subroutine.bin
@@ -175,3 +176,13 @@ test-asm-echo-command: $(VM) programs/asm-echo-command.bin programs/echo-command
 	python3 tools/test-asm-echo-command.py programs/echo-command.bin programs/asm-echo-command.bin
 	python3 tools/test-echo-command.py ./$(VM) programs/echo-command.bin
 	python3 tools/test-echo-command.py ./$(VM) programs/asm-echo-command.bin
+
+.PHONY: run-command-arguments test-command-split test-command-arguments
+run-command-arguments: $(VM) programs/command-arguments.bin
+	./$(VM) programs/command-arguments.bin
+
+test-command-split: $(SMALL_ASM) $(VM)
+	python3 tools/test-command-split.py ./$(SMALL_ASM) ./$(VM)
+
+test-command-arguments: $(VM) programs/command-arguments.bin
+	python3 tools/test-command-arguments.py ./$(VM) programs/command-arguments.bin

@@ -49,6 +49,7 @@
 | word-command-compare sample | 文字列比較を共通サブルーチンで行う外部プログラム | [specs/034-word-command-compare.md](specs/034-word-command-compare.md) |
 | word-command-loop sample | help / unknownの後に再入力する外部プログラム | [specs/035-word-command-loop.md](specs/035-word-command-loop.md) |
 | echoの.asm移行 | 文字列の連続配置・0x500バッファ・54ケース照合 | [specs/040-asm-echo-command.md](specs/040-asm-echo-command.md) |
+| コマンド名と本文の分割 | 半角空白・空本文・echo単独の区別 | [specs/041-command-arguments.md](specs/041-command-arguments.md) |
 | echo-command sample | 次の1行を表示してコマンド入力へ戻る | [specs/036-echo-command.md](specs/036-echo-command.md) |
 | word-command-subroutine sample | 入力処理を `CALLI` / `RET` で呼ぶ外部プログラム | [specs/033-word-command-subroutine.md](specs/033-word-command-subroutine.md) |
 
@@ -132,3 +133,5 @@ Day 38はsmall-asmのラベル対応です。[解説](test-code-explanations/038
 Day 39はsmall-asmの文字列・配置対応です。[解説](test-code-explanations/039-small-asm-strings.md)と `make test-small-asm-strings`（52ケース）で確認します。Day 38のMOVIラベル拒否テストは受理テストへ変更し、44ケースを維持しています。
 
 Day 40はechoの.asm移行です。[解説](test-code-explanations/040-asm-echo-command.md)と `make test-asm-echo-command`で、配置とwriter版・asm版それぞれ54ケースを照合します。
+
+Day 41はコマンド名と本文の分割です。[解説](test-code-explanations/041-command-arguments.md)と `make test-command-split test-command-arguments`で、分割14ケース・入出力74ケースを照合します。生成物は112命令・8文字列・600 byteです。

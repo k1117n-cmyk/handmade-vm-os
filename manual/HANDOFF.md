@@ -4,13 +4,40 @@
 
 ## 再開時の段取り（最初に読む）
 
-Day 40・第20回は仕様・実装・原稿作成・検証まで完了済みです。次の候補は **Day 41・第21回に向けたコマンド名と引数の分割の仕様決め**です。
+Day 41・第21回は仕様・実装・原稿作成・検証まで完了済みです。次の候補は **Day 42・第22回に向けたメモリ上の小さな行編集の仕様決め**です。
 
-1. 作業ツリーを確認し、完了済みのecho移行を繰り返さない。
-2. `programs/asm-echo-command.asm`を基に、`echo hello`のコマンド名と本文を分ける最小仕様を決める。先頭空白、区切りの連続空白、空引数、従来のecho単独の扱いを先に定義する。
-3. 仕様カード、最小実装、仕様に対応する入出力テストの順に進める。引用符・複数引数・行編集は後へ分ける。
-4. 第21回の構成案と本文を作成する。目的と期待動作を先に示し、公開設定とアイキャッチ用プロンプトを付ける。構成案などのMarkdownファイルに記載するタグは、半角カンマ `,` で区切る（例: `C言語,自作VM,低レイヤ`）。読点 `、` は区切りに使わない。
+1. 作業ツリーを確認し、完了済みのコマンド名・本文の分割を繰り返さない。
+2. コマンド入力と編集対象のバッファを分け、1行を保持して表示・置換する最小仕様を先に決める。バッファの配置・上限、操作名、空の編集内容、終了時の扱いは未決であり、ユーザーの判断を得る。
+3. 仕様カード、部品の確認、最小実装、入出力テストの順に進める。保存・画面制御・引用符の解釈・複数引数は後へ分ける。
+4. 第22回の構成案と本文を作成する。目的と期待動作を先に示し、公開設定とアイキャッチ用プロンプトを付ける。Markdownのタグは半角カンマ `,` で区切る。
 5. 完了範囲と次の着手点を更新する。公開確認や完了原稿の再編集は、指定がなければ行わない。
+
+## Day 41の完了内容
+
+`programs/command-arguments.asm` / `.bin`を追加。半角空白でコマンド名と本文を分け、echo単独ではText>、区切りだけのechoでは空本文を表示します。先頭・区切りの空白を読み飛ばし、本文中・末尾は保持。help / quitの非空引数は拒否します。入力の63 byte上限・CR無視・LFまでの消費・EOF・NULの扱いは継承しています。
+
+分割部品14ケース、入出力74ケースが通過。112命令448 byteと8文字列152 byteで計600 byte。末尾0x258は入力バッファ0x500より手前です。旧サンプル、VM本体、small-asm、writer、既存テストの期待値は変更していません。
+
+確認済み（すべて終了コード0）:
+
+```sh
+make test-command-split test-command-arguments
+make test-small-asm test-small-asm-labels test-small-asm-strings
+make run-asm-string
+make all test test-monitor test-echo-command test-word-command-loop
+make test-asm-echo-command
+./handmade-vm --self-test
+cmp programs/asm-memory-call.bin programs/asm-label-call.bin
+```
+
+既存件数はsmall-asm 57、labels 44、strings 52、echo各54、word-command-loop 26を維持。Day 40の配置照合も通過。
+
+仕様: `specs/041-command-arguments.md`。解説: `test-code-explanations/041-command-arguments.md`。
+本文: `articles/unix-cafe-handmade-vm-21.txt`。
+構成案: `articles/2026-11-03-vm-command-arguments-041-outline.md`。
+記事はWordPress形式の未公開下書き、従来どおりgit管理外です。コード・出力・ブロック対応を確認済みです。
+
+以下はDay 40以前の完了記録です。
 
 ## Day 40の完了内容
 

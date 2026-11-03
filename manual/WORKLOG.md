@@ -703,3 +703,13 @@ Day 36 writerと照合し、不足していたLDB / STB / INC / CALLI / RETをsm
 配置テストで参照先8個のMOVI、全文字列、その他の命令一致、バッファとの非重複を確認。既存echoテストに任意のバイナリ引数を加え、writer版54ケース・asm版54ケースが通過。手動入力相当のecho / hello / quit出力とxxdも確認。VM・small-asm・writerの変更なし。
 
 第20回の構成案とWordPress本文を作成（未公開・git管理外）。仕様・解説・利用手順・索引・ロードマップ・再開点を更新。次はDay 41・第21回に向けたコマンドと引数の分割仕様。
+
+## Day 41: コマンド名と本文の分割（2026-11-03）
+
+ユーザー承認の仕様を041-command-arguments.mdに記録。command-arguments.asm / .binを追加し、区切りをNULへ置き換えて本文の位置と区切り有無を保持。先頭・連続空白、空本文、echo単独、help / quitの引数拒否を実装した。VM・small-asm・writer・旧サンプル・既存テストの変更なし。
+
+分割部品14ケースを確認後、コマンドループへ統合して入出力74ケースを確認。112命令448 byte + 8文字列152 byte = 600 byte、バッファ0x500と非重複。
+
+確認済み: `make test-command-split test-command-arguments`、`make test-small-asm test-small-asm-labels test-small-asm-strings`、`make run-asm-string`、`make all test test-monitor test-echo-command test-word-command-loop`、`make test-asm-echo-command`、`./handmade-vm --self-test`、`cmp programs/asm-memory-call.bin programs/asm-label-call.bin`。すべて終了コード0。既存件数57 / 44 / 52 / echo各54 / loop26と旧echo配置照合を維持。xxd・別ビルドVMの実行も確認。
+
+README類・索引・解説・ロードマップ・命令追加ガイド・HANDOFFを更新。第21回の構成案とWordPress本文を作成し、コード・出力・ブロック対応を確認。記事は未公開・git管理外。次はDay 42・第22回に向け、メモリ上の小さな行編集の仕様を決める。保存・画面制御は後へ分ける。

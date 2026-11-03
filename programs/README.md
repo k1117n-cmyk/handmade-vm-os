@@ -534,3 +534,14 @@ make test-asm-echo-command
 ```
 
 echoの後にhello、quitを各行で入力すると、本文を表示してコマンド入力へ戻り、終了します。テストは配置照合と既存writer版・asm版それぞれ54ケースです。[仕様](../manual/specs/040-asm-echo-command.md)と[解説](../manual/test-code-explanations/040-asm-echo-command.md)を参照してください。
+
+## Day 41: コマンド名と本文を分ける
+
+`programs/command-arguments.asm`から600 byteのバイナリを生成します。`echo hello`は同じ行の本文を表示し、`echo`単独は従来どおりText>で次の行を読みます。先頭・区切りの半角空白を読み飛ばし、本文中と末尾の空白は保持します。`echo `は空本文です。help / quitへの空白以外の引数は拒否します。
+
+```sh
+make run-command-arguments
+make test-command-split test-command-arguments
+```
+
+入力はコマンド名・空白も含め最大63 byteです。分割部品14ケース、入出力74ケースを確認します。引用符の解釈・複数引数・行編集は今後の候補です。[仕様](../manual/specs/041-command-arguments.md)と[解説](../manual/test-code-explanations/041-command-arguments.md)を参照してください。
