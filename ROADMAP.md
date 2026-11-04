@@ -1,6 +1,6 @@
 # Handmade VM Roadmap
 
-最終整理: 2026-10-20。実装の現在地はDay 35。この技術ロードマップでは、記事番号と実装段階を区別し、実装済みの機能と今後の設計候補を分けて記録する。
+最終整理: 2026-11-04。実装の現在地はDay 42。この技術ロードマップでは、記事番号と実装段階を区別し、実装済みの機能と今後の設計候補を分けて記録する。
 
 ## Goal
 
@@ -53,9 +53,9 @@ host macOS/Linux
 
 基本命令を追加した順序と今後の判断方針は、ブログ記事とのつながりを含めて [manual/NEXT_INSTRUCTION_GUIDELINES.md](manual/NEXT_INSTRUCTION_GUIDELINES.md) にまとめる。
 
-外部バイナリの読み込みと入出力は実装済み。現在はDay 35の `programs/word-command-loop.bin` で、help / unknownの後に再入力し、quitで終了するところまで進んでいる。
+外部バイナリの読み込みと入出力は実装済み。現在はDay 42の `programs/line-editor.bin` で、別の領域に1行を保持し、set / showで置換・表示するところまで進んでいる。quitは保存せず終了する。
 
-次の候補は、小さな組み込みコマンドの追加。echoを題材に、入力と出力を仕様カードで決める。ブログの説明順と中期候補は `articles/ROADMAP.md`、作業再開点は [manual/HANDOFF.md](manual/HANDOFF.md) を参照する。
+次の候補は、保持した1行の保存・読み込み。保存方式と成功・失敗の扱いを仕様カードで決める。ブログの説明順と中期候補は `articles/ROADMAP.md`、作業再開点は [manual/HANDOFF.md](manual/HANDOFF.md) を参照する。
 
 ## Milestones
 
@@ -140,7 +140,7 @@ A
 CPU halted.
 ```
 
-Day 37で `tools/small-asm.c` は既存7命令に `LDB`, `STB`, `INC`, `CALLI`, `RET` を加え、12命令に対応した。Day 36のechoなど、文字列と配置が必要なサンプルは専用writerで生成する。Day 38で固定長命令列のラベル解決（分岐・CALLI、前方参照、重複・未定義の検査）まで完了した。Day 39でASCIIの0終端文字列、.align 4、MOVIのラベル参照を追加し、最小表示例まで確認した。Day 40でechoの.asm移行を完了。70命令と8文字列を421 byteへ詰めて配置し、固定バッファ0x500との非重複と既存echoの54ケースを確認した。絶対配置指示の追加は不要だった。Day 41でコマンド名と本文の分割を追加し、分割14ケース・入出力74ケースを確認した。次の候補はメモリ上の小さな行編集の仕様決め。コマンド入力と編集対象のバッファ、表示・置換の操作を先に定義し、保存や画面制御は後へ分ける。
+Day 37で `tools/small-asm.c` は既存7命令に `LDB`, `STB`, `INC`, `CALLI`, `RET` を加え、12命令に対応した。Day 36のechoなど、文字列と配置が必要なサンプルは専用writerで生成する。Day 38で固定長命令列のラベル解決（分岐・CALLI、前方参照、重複・未定義の検査）まで完了した。Day 39でASCIIの0終端文字列、.align 4、MOVIのラベル参照を追加し、最小表示例まで確認した。Day 40でechoの.asm移行を完了。70命令と8文字列を421 byteへ詰めて配置し、固定バッファ0x500との非重複と既存echoの54ケースを確認した。絶対配置指示の追加は不要だった。Day 41でコマンド名と本文の分割を追加し、分割14ケース・入出力74ケースを確認した。Day 42で入力0x500と編集0x600を分け、set / showによる保持・置換・表示を実装した。部品8ケース、入出力75ケースを確認。次は保存・読み込みの仕様決め。
 
 Day 35までで、入力・比較サブルーチンを使った複数文字コマンドループが完成した。保存上限は63 byteで、上限後もLFまで消費する。CRは無視し、CR単独では入力を確定しない。
 
@@ -260,15 +260,14 @@ C ソースをそのまま自作CPUで動かすには、次が必要になる。
 
 ## Current Target
 
-現在のサンプルを実行する:
-
 ```sh
-make run-word-command-loop
+make run-line-editor
 ```
 
-Command>へhelp、hello、quitを順に入力する。自動照合は `make test-word-command-loop`（Python 3、26ケース）。
-
-次はechoなどの追加コマンドの仕様カードを書く。実装の前に、入力形式、表示内容、既存ループへの戻り方を決める。
+Command>へset hello、show、set world、show、quitを順に入力する。
+自動照合は `make test-line-copy test-line-editor`（部品8・入出力75ケース）。
+[Day 42仕様](manual/specs/042-line-editor.md)を参照。
+次は保存・読み込みの方式、保存先、容量、成功と失敗の通知を仕様カードに整理する。
 
 現在の基本実行:
 

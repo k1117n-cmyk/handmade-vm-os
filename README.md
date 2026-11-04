@@ -555,3 +555,19 @@ make test-command-split test-command-arguments
 ```
 
 入力はコマンド名・空白も含め最大63 byteです。分割部品14ケース、入出力74ケースを確認します。引用符の解釈・複数引数・行編集は今後の候補です。[仕様](manual/specs/041-command-arguments.md)と[解説](manual/test-code-explanations/041-command-arguments.md)を参照してください。
+
+
+## Day 42: メモリ上の1行を保持・表示・置換する
+
+`programs/line-editor.asm` / `.bin`は、`set hello`で内容を置き、`show`で表示します。
+入力0x500とは別の編集バッファ0x600に最大63 byteと終端0を保持し、echoやhelpの後も内容が残ります。
+set単独はText>で次の1行、`set `（区切りだけ）は空内容への置換です。quitでは保存せず終了し、再起動すると空になります。
+同じ行の本文は最大59 byte、次の行なら最大63 byteです。
+
+```sh
+make run-line-editor
+make test-line-copy test-line-editor
+```
+
+生成物は147命令・10文字列・828 byte。部品8・入出力75ケースを照合します。
+[仕様](manual/specs/042-line-editor.md)と[解説](manual/test-code-explanations/042-line-editor.md)を参照してください。

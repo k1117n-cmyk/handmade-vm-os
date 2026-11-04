@@ -713,3 +713,31 @@ Day 36 writerと照合し、不足していたLDB / STB / INC / CALLI / RETをsm
 確認済み: `make test-command-split test-command-arguments`、`make test-small-asm test-small-asm-labels test-small-asm-strings`、`make run-asm-string`、`make all test test-monitor test-echo-command test-word-command-loop`、`make test-asm-echo-command`、`./handmade-vm --self-test`、`cmp programs/asm-memory-call.bin programs/asm-label-call.bin`。すべて終了コード0。既存件数57 / 44 / 52 / echo各54 / loop26と旧echo配置照合を維持。xxd・別ビルドVMの実行も確認。
 
 README類・索引・解説・ロードマップ・命令追加ガイド・HANDOFFを更新。第21回の構成案とWordPress本文を作成し、コード・出力・ブロック対応を確認。記事は未公開・git管理外。次はDay 42・第22回に向け、メモリ上の小さな行編集の仕様を決める。保存・画面制御は後へ分ける。
+
+
+## Day 42: メモリ上の1行編集の仕様整理（2026-11-04）
+
+`wp/codex指示書.md`に従い、HEAD・HANDOFF・機械仕様・Day 41仕様と解説・Makefile・テスト実物・既存生成物を確認。
+今回の対象は「仕様決め」とし、会話でユーザーが承認した内容を `specs/042-line-editor.md` に記録した。
+入力0x500・編集0x600、63 byteと終端0、set / show、空内容、保存せず終了する動作を定義。
+仕様の未決事項は無し。コピー部品のレジスタ規約は次の部品確認前に追記する。
+
+HANDOFFとmanual索引を更新。実装・テストコード・原稿は作成していない。
+文書変更のみのためコードのテストは未実行。既存生成物は再生成せず、実物のサイズと配置を読み取り確認した。
+完了報告と実行した確認コマンドの証拠は `wp/codex-completion-report.md`（git管理外）に保存する。
+次は仕様カードに沿ったコピー部品の確認と最小実装・入出力検証。
+
+
+## Day 42: コピー部品の確認と最小実装・入出力検証（2026-11-04）
+
+開始HEADは6fde5d0246fe942edcb063511119269b62fe4b77。開始時点でHANDOFF・WORKLOG・manual索引と未追跡の042仕様カードがあり、前回の仕様整理分として保存した。
+copy_lineの規約を仕様へ追記し、部品のみのソースで8ケースを確認後、line-editorのコマンドループへ統合した。
+set / show、入力と別の編集バッファ、短縮・空内容・終了時の破棄を実装。147命令・10文字列・828 byteを生成。
+
+新規部品8・入出力75、Day 41の14・74、assembler 57・44・52、echo各54、loop26が通過。
+HANDOFFの回帰セット全体、VM自己テスト、Day 40配置照合、数値版/ラベル版cmpも終了コード0。
+既存のVM本体・small-asm・writer・旧サンプル・旧テストの期待値は維持した。
+
+仕様・解説・Makefile・README類・両ROADMAP・HANDOFFを更新し、第22回の構成案とWordPress本文を作成（未公開・git管理外）。
+原稿のコード・数値・表示例・ブロック対応を照合。証拠と生ログはwp/codex-completion-report.md / codex-day42-evidence.json。
+次は保存・読み込みの仕様決め。保存・読み込みの実装、公開、コミットは行っていない。

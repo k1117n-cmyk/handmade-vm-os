@@ -18,7 +18,8 @@ ASM_PROGRAMS := \
 	programs/asm-label-call.asm \
 	programs/asm-string.asm \
 	programs/asm-echo-command.asm \
-	programs/command-arguments.asm
+	programs/command-arguments.asm \
+	programs/line-editor.asm
 
 BIN_PROGRAMS := $(ASM_PROGRAMS:.asm=.bin)
 DATA_PROGRAMS := programs/echo-command.bin programs/word-command-loop.bin programs/word-command-compare.bin programs/boot-message.bin programs/line-buffer.bin programs/word-command.bin programs/word-command-subroutine.bin
@@ -186,3 +187,13 @@ test-command-split: $(SMALL_ASM) $(VM)
 
 test-command-arguments: $(VM) programs/command-arguments.bin
 	python3 tools/test-command-arguments.py ./$(VM) programs/command-arguments.bin
+
+.PHONY: run-line-editor test-line-copy test-line-editor
+run-line-editor: $(VM) programs/line-editor.bin
+	./$(VM) programs/line-editor.bin
+
+test-line-copy: $(SMALL_ASM) $(VM)
+	python3 tools/test-line-copy.py ./$(SMALL_ASM) ./$(VM)
+
+test-line-editor: $(VM) programs/line-editor.bin
+	python3 tools/test-line-editor.py ./$(VM) programs/line-editor.bin
