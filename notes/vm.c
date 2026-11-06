@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include "line-storage.h"
 
 #define MEMORY_SIZE (1024 * 1024)
 #define REGISTER_COUNT 8
@@ -254,6 +255,10 @@ static void execute(VM *vm, DecodedInst inst) {
             }
         } else if (inst.imm == 3) {
             putchar(vm->regs[0] & 0xFF);
+        } else if (inst.imm == 4) {
+            vm->regs[0] = save_stored_line(vm->memory, MEMORY_SIZE, vm->regs[0]);
+        } else if (inst.imm == 5) {
+            vm->regs[0] = load_stored_line(vm->memory, MEMORY_SIZE, vm->regs[0]);
         } else {
             printf("unimplemented syscall: %u\n", inst.imm);
             vm->running = false;

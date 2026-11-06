@@ -561,3 +561,22 @@ make test-line-copy test-line-editor
 
 生成物は147命令・10文字列・828 byte。部品8・入出力75ケースを照合します。
 [仕様](../manual/specs/042-line-editor.md)と[解説](../manual/test-code-explanations/042-line-editor.md)を参照してください。
+
+
+## Day 43: 1行をファイルへ保存・読み込みする
+
+`programs/line-storage.asm` / `.bin`で、set / showにsave / loadを追加しました。
+VMプロセスの作業ディレクトリにある固定名`line.txt`へ、本文0〜63 byteだけを保存します。
+終端NUL・改行は書きません。既存ファイルは直接上書きし、保存途中の失敗では旧ファイルを保持できない場合があります。
+loadはファイル全体を検証してから置換し、失敗時は編集内容を保持します。
+起動時は空で、自動読み込み・自動保存は行いません。
+
+```sh
+make run-line-storage
+make test-line-storage-parts test-line-storage
+```
+
+入力例は `set hello` → `save` → `quit`。再起動後に`load` → `show`でhelloを表示します。
+save / loadは成功時にSaved. / Loaded.、失敗時にSave failed. / Load failed.を表示して入力へ戻ります。
+178命令・17文字列・1089 byte。部品38・VM経由38・入出力142ケースを確認します。
+[仕様](../manual/specs/043-line-storage.md)と[解説](../manual/test-code-explanations/043-line-storage.md)を参照してください。

@@ -19,7 +19,8 @@ ASM_PROGRAMS := \
 	programs/asm-string.asm \
 	programs/asm-echo-command.asm \
 	programs/command-arguments.asm \
-	programs/line-editor.asm
+	programs/line-editor.asm \
+	programs/line-storage.asm
 
 BIN_PROGRAMS := $(ASM_PROGRAMS:.asm=.bin)
 DATA_PROGRAMS := programs/echo-command.bin programs/word-command-loop.bin programs/word-command-compare.bin programs/boot-message.bin programs/line-buffer.bin programs/word-command.bin programs/word-command-subroutine.bin
@@ -28,7 +29,7 @@ DATA_PROGRAMS := programs/echo-command.bin programs/word-command-loop.bin progra
 
 all: $(VM) programs
 
-$(VM): notes/vm.c
+$(VM): notes/vm.c notes/line-storage.h
 	$(CC) $(CFLAGS) $< -o $@
 
 $(SMALL_ASM): tools/small-asm.c
@@ -197,3 +198,16 @@ test-line-copy: $(SMALL_ASM) $(VM)
 
 test-line-editor: $(VM) programs/line-editor.bin
 	python3 tools/test-line-editor.py ./$(VM) programs/line-editor.bin
+
+.PHONY: run-line-storage test-line-storage-parts test-line-storage
+run-line-storage: $(VM) programs/line-storage.bin
+	./$(VM) programs/line-storage.bin
+
+test-line-storage-parts:
+	$(CC) $(CFLAGS) notes/043-line-storage-test.c -o /tmp/043-line-storage-test
+	/tmp/043-line-storage-test
+	$(CC) $(CFLAGS) -DSTORAGE_VM_TEST notes/043-line-storage-test.c -o /tmp/043-line-storage-vm-test
+	/tmp/043-line-storage-vm-test
+
+test-line-storage: $(VM) programs/line-storage.bin $(SMALL_ASM)
+	python3 tools/test-line-storage.py ./$(VM) programs/line-storage.bin ./$(SMALL_ASM)

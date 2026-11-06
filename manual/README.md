@@ -49,6 +49,7 @@
 | word-command-compare sample | 文字列比較を共通サブルーチンで行う外部プログラム | [specs/034-word-command-compare.md](specs/034-word-command-compare.md) |
 | word-command-loop sample | help / unknownの後に再入力する外部プログラム | [specs/035-word-command-loop.md](specs/035-word-command-loop.md) |
 | echoの.asm移行 | 文字列の連続配置・0x500バッファ・54ケース照合 | [specs/040-asm-echo-command.md](specs/040-asm-echo-command.md) |
+| 1行の保存・読み込み | 固定名hostファイル・syscall 4/5・0〜63 byte・失敗時の保持 | [specs/043-line-storage.md](specs/043-line-storage.md) |
 | メモリ上の1行編集 | 入力と編集を分け、set / showで保持・表示・置換する | [specs/042-line-editor.md](specs/042-line-editor.md) |
 | コマンド名と本文の分割 | 半角空白・空本文・echo単独の区別 | [specs/041-command-arguments.md](specs/041-command-arguments.md) |
 | echo-command sample | 次の1行を表示してコマンド入力へ戻る | [specs/036-echo-command.md](specs/036-echo-command.md) |
@@ -138,3 +139,8 @@ Day 40はechoの.asm移行です。[解説](test-code-explanations/040-asm-echo-
 Day 41はコマンド名と本文の分割です。[解説](test-code-explanations/041-command-arguments.md)と `make test-command-split test-command-arguments`で、分割14ケース・入出力74ケースを照合します。生成物は112命令・8文字列・600 byteです。
 
 Day 42は別バッファへの1行の保持・表示・置換です。[解説](test-code-explanations/042-line-editor.md)と `make test-line-copy test-line-editor`で、部品8・入出力75ケースを照合します。147命令・10文字列・828 byteです。
+
+
+Day 43は固定名line.txtへの保存・読み込みです。[解説](test-code-explanations/043-line-storage.md)と
+`make test-line-storage-parts test-line-storage`で、部品38・VM経由38・入出力142ケースを照合します。
+新サンプルは178命令・17文字列・1089 byteです。
