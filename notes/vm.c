@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 #include "line-storage.h"
+#include "program-launch.h"
 
 #define MEMORY_SIZE (1024 * 1024)
 #define REGISTER_COUNT 8
@@ -14,6 +16,7 @@ typedef struct {
     uint32_t regs[REGISTER_COUNT];
     bool zero_flag;
     bool running;
+    bool is_child;
 } VM;
 
 typedef struct {
@@ -144,6 +147,8 @@ static void print_string(VM *vm, uint32_t address) {
     }
 }
 
+static uint32_t launch_program(void);
+
 static void execute(VM *vm, DecodedInst inst) {
     if (inst.raw == 0x01000000) {
         vm->running = false;
@@ -259,6 +264,12 @@ static void execute(VM *vm, DecodedInst inst) {
             vm->regs[0] = save_stored_line(vm->memory, MEMORY_SIZE, vm->regs[0]);
         } else if (inst.imm == 5) {
             vm->regs[0] = load_stored_line(vm->memory, MEMORY_SIZE, vm->regs[0]);
+        } else if (inst.imm == 6) {
+            if (vm->is_child) {
+                vm->regs[0] = 1;
+            } else {
+                vm->regs[0] = launch_program();
+            }
         } else {
             printf("unimplemented syscall: %u\n", inst.imm);
             vm->running = false;
@@ -322,16 +333,33 @@ static void execute(VM *vm, DecodedInst inst) {
     }
 }
 
-static void run(VM *vm) {
+static bool run(VM *vm) {
     while (vm->running) {
         uint32_t inst;
 
         if (!fetch(vm, &inst)) {
-            return;
+            return false;
         }
 
         execute(vm, decode(inst));
+        if (!vm->running) {
+            return inst == 0x01000000;
+        }
     }
+    return false;
+}
+
+static uint32_t launch_program(void) {
+    VM *child = malloc(sizeof(*child));
+    if (child == NULL) {
+        return 1;
+    }
+
+    init_vm(child);
+    child->is_child = true;
+    bool success = load_child_program(child->memory, MEMORY_SIZE) && run(child);
+    free(child);
+    return success ? 0 : 1;
 }
 
 static void load_test_program(VM *vm) {

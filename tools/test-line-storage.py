@@ -6,6 +6,7 @@ import tempfile
 import struct
 
 VM, PROGRAM, ASM = (str(Path(arg).resolve()) for arg in sys.argv[1:4])
+launcher = sys.argv[4:] == ['--launcher']
 P = b'Command> '
 T = P + b'Text> '
 Q = P + b'Goodbye from Handmade VM\nCPU halted.\n'
@@ -17,6 +18,8 @@ H = P + (b'Commands:\nhelp: show help\nquit: quit\n'
          b'show: print the stored line\n'
          b'save: write the stored line to line.txt\n'
          b'load: read the stored line from line.txt\n')
+if launcher:
+    H += b'run: start run-child.bin\n'
 cases = [
     ('initial empty', b'show\nquit\n', P + b'\n' + Q),
     ('inline set', b'set hello\nshow\nquit\n', P + P + b'hello\n' + Q),
@@ -183,7 +186,8 @@ check('monitor saves and reloads',
 # Reassembly and a source-independent instruction/string walk verify placement.
 with tempfile.TemporaryDirectory(prefix='line-storage-layout-') as directory:
     binary = Path(directory) / 'rebuilt.bin'
-    r = subprocess.run([ASM, str(Path('programs/line-storage.asm').resolve()), str(binary)], capture_output=True, timeout=5)
+    source = 'programs/program-launcher.asm' if launcher else 'programs/line-storage.asm'
+    r = subprocess.run([ASM, str(Path(source).resolve()), str(binary)], capture_output=True, timeout=5)
     assert (r.returncode, r.stderr) == (0, b''), r
     assert binary.read_bytes() == Path(PROGRAM).read_bytes()
 blob = Path(PROGRAM).read_bytes()
@@ -196,6 +200,10 @@ strings = [b'Command> ', H[len(P):].split(b'save:')[0], b'Goodbye from Handmade 
            b'Unknown command\n', b'help', b'quit', b'echo', b'Text> ', b'set', b'show',
            b'save', b'load', b'Saved.\n', b'Save failed.\n', b'Loaded.\n', b'Load failed.\n',
            b'save: write the stored line to line.txt\nload: read the stored line from line.txt\n']
+if launcher:
+    strings[-1] += b'run: start run-child.bin\n'
+    strings += [b'run', b'Run finished.\n', b'Run failed.\n']
+    assert 0x60000006 in words
 assert blob[code_size:] == b''.join(s + b'\0' for s in strings)
 print(f'line-storage: {count} cases passed ({inherited_count} inherited); reassembly byte equality OK')
 print(f'line-storage layout: {len(words)} instructions / {code_size} code bytes; {len(strings)} strings / {len(blob)-code_size} data bytes; total {len(blob)} <= 0x500')

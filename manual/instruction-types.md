@@ -77,7 +77,7 @@ HALT
 | `3` | memory-register instruction | レジスタが指すメモリを読み書きする | `LDB`, `STB` |
 | `4` | immediate instruction | 命令内の即値を使う | `MOVI` |
 | `5` | direct memory instruction | 命令内の即値アドレスでメモリを読み書きする | `LDDI`, `STDI` |
-| `6` | syscall / control flow instruction | VM外側のサービス呼び出し、またはPC変更 | `SYSCALL 0`, `SYSCALL 1`, `SYSCALL 2`, `SYSCALL 3`, `SYSCALL 4`, `SYSCALL 5`, `JUMP`, `CALLI`, `JZ`, `JNZ` |
+| `6` | syscall / control flow instruction | VM外側のサービス呼び出し、またはPC変更 | `SYSCALL 0`, `SYSCALL 1`, `SYSCALL 2`, `SYSCALL 3`, `SYSCALL 4`, `SYSCALL 5`, `SYSCALL 6`, `JUMP`, `CALLI`, `JZ`, `JNZ` |
 | `7` | stack instruction | スタックへ値を積む、または取り出す | `PUSH`, `POP` |
 
 未使用の `type` は、現時点では未定義です。
@@ -109,6 +109,7 @@ RET:  inst == 0x02000000
 | `SYSCALL 3` | `type=6, op=0, imm=3` | `imm`, `R0` | syscall instruction | [specs/029-syscall-print-char-raw.md](specs/029-syscall-print-char-raw.md) |
 | `SYSCALL 4` | `type=6, op=0, imm=4` | `imm`, `R0` | syscall instruction | [specs/043-line-storage.md](specs/043-line-storage.md) |
 | `SYSCALL 5` | `type=6, op=0, imm=5` | `imm`, `R0` | syscall instruction | [specs/043-line-storage.md](specs/043-line-storage.md) |
+| `SYSCALL 6` | `type=6, op=0, imm=6` | `imm`（結果をR0へ） | syscall instruction | [specs/044-program-launch.md](specs/044-program-launch.md) |
 | `JUMP imm` | `type=6, op=8` | `imm` | control flow instruction | [specs/018-jump-jz.md](specs/018-jump-jz.md) |
 | `CALLI imm` | `type=6, op=9` | `imm`, `SP` | control flow instruction | [specs/020-calli-ret.md](specs/020-calli-ret.md) |
 | `JZ imm` | `type=6, op=10` | `imm`, `zero_flag` | control flow instruction | [specs/018-jump-jz.md](specs/018-jump-jz.md) |
@@ -139,6 +140,7 @@ RET:  inst == 0x02000000
 | `SYSCALL 3` | `0x60000003` | `60 00 00 03` |
 | `SYSCALL 4` | `0x60000004` | `60 00 00 04` |
 | `SYSCALL 5` | `0x60000005` | `60 00 00 05` |
+| `SYSCALL 6` | `0x60000006` | `60 00 00 06` |
 | `JUMP 0x10` | `0x68000010` | `68 00 00 10` |
 | `CALLI 0x20` | `0x69000020` | `69 00 00 20` |
 | `JZ 0x20` | `0x6A000020` | `6A 00 00 20` |

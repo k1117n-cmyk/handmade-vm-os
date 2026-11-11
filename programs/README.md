@@ -580,3 +580,19 @@ make test-line-storage-parts test-line-storage
 save / loadは成功時にSaved. / Loaded.、失敗時にSave failed. / Load failed.を表示して入力へ戻ります。
 178命令・17文字列・1089 byte。部品38・VM経由38・入出力142ケースを確認します。
 [仕様](../manual/specs/043-line-storage.md)と[解説](../manual/test-code-explanations/043-line-storage.md)を参照してください。
+
+
+## Day 44 別プログラムを起動して親へ戻る
+
+`programs/program-launcher.asm` / `.bin` のrunコマンドは、syscall 6で固定の `programs/run-child.bin` を独立したVM状態で同期実行します。
+子の終了後は親のメモリとスタックを保持し、正常終了ならRun finished.、失敗ならRun failed.を表示して入力へ戻ります。
+
+```sh
+make run-program-launcher
+make test-program-launch-parts test-program-launch
+```
+
+リポジトリのルートから起動し、set keep → run → show → quitを各行で入力します。子がAを表示し、showでkeepが残ることを確認できます。
+子は3命令12 byte。親は191命令・20文字列・1198 byteで、入力0x500と編集0x600の手前へ配置します。
+ロード13・VM経由17・新規入出力28ケースと保存・編集の継承142ケースを確認します。
+[仕様](../manual/specs/044-program-launch.md)と[解説](../manual/test-code-explanations/044-program-launch.md)を参照してください。

@@ -6,13 +6,49 @@
 
 Day 43の保存・読み込みは、仕様確定・部品確認・VM統合・入出力検証と、第23回の構成案・本文作成まで完了済みです。
 仕様は [specs/043-line-storage.md](specs/043-line-storage.md)、解説は [test-code-explanations/043-line-storage.md](test-code-explanations/043-line-storage.md) です。
-実装の監査はユーザー報告で合格、監査側のテストも全件通過です。次の候補は、VM上で別プログラムを起動するための仕様決めです。着手はユーザー指定に従います。
+実装の監査はユーザー報告で合格、監査側のテストも全件通過です。
+Day 44の[別プログラム起動の仕様](specs/044-program-launch.md)に沿った部品確認・VM統合・親子サンプルの入出力検証が完了しました。
+2026-11-11、ユーザーが Muse 経由の伝達で推奨案を承認しました。
+親の `run` は `SYSCALL 6` で固定の `programs/run-child.bin` を独立したVM状態で同期実行します。
+子の終了後は親のメモリとスタックを保持し、R0に正常終了0または失敗1を返して `Command>` に戻ります。
+ユーザー報告で再監査は合格・指摘無し。明示依頼により第24回の構成案と本文を作成しました。
 
-1. 作業ツリーと下記の完了範囲を確認し、完了した実装・検証・第23回原稿作成を繰り返さない。
-2. 原稿はarticles/unix-cafe-handmade-vm-23.txt、構成案はarticles/2026-11-06-vm-line-storage-043-outline.md。今回の報告はwp/codex-completion-report.md、実装生ログの正本はwp/codex-day43-evidence.jsonを参照する。
-3. 未決の最小仕様は無し。保存は直接上書きで、途中失敗時の旧ファイル保持は保証しない。
-4. 仮想ディスク、任意ファイル名、複数行、画面制御、引用符の解釈、複数引数、別プログラム起動は後に回す。
-5. 第23回は未公開下書き。公開・コミット・完了済みの過去原稿の再編集は今回行っていない。
+1. 作業ツリーと下記の完了範囲を確認し、完了した実装・検証・第24回までの原稿作成を繰り返さない。
+2. 第24回本文はarticles/unix-cafe-handmade-vm-24.txt、構成案はarticles/2026-11-11-vm-program-launch-044-outline.md。記事照合の記録はwp/codex-day44-article-evidence.json、報告はwp/codex-completion-report.md。実装生ログはwp/codex-day44-evidence.json、[解説](test-code-explanations/044-program-launch.md)を参照する。
+3. Day 43の最小仕様は確定済み。保存は直接上書きで、途中失敗時の旧ファイル保持は保証しない。
+4. 記事ロードマップの次の検討候補はshell / editorの分離。具体的な仕様と着手はユーザー指定に従う。仮想ディスク、任意ファイル名、複数行、画面制御、引用符の解釈、複数引数は後に回す。
+5. 第23回と第24回はともに未公開下書きのまま。公開・コミット・完了済みの過去原稿の再編集は未実施。
+
+## Day 44・第24回の原稿作成完了（2026-11-11）
+
+ユーザー報告で実装とテスト補強の再監査は合格・指摘無し。明示依頼により構成案とWordPress形式の本文を作成しました。
+第24回はgit管理外の未公開下書き。本文は空白を除く可視文字7570字、見出し10節です。
+実ソース7か所、命令位置とサイズ、監査済みstdoutと画面例、追加assertの負の確認5件の記録、WordPressブロック対応を照合しました。
+コードテストの再実行と生成物の再生成は行っていません。以下は原稿作成前の実装記録です。
+
+## Day 44の実装・検証完了（2026-11-11）
+
+ロード部品13ケースを確認してからVMへ統合し、同じロード13ケースとVM経由17ケースが通過しました。
+新規入出力28ケースと、Day 43から継承した142ケースの合計170ケースを確認しました。
+親は191命令764 byte + 20文字列434 byte = 1198 byte（末尾の次0x4AE）。子は3命令12 byteです。
+親の状態保持、子の1000回の初期化、共有入力・line.txt、失敗後の継続、monitor復帰、再アセンブル一致を確認しました。
+
+確認済み（すべて終了コード0）
+
+```sh
+make test-program-launch-parts
+make test-program-launch
+make test-line-storage-parts
+make test-line-storage
+make test-line-copy test-line-editor test-command-split test-command-arguments
+make test-small-asm test-small-asm-labels test-small-asm-strings
+make run-asm-string all test test-monitor test-echo-command test-word-command-loop test-asm-echo-command
+./handmade-vm --self-test
+cmp programs/asm-memory-call.bin programs/asm-label-call.bin
+```
+
+既存の件数・旧サンプルのbyteを維持。共通の保存テストには新しい親を検査する任意の--launcherを追加しました。
+別ビルドVMとMakefileの通常の起動入口も確認しました。以下はDay 43以前の記録です。
 
 ## Day 43・第23回の原稿作成完了（2026-11-06）
 
@@ -21,7 +57,7 @@ Day 43の保存・読み込みは、仕様確定・部品確認・VM統合・入
 本文は空白を除く可視文字7972字。実ソースのコード抜粋、バイナリの命令位置・サイズ、監査済みログとテスト固定期待値による画面例、WordPressブロック対応を照合しました。
 コード・テスト・生成物・実装証拠JSONは変更せず、コードテストも再実行していません。
 記事ロードマップとWORKLOGを更新。今回の記録はwp/codex-day43-article-evidence.json、報告はwp/codex-completion-report.md。
-次の候補は別プログラム起動の仕様決め。未着手です。以下は原稿作成前の実装記録です。
+この記録の時点では、別プログラム起動の仕様決めが次の候補でした。以下は原稿作成前の実装記録です。
 
 ## Day 43の実装・検証完了（2026-11-06）
 

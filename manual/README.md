@@ -49,6 +49,7 @@
 | word-command-compare sample | 文字列比較を共通サブルーチンで行う外部プログラム | [specs/034-word-command-compare.md](specs/034-word-command-compare.md) |
 | word-command-loop sample | help / unknownの後に再入力する外部プログラム | [specs/035-word-command-loop.md](specs/035-word-command-loop.md) |
 | echoの.asm移行 | 文字列の連続配置・0x500バッファ・54ケース照合 | [specs/040-asm-echo-command.md](specs/040-asm-echo-command.md) |
+| 別プログラムの起動と復帰 | run / syscall 6・固定の子を独立したVM状態で同期実行・親へ復帰 | [specs/044-program-launch.md](specs/044-program-launch.md) |
 | 1行の保存・読み込み | 固定名hostファイル・syscall 4/5・0〜63 byte・失敗時の保持 | [specs/043-line-storage.md](specs/043-line-storage.md) |
 | メモリ上の1行編集 | 入力と編集を分け、set / showで保持・表示・置換する | [specs/042-line-editor.md](specs/042-line-editor.md) |
 | コマンド名と本文の分割 | 半角空白・空本文・echo単独の区別 | [specs/041-command-arguments.md](specs/041-command-arguments.md) |
@@ -144,3 +145,8 @@ Day 42は別バッファへの1行の保持・表示・置換です。[解説](t
 Day 43は固定名line.txtへの保存・読み込みです。[解説](test-code-explanations/043-line-storage.md)と
 `make test-line-storage-parts test-line-storage`で、部品38・VM経由38・入出力142ケースを照合します。
 新サンプルは178命令・17文字列・1089 byteです。
+
+
+Day 44はrun / syscall 6による子プログラムの同期実行と親への復帰です。[解説](test-code-explanations/044-program-launch.md)と
+`make test-program-launch-parts test-program-launch`で、ロード13・VM経由17・新規入出力28と継承142ケースを照合します。
+親は191命令・20文字列・1198 byte、子は3命令・12 byteです。

@@ -797,3 +797,42 @@ WordPressブロック形式の未公開下書き。本文は空白を除く可�
 コード・テスト・生成物とwp/codex-day43-evidence.jsonの変更無し。第22回までの記事も変更していない。
 今回の証拠はwp/codex-day43-article-evidence.json、報告はwp/codex-completion-report.md。
 画像生成・公開・コミットは未実施。次の候補は別プログラム起動の仕様決め（未着手）。
+
+## Day 44 別プログラム起動の仕様案（2026-11-11）
+
+再開の指示を受け、[仕様カード](specs/044-program-launch.md)に起動と復帰の案を記録。
+推奨案は `run` / `SYSCALL 6` で固定の子バイナリを独立したVM状態へ読み込み、HALTまたは異常停止後に親へ結果を返す方式。
+起動方式、コマンドとファイル、呼び出し・終了規約はユーザー判断待ち。
+HANDOFFとmanual索引を更新。部品確認・実装・コードテスト・生成物の再生成は仕様確定後に行う。
+
+## Day 44 別プログラム起動の仕様確定（2026-11-11）
+
+2026-11-11、ユーザーが Muse 経由の伝達で推奨案を承認し、[仕様カード](specs/044-program-launch.md)を確定した。
+親の `run` / `SYSCALL 6` は固定の `programs/run-child.bin` を独立したVM状態で同期実行する。
+子の終了後は親のメモリとスタックを保持し、R0に正常終了0または失敗1を返して `Command>` に戻る。
+HANDOFFとmanual索引に確定を反映した。次はロード部品の確認から実装へ進む。
+今回は文書の更新まで。コードテストと生成物の再生成は実装時に行う。
+
+
+## Day 44 別プログラム起動の部品確認・VM統合・入出力検証（2026-11-11）
+
+開始HEADはdaafe23540449c4ca371b94281d93c6bd06048a6。開始時点のHANDOFF・WORKLOG・manual索引・未追跡の044カードは仕様確定と監査対応の未コミット分。
+044カードへ部品の規約を記述し、ロード部品13ケースを確認後にsyscall 6へ統合した。
+統合後はロード13とVM経由17ケースで親の全メモリ・レジスタ・SP・フラグ・復帰PCと資源解放を確認した。
+親program-launcherは191命令764 byte + 20文字列434 byte = 1198 byte（末尾の次0x4AE）。子run-childは3命令12 byte。
+新規入出力28と、追加help行付きで継承した保存・編集142ケースが通過。共有入力・line.txt、子の1000回の初期化、失敗後の継続とmonitor復帰を確認。
+既存test-line-storageには任意の--launcherを追加し、旧142ケースの期待値を維持した。
+最初の新規入出力テストでは再アセンブル元の選択漏れを修正し、失敗ログも保存した。
+HANDOFFの回帰セット全体、自己テスト、既存cmp、別ビルドVM、Makefileの通常入口を確認。親子の再アセンブルも一致した。
+README類・命令一覧・仕様・解説・HANDOFFを更新。生ログはwp/codex-day44-evidence.json、報告はwp/codex-completion-report.md。
+次は実装の監査結果確認。
+
+## Day 44・第24回 別プログラム起動の記事（2026-11-11）
+
+ユーザー報告で再監査は合格・指摘無し。明示依頼でarticles/2026-11-11-vm-program-launch-044-outline.mdとarticles/unix-cafe-handmade-vm-24.txtを作成した。
+第23回の説明順とWordPress形式を参照。本文は空白を除く可視文字7570字、見出し10節。
+runの操作例から、親子のVM状態、子3命令、syscall 6、親のPCとR0、ロードと終了判定、共有資源、未実行のassert検査へ進めた。
+実ソース7か所とbinの実測値、監査済みstdoutと画面例、負の確認5件の証拠、ブロック対応を照合した。
+記事ロードマップとHANDOFFを更新。原稿はgit管理外の未公開下書き。コードテストの再実行、生成物の再生成、画像生成、公開、コミットは行っていない。
+開始状態と照合結果はwp/codex-day44-article-evidence.json、報告はwp/codex-completion-report.mdへ保存。
+次の検討候補はshell / editorの分離。具体的な仕様と着手はユーザー指定に従う。

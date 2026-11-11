@@ -20,7 +20,9 @@ ASM_PROGRAMS := \
 	programs/asm-echo-command.asm \
 	programs/command-arguments.asm \
 	programs/line-editor.asm \
-	programs/line-storage.asm
+	programs/line-storage.asm \
+	programs/program-launcher.asm \
+	programs/run-child.asm
 
 BIN_PROGRAMS := $(ASM_PROGRAMS:.asm=.bin)
 DATA_PROGRAMS := programs/echo-command.bin programs/word-command-loop.bin programs/word-command-compare.bin programs/boot-message.bin programs/line-buffer.bin programs/word-command.bin programs/word-command-subroutine.bin
@@ -29,7 +31,7 @@ DATA_PROGRAMS := programs/echo-command.bin programs/word-command-loop.bin progra
 
 all: $(VM) programs
 
-$(VM): notes/vm.c notes/line-storage.h
+$(VM): notes/vm.c notes/line-storage.h notes/program-launch.h
 	$(CC) $(CFLAGS) $< -o $@
 
 $(SMALL_ASM): tools/small-asm.c
@@ -211,3 +213,16 @@ test-line-storage-parts:
 
 test-line-storage: $(VM) programs/line-storage.bin $(SMALL_ASM)
 	python3 tools/test-line-storage.py ./$(VM) programs/line-storage.bin ./$(SMALL_ASM)
+
+.PHONY: run-program-launcher test-program-launch-parts test-program-launch
+run-program-launcher: $(VM) programs/program-launcher.bin programs/run-child.bin
+	./$(VM) programs/program-launcher.bin
+
+test-program-launch-parts:
+	$(CC) $(CFLAGS) notes/044-program-launch-test.c -o /tmp/044-program-launch-test
+	/tmp/044-program-launch-test
+	$(CC) $(CFLAGS) -DLAUNCH_VM_TEST notes/044-program-launch-test.c -o /tmp/044-program-launch-vm-test
+	/tmp/044-program-launch-vm-test
+
+test-program-launch: $(VM) programs/program-launcher.bin programs/run-child.bin $(SMALL_ASM)
+	python3 tools/test-program-launch.py ./$(VM) programs/program-launcher.bin programs/run-child.bin ./$(SMALL_ASM)
