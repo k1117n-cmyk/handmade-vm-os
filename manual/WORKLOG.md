@@ -867,3 +867,15 @@ Day 44回帰セット全体、VM自己テスト、既存cmp、別ビルドVM、M
 README類・命令一覧・仕様・解説・HANDOFFを更新。記事・公開・コミットは行っていない。
 開始状態はwp/codex-day45-start.json、生ログはwp/codex-day45-evidence.json、報告はwp/codex-completion-report.md。
 次は監査結果の確認。
+
+
+## Day 45・第25回 shell / editor分離の記事（2026-11-20）
+
+開始HEADは2fbf775800768615aa70ea94e5007c2287e35e84、開始時git statusは変更なし。
+ユーザーの明示依頼でarticles/2026-11-20-vm-shell-editor-045-outline.mdとarticles/unix-cafe-handmade-vm-25.txtを作成した。
+第24回の既存形式を参照し、edit→set/show→save→quit→再起動→loadから、担当するコマンド、親子のメモリ、PC、SYSCALL 8と共通起動処理へ進む構成。
+本文は空白を除く可視文字7948字、見出し10節。現行ソース7か所の連続抜粋とbinの命令位置・配置・サイズ、画面例2件の固定期待値、実装時の成功ログ、WordPressブロック対応を照合した。
+ロード14・VM20・I/O265は実装時の記録に基づく。記事作成でコードテスト・ビルド・再生成は実行せず、実装・旧テスト・旧bin・過去原稿と実装証拠JSONは保持した。
+記事ロードマップのDay 44/第24回の現在地をDay 45/第25回へ置換し、完了済みHを次候補から外した。HANDOFFの第24回案内は第25回の本文・構成案・証拠への案内に更新した。
+記事はgit管理外の未公開下書き。画像生成、公開、コミット、次の機能の仕様作成は行っていない。
+開始状態はwp/codex-day45-article-start.json、記事確認はwp/codex-day45-article-evidence.json、報告はwp/codex-completion-report.md。

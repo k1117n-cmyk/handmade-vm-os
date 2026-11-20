@@ -15,11 +15,19 @@ Day 44の[別プログラム起動の仕様](specs/044-program-launch.md)に沿�
 子の終了後は親のメモリとスタックを保持し、R0に正常終了0または失敗1を返して `Command>` に戻ります。
 ユーザー報告で再監査は合格・指摘無し。明示依頼により第24回の構成案と本文を作成しました。
 
-1. 作業ツリーと下記の完了範囲を確認し、完了した実装・検証・第24回までの原稿作成を繰り返さない。
-2. 第24回本文はarticles/unix-cafe-handmade-vm-24.txt、構成案はarticles/2026-11-11-vm-program-launch-044-outline.md。記事照合の記録はwp/codex-day44-article-evidence.json、報告はwp/codex-completion-report.md。実装生ログはwp/codex-day44-evidence.json、[解説](test-code-explanations/044-program-launch.md)を参照する。
+1. 作業ツリーと下記の完了範囲を確認し、完了した実装・検証・第25回までの原稿作成を繰り返さない。
+2. 第25回本文はarticles/unix-cafe-handmade-vm-25.txt、構成案はarticles/2026-11-20-vm-shell-editor-045-outline.md。記事確認の記録はwp/codex-day45-article-evidence.json、開始状態はwp/codex-day45-article-start.json、報告はwp/codex-completion-report.md。実装生ログはwp/codex-day45-evidence.json、[解説](test-code-explanations/045-shell-editor.md)を参照する。
 3. Day 43の最小仕様は確定済み。保存は直接上書きで、途中失敗時の旧ファイル保持は保証しない。
-4. Day 45のshell / editor分離は仕様確定・部品確認・VM統合・入出力検証まで完了済み。下記の完了記録と仕様カード045を参照し、同じ実装を繰り返さない。次は監査結果を確認する。仮想ディスク、任意ファイル名、複数行、画面制御、引用符の解釈、複数引数は後に回す。
+4. Day 45のshell / editor分離は実装・検証と第25回の構成案・本文作成まで完了済み。下記の完了記録と仕様カード045を参照し、同じ作業を繰り返さない。2026-11-20時点で第25回は未公開下書き。次の機能の仕様確定と実装への着手はユーザーの指定に従う。仮想ディスク、任意ファイル名、複数行、画面制御、引用符の解釈、複数引数は後に回す。
 5. 第23回と第24回はともに未公開下書きのまま。公開・コミット・完了済みの過去原稿の再編集は未実施。
+
+## Day 45・第25回の原稿作成完了（2026-11-20）
+
+ユーザーの明示依頼により、第25回の構成案とWordPress形式の本文を作成しました。git管理外の未公開下書きです。
+本文は空白を除く可視文字7948字、見出し10節。実ソース7か所、2つの画面例、binの命令位置・サイズ、既存の検証記録、WordPressブロック対応を照合しました。
+コード・テスト・生成物・過去原稿は変更せず、コードテストとbin再生成も行っていません。
+記事ロードマップとWORKLOGを更新。確認結果はwp/codex-day45-article-evidence.json、開始状態はwp/codex-day45-article-start.jsonです。
+第25回の公開・コミットは行っていません。以下は記事作成前の実装記録です。
 
 ## Day 45 shell / editor分離の実装・検証完了（2026-11-20）
 
