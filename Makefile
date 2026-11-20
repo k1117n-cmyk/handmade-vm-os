@@ -22,7 +22,9 @@ ASM_PROGRAMS := \
 	programs/line-editor.asm \
 	programs/line-storage.asm \
 	programs/program-launcher.asm \
-	programs/run-child.asm
+	programs/run-child.asm \
+	programs/shell.asm \
+	programs/editor.asm
 
 BIN_PROGRAMS := $(ASM_PROGRAMS:.asm=.bin)
 DATA_PROGRAMS := programs/echo-command.bin programs/word-command-loop.bin programs/word-command-compare.bin programs/boot-message.bin programs/line-buffer.bin programs/word-command.bin programs/word-command-subroutine.bin
@@ -226,3 +228,19 @@ test-program-launch-parts:
 
 test-program-launch: $(VM) programs/program-launcher.bin programs/run-child.bin $(SMALL_ASM)
 	python3 tools/test-program-launch.py ./$(VM) programs/program-launcher.bin programs/run-child.bin ./$(SMALL_ASM)
+
+.PHONY: run-shell run-editor test-shell-editor-parts test-shell-editor
+run-shell: $(VM) programs/shell.bin programs/editor.bin programs/run-child.bin
+	./$(VM) programs/shell.bin
+
+run-editor: $(VM) programs/editor.bin
+	./$(VM) programs/editor.bin
+
+test-shell-editor-parts:
+	$(CC) $(CFLAGS) notes/045-shell-editor-test.c -o /tmp/045-shell-editor-test
+	/tmp/045-shell-editor-test
+	$(CC) $(CFLAGS) -DLAUNCH_VM_TEST notes/045-shell-editor-test.c -o /tmp/045-shell-editor-vm-test
+	/tmp/045-shell-editor-vm-test
+
+test-shell-editor: $(VM) programs/shell.bin programs/editor.bin programs/run-child.bin $(SMALL_ASM)
+	python3 tools/test-shell-editor.py ./$(VM) programs/shell.bin programs/editor.bin programs/run-child.bin ./$(SMALL_ASM)

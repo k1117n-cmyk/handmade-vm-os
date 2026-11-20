@@ -5,8 +5,9 @@
 #include <stddef.h>
 #include <stdio.h>
 
-static bool load_child_program(unsigned char *memory, size_t capacity) {
-    FILE *file = fopen("programs/run-child.bin", "rb");
+static inline bool load_fixed_program(unsigned char *memory, size_t capacity,
+                                      const char *path) {
+    FILE *file = fopen(path, "rb");
     if (file == NULL) {
         return false;
     }
@@ -21,6 +22,14 @@ static bool load_child_program(unsigned char *memory, size_t capacity) {
         valid = false;
     }
     return valid;
+}
+
+static inline bool load_child_program(unsigned char *memory, size_t capacity) {
+    return load_fixed_program(memory, capacity, "programs/run-child.bin");
+}
+
+static inline bool load_editor_program(unsigned char *memory, size_t capacity) {
+    return load_fixed_program(memory, capacity, "programs/editor.bin");
 }
 
 #endif

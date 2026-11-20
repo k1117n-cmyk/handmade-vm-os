@@ -606,3 +606,27 @@ make test-program-launch-parts test-program-launch
 子は3命令12 byte。親は191命令・20文字列・1198 byteで、入力0x500と編集0x600の手前へ配置します。
 ロード13・VM経由17・新規入出力28ケースと保存・編集の継承142ケースを確認します。
 [仕様](manual/specs/044-program-launch.md)と[解説](manual/test-code-explanations/044-program-launch.md)を参照してください。
+
+
+## Day 45 shellとeditorを分ける
+
+`programs/shell.asm` / `.bin`の`edit`で、固定の`programs/editor.bin`を独立した子VMとして同期実行します。
+shellは`Command> `でhelp / echo / run / edit / quitを受理し、editorは`Editor> `でhelp / set / show / save / load / quitを受理します。
+editorのquitでshellへ戻ります。編集内容は毎回空から始まり、残すには明示的なsave、復元にはloadを使います。
+保存先は起動時の作業ディレクトリの`line.txt`、本文0〜63 byte。quitとEOFでは自動保存・確認質問を行いません。
+
+```sh
+make run-shell
+# edit → set hello → show → save → quit → edit → load → show → quit → quit
+make test-shell-editor-parts test-shell-editor
+```
+
+editorだけを試す場合は`make run-editor`。この場合のquitはeditorを終了します。
+保存はline.txtへ直接上書きし、保存途中の失敗では旧ファイルを保持する保証はありません。
+loadの失敗時は編集中の内容を保持し、通知後に操作を続けられます。
+
+新しいSYSCALL 8はeditor.bin専用です。正常HALTならshellに`Editor finished.`、起動失敗や異常停止なら`Editor failed.`を表示します。
+子のEOF後にはshellも同じ標準入力のEOFで停止します。既存run / SYSCALL 6とrun-child.binは従来通りです。
+shellは139命令556 byte + 14文字列271 byte = 827 byte、editorは157命令628 byte + 15文字列337 byte = 965 byte。
+ロード14・VM経由20・入出力265ケース、再アセンブル一致と既存回帰セットを確認しました。
+[仕様](manual/specs/045-shell-editor.md)と[解説](manual/test-code-explanations/045-shell-editor.md)を参照してください。

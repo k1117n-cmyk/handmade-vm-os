@@ -4,6 +4,8 @@
 
 ## 再開時の段取り（最初に読む）
 
+HANDOFFを読んだら、事前相談なしに仕様案の作成まで進める。仕様案ができたら止まり、ユーザーの判断を待つ。停止条件の境界は[Codex指示書 第4節](../wp/codex指示書.md#4-止まる条件)を参照する。
+
 Day 43の保存・読み込みは、仕様確定・部品確認・VM統合・入出力検証と、第23回の構成案・本文作成まで完了済みです。
 仕様は [specs/043-line-storage.md](specs/043-line-storage.md)、解説は [test-code-explanations/043-line-storage.md](test-code-explanations/043-line-storage.md) です。
 実装の監査はユーザー報告で合格、監査側のテストも全件通過です。
@@ -16,8 +18,45 @@ Day 44の[別プログラム起動の仕様](specs/044-program-launch.md)に沿�
 1. 作業ツリーと下記の完了範囲を確認し、完了した実装・検証・第24回までの原稿作成を繰り返さない。
 2. 第24回本文はarticles/unix-cafe-handmade-vm-24.txt、構成案はarticles/2026-11-11-vm-program-launch-044-outline.md。記事照合の記録はwp/codex-day44-article-evidence.json、報告はwp/codex-completion-report.md。実装生ログはwp/codex-day44-evidence.json、[解説](test-code-explanations/044-program-launch.md)を参照する。
 3. Day 43の最小仕様は確定済み。保存は直接上書きで、途中失敗時の旧ファイル保持は保証しない。
-4. 記事ロードマップの次の検討候補はshell / editorの分離。具体的な仕様と着手はユーザー指定に従う。仮想ディスク、任意ファイル名、複数行、画面制御、引用符の解釈、複数引数は後に回す。
+4. Day 45のshell / editor分離は仕様確定・部品確認・VM統合・入出力検証まで完了済み。下記の完了記録と仕様カード045を参照し、同じ実装を繰り返さない。次は監査結果を確認する。仮想ディスク、任意ファイル名、複数行、画面制御、引用符の解釈、複数引数は後に回す。
 5. 第23回と第24回はともに未公開下書きのまま。公開・コミット・完了済みの過去原稿の再編集は未実施。
+
+## Day 45 shell / editor分離の実装・検証完了（2026-11-20）
+
+ユーザーが推奨案を承認し、継続指示により[仕様](specs/045-shell-editor.md)を確定して実装しました。
+`make run-shell`からeditで固定editor.binを独立した子VMとして同期起動します。入口はSYSCALL 8で、既存6と未実装7は維持。
+editorは毎回空、固定line.txtへのsave/loadは明示操作。quitでshellへ戻り、未保存内容は破棄します。
+ロード部品14ケースを確認後に統合し、ロード14・VM経由20・入出力265ケースが通過しました。
+shellは139命令556 byte + 14文字列271 byte = 827 byte、editorは157命令628 byte + 15文字列337 byte = 965 byte。
+再アセンブル一致、本文byte一致、旧サンプルの保持、Day 44回帰セット、自己テスト、既存cmpを確認済みです。
+別ビルドVMとmonitor復帰、Makefileの通常入口も確認しました。[解説](test-code-explanations/045-shell-editor.md)を参照。
+
+確認済み（すべて終了コード0。部品確認後に統合し、以下を実行）:
+
+```sh
+make test-shell-editor-parts all
+make test-shell-editor
+make test-program-launch-parts test-program-launch test-line-storage-parts test-line-storage test-line-copy test-line-editor test-command-split test-command-arguments test-small-asm test-small-asm-labels test-small-asm-strings run-asm-string all test test-monitor test-echo-command test-word-command-loop test-asm-echo-command
+./handmade-vm --self-test
+cmp programs/asm-memory-call.bin programs/asm-label-call.bin
+```
+
+生ログはwp/codex-day45-evidence.json、開始状態はwp/codex-day45-start.json、報告はwp/codex-completion-report.md。
+次は監査結果の確認。記事作成・公開・コミットは未実施。以下は仕様承認・案作成時の記録です。
+
+## Day 45の仕様承認・実装着手（2026-11-20）
+
+ユーザーが会話で推奨案を承認し、継続を指示しました。[仕様カード](specs/045-shell-editor.md)を確定し、部品確認から実装します。
+以下の仕様案作成記録は承認前の状態です。
+
+## Day 45 shell / editor分離の仕様案作成（2026-11-20）
+
+[仕様案](specs/045-shell-editor.md)を作成しました。新shellのeditから固定のeditor.binを独立した子VMで同期起動し、
+編集・保存・読み込みをeditorへ分ける案です。既存SYSCALL 6と未実装7の負のテストを維持するため、新入口は8を推奨しています。
+editor起動時は空、保存先は既存line.txt、保存・読み込みは明示操作、終了後はshellへ戻ります。
+責務、名前・プロンプト、起動入口と番号、編集内容の寿命、終了通知はすべて未承認です。
+次はユーザー判断をカードへ反映すること。仕様案作成は完了しているため繰り返さず、承認前に実装へ進みません。
+今回は仕様案と記録のみ。コード・テスト・生成物・記事は変更せず、コードテストも再実行していません。
 
 ## Day 44・第24回の原稿作成完了（2026-11-11）
 
@@ -654,9 +693,7 @@ CPU halted.
 
 ## articles/ の扱い
 
-`articles/` はブログ用の下書き置き場で、意図的にgit管理外にしています。
-
-`articles/` 配下のファイルを作成・更新しても、git管理に入れるかどうかを毎回確認しません。ユーザーから明示的に依頼された場合だけ、git管理へ入れる方法を案内します。
+articles/の扱いの正本は[Codex指示書 第3節「articles/ の扱い」](../wp/codex指示書.md#articles-の扱い)を参照してください。
 
 ## 再開時の確認
 
@@ -713,6 +750,4 @@ xxd programs/hello.bin
 
 ## 注意
 
-今回の企画では、既存教材を組み合わせて完成品を作るのではなく、自作CPU、自作VM、自作OS、自作シェル、自作エディターを一から手書きで組み上げます。
-
-既存教材は、迷ったときや実装後に照合する参考資料として扱います。
+教材の境界と自作方針の正本は[ROADMAP.md「Goal」](../ROADMAP.md#goal)を参照してください。

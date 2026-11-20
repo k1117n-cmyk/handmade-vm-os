@@ -148,6 +148,7 @@ static void print_string(VM *vm, uint32_t address) {
 }
 
 static uint32_t launch_program(void);
+static uint32_t launch_editor(void);
 
 static void execute(VM *vm, DecodedInst inst) {
     if (inst.raw == 0x01000000) {
@@ -264,11 +265,11 @@ static void execute(VM *vm, DecodedInst inst) {
             vm->regs[0] = save_stored_line(vm->memory, MEMORY_SIZE, vm->regs[0]);
         } else if (inst.imm == 5) {
             vm->regs[0] = load_stored_line(vm->memory, MEMORY_SIZE, vm->regs[0]);
-        } else if (inst.imm == 6) {
+        } else if (inst.imm == 6 || inst.imm == 8) {
             if (vm->is_child) {
                 vm->regs[0] = 1;
             } else {
-                vm->regs[0] = launch_program();
+                vm->regs[0] = inst.imm == 6 ? launch_program() : launch_editor();
             }
         } else {
             printf("unimplemented syscall: %u\n", inst.imm);
@@ -349,7 +350,7 @@ static bool run(VM *vm) {
     return false;
 }
 
-static uint32_t launch_program(void) {
+static uint32_t launch_loaded_program(bool (*loader)(unsigned char *, size_t)) {
     VM *child = malloc(sizeof(*child));
     if (child == NULL) {
         return 1;
@@ -357,9 +358,17 @@ static uint32_t launch_program(void) {
 
     init_vm(child);
     child->is_child = true;
-    bool success = load_child_program(child->memory, MEMORY_SIZE) && run(child);
+    bool success = loader(child->memory, MEMORY_SIZE) && run(child);
     free(child);
     return success ? 0 : 1;
+}
+
+static uint32_t launch_program(void) {
+    return launch_loaded_program(load_child_program);
+}
+
+static uint32_t launch_editor(void) {
+    return launch_loaded_program(load_editor_program);
 }
 
 static void load_test_program(VM *vm) {

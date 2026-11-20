@@ -49,6 +49,7 @@
 | word-command-compare sample | 文字列比較を共通サブルーチンで行う外部プログラム | [specs/034-word-command-compare.md](specs/034-word-command-compare.md) |
 | word-command-loop sample | help / unknownの後に再入力する外部プログラム | [specs/035-word-command-loop.md](specs/035-word-command-loop.md) |
 | echoの.asm移行 | 文字列の連続配置・0x500バッファ・54ケース照合 | [specs/040-asm-echo-command.md](specs/040-asm-echo-command.md) |
+| shell / editorの分離 | edit / syscall 8・独立editor・明示save/load・shellへの復帰 | [specs/045-shell-editor.md](specs/045-shell-editor.md) |
 | 別プログラムの起動と復帰 | run / syscall 6・固定の子を独立したVM状態で同期実行・親へ復帰 | [specs/044-program-launch.md](specs/044-program-launch.md) |
 | 1行の保存・読み込み | 固定名hostファイル・syscall 4/5・0〜63 byte・失敗時の保持 | [specs/043-line-storage.md](specs/043-line-storage.md) |
 | メモリ上の1行編集 | 入力と編集を分け、set / showで保持・表示・置換する | [specs/042-line-editor.md](specs/042-line-editor.md) |
@@ -150,3 +151,8 @@ Day 43は固定名line.txtへの保存・読み込みです。[解説](test-code
 Day 44はrun / syscall 6による子プログラムの同期実行と親への復帰です。[解説](test-code-explanations/044-program-launch.md)と
 `make test-program-launch-parts test-program-launch`で、ロード13・VM経由17・新規入出力28と継承142ケースを照合します。
 親は191命令・20文字列・1198 byte、子は3命令・12 byteです。
+
+
+Day 45はshell / editorの分離です。[仕様](specs/045-shell-editor.md)と[解説](test-code-explanations/045-shell-editor.md)を参照してください。
+`make run-shell`でeditから起動し、`make test-shell-editor-parts test-shell-editor`でロード14・VM経由20・入出力265ケースを確認します。
+shellは827 byte、editorは965 byte。再アセンブル一致と既存サンプルの保持を確認しています。

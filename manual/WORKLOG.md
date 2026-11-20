@@ -836,3 +836,34 @@ runの操作例から、親子のVM状態、子3命令、syscall 6、親のPCと
 記事ロードマップとHANDOFFを更新。原稿はgit管理外の未公開下書き。コードテストの再実行、生成物の再生成、画像生成、公開、コミットは行っていない。
 開始状態と照合結果はwp/codex-day44-article-evidence.json、報告はwp/codex-completion-report.mdへ保存。
 次の検討候補はshell / editorの分離。具体的な仕様と着手はユーザー指定に従う。
+
+
+## Day 45 shell / editor分離の仕様案（2026-11-20）
+
+開始HEADはe189d6b5711a72acc98a66cf194c63c7d3d6eaf3。開始時にHANDOFFの4番の文言変更が未コミットで存在した。
+既存の機械仕様・行編集・保存・別プログラム起動の仕様と、program-launcher・VM・ロード部品・関連テストを確認。
+manual/specs/045-shell-editor.mdに未承認の推奨案、比較案、未決事項、変更範囲、承認後の検証条件を記録した。
+新shellのeditから固定editor.binを同期起動し、編集内容は子だけに保持、line.txtへの保存・読み込みは明示操作とする案。
+既存のSYSCALL 6と未実装7の負のテストを変えずに済むSYSCALL 8を推奨。番号を含む新規仕様はユーザー判断待ち。
+HANDOFFとmanual索引を更新。コード・テスト・生成物・記事は変更せず、コードテストと生成物の再生成は実施しない。
+文書・リンク・差分を確認し、監査用報告をwp/codex-completion-report.mdへ保存する。
+次はユーザー判断を仕様カードへ反映すること。承認前に実装へ進まない。
+
+
+## Day 45 shell / editor分離の実装・検証（2026-11-20）
+
+開始HEADはe189d6b5711a72acc98a66cf194c63c7d3d6eaf3。開始時はHANDOFF・manual索引・WORKLOGと未追跡045カードが仕様案作成の未コミット分。
+会話で推奨案が承認され、継続指示を受けて045カードへ承認・部品規約を反映した。
+Day 44回帰セットの実行[1]はコード変更前に実施。自己テスト・cmpの実行[3]（開始09:45:19）は部品notes/program-launch.hの変更（09:44:43）の後・handmade-vmの再ビルド（09:45:20）の前に実施した。[3]のself-testは変更前のバイナリで動いており、結果への影響はない。これらの確認の生ログをwp/codex-day45-evidence.jsonに記録した。
+固定editor用ロードを14ケースで部品確認後、VMのSYSCALL 8へ統合。ロード14・VM経由20ケースが通過した。
+新shell/editorを生成し、新規入出力265ケース（shell49、editor直接94、shell経由94、起動・復帰28）が通過。
+最初の新規I/O検査ではテスト用asmの未対応PUSHを対応済みCALLIによるスタック変更へ修正。失敗ログも保存した。
+失敗した実行[5]と成功した実行[6]の間に、tools/test-shell-editor.pyへout of range fetchのケースを1件追加した。この追加によりlaunchは27件から28件、合計は264件から265件となった。
+shellは139命令556 byte + 14文字列271 byte = 827 byte、editorは157命令628 byte + 15文字列337 byte = 965 byte。
+編集内容は子だけに保持、起動時は空、固定line.txtへの明示save/load、quitでshell復帰を確認。
+子の1000回の初期化、失敗後の継続、親状態保持、子の6/8拒否、共有入力・EOF、monitor復帰を検査した。
+新shell/editor/旧run-childの再アセンブル一致、保存本文一致、旧サンプルの開始時byte保持を確認。
+Day 44回帰セット全体、VM自己テスト、既存cmp、別ビルドVM、Makefileの通常入口も通過。
+README類・命令一覧・仕様・解説・HANDOFFを更新。記事・公開・コミットは行っていない。
+開始状態はwp/codex-day45-start.json、生ログはwp/codex-day45-evidence.json、報告はwp/codex-completion-report.md。
+次は監査結果の確認。
